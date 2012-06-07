@@ -1,0 +1,23 @@
+***** Scorer Descripton ***** 
+
+Our main evaluation metric is the Kappa agreement between the system and the gold-standard ranking of the substitutes for a given context. This is based on pairwise comparisons between all pairs of substitutes for a given context.  Agreement happens when a pair of substitutes a,b is ranked a>b, a=b, or a<b by both system and gold-standard. This is a common metric used in other areas, for example, in Machine Translation to measure agreement between annotators ranking translations from different systems: http://www.statmt.org/wmt11/pdf/WMT03.pdf (Section 4.2). The final agreement considers all possible pairs in all contexts.
+
+***** Contents of Semeval-2012's test-script release: ***** 
+
+--readme: this file
+
+--rank-scorer.py: python script to compute the Kappa agreement as described above. Type "python rank-scorer.py" for instructions:
+
+$ python rank-scorer.py -i <systemFile> -g <goldFile> [-v] [-h]
+-i or --input to specify path to system generated responses
+-g or --gold to specify path to gold file
+-v or --verbose to set verbose to True (verbose is False by default)
+-h or --help (this message is displayed)
+
+--substitutions-random: a random system file for the trial data (300 contexts)
+
+--substitutions.gold-rankings: gold-standard file for the trial dataset, the same file provided as part of the trial dataset (300 contexts)
+
+
+
+

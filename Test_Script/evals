@@ -1,0 +1,12 @@
+[padelstein@shrewsbury Test_Script]$ python rank-scorer.py -i rankings_teddy -g substitutions.gold-rankings-50
+Normalized system score: 0.335845151275
+
+[padelstein@shrewsbury Test_Script]$ python rank-scorer.py -i rankings_pat -g substitutions.gold-rankings-50
+Normalized system score: 0.331773982376
+
+[padelstein@shrewsbury Test_Script]$ python rank-scorer.py -i rankings_pat -g rankings_teddy
+Normalized system score: 0.190865384615
+
+1st rank agreement; 24/50 = 48%
+
+kappa between agreed 1st choices: .3092
