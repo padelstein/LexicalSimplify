@@ -31,15 +31,16 @@ for line in normalToSimple:
 		if not wordFreq.has_key(normal):
 			wordFreq[normal] = 0		
 		numSent += 1
-		if wordFreq[simple] > wordFreq[normal]:
-			cnt += 1
-		normFreq += wordFreq[normal]
-		simpFreq += wordFreq[simple]
-	else:
-		print normal + ' ' + simple
+		print normal + "\t" + str(wordFreq[normal]) + "\t" + simple + "\t" + str(wordFreq[simple])		
+		#if wordFreq[simple] > wordFreq[normal]:
+		#	cnt += 1
+		#normFreq += wordFreq[normal]
+		#simpFreq += wordFreq[simple]
+	#else:
+	#	print normal + ' ' + simple
 
 normFreq = float(normFreq)/numSent
 
 simpFreq = float(simpFreq)/numSent
 
-print 'The number of good substitutions is ' + str(cnt) + ' and the frequency of normal words is ' + str(normFreq) + ' and the frequency of simple words is ' + str(simpFreq) + ' out of ' + str(numSent)
+# print 'The number of good substitutions is ' + str(cnt) + ' and the frequency of normal words is ' + str(normFreq) + ' and the frequency of simple words is ' + str(simpFreq) + ' out of ' + str(numSent)
