@@ -15,6 +15,7 @@ import java.util.StringTokenizer;
  */
 public class LexicalSubSurvey{
 
+
 	private RequesterService service;
 
 	// Define the properties of the HIT to be created.
@@ -310,9 +311,9 @@ public class LexicalSubSurvey{
 							String focus = "";
 							String secondPart = "";
 
-							StringTokenizer splitter = new StringTokenizer(input, "{");
+							StringTokenizer splitter = new StringTokenizer(input, "\t");
 							String inputSentence = splitter.nextToken();
-							int index = Integer.parseInt(splitter.nextToken(",").substring(1));
+							int index = Integer.parseInt(splitter.nextToken().substring(1));
 							StringTokenizer sentenceSplitter = new StringTokenizer(inputSentence);
 							String word = sentenceSplitter.nextToken();
 
