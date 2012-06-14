@@ -7,11 +7,17 @@ import sys
 wordFreq = {}
 corpus = open(sys.argv[1])
 normalToSimple = open(sys.argv[2])
+simpleWords = open(sys.argv[3])
+simpleWordsHash = {}
 cnt = 0
 normFreq = 0
 simpFreq = 0
 numSent = 0
 
+
+for line in simpleWords:
+	line = line.strip()
+	simpleWordsHash[line] = 0
 
 for line in corpus:
 	(article, paragraph, text) = line.split("\t")
@@ -23,15 +29,15 @@ for line in corpus:
 			wordFreq[word] = 1
 
 for line in normalToSimple:
-	(normal, simple) = line.split("\t")
+	(context, index, normal, simple) = line.split("\t")
 	simple = simple.strip('\n').strip()
 	normal = normal.lower()
 	simple = simple.lower()
-	if wordFreq.has_key(simple):	
+	if wordFreq.has_key(simple) and not simpleWordsHash.has_key(normal):
 		if not wordFreq.has_key(normal):
 			wordFreq[normal] = 0		
-		numSent += 1
-		print normal + "\t" + str(wordFreq[normal]) + "\t" + simple + "\t" + str(wordFreq[simple])		
+#		numSent += 1
+		print context + "\t" + index + "\t" + normal + "\t" + simple		
 		#if wordFreq[simple] > wordFreq[normal]:
 		#	cnt += 1
 		#normFreq += wordFreq[normal]
@@ -39,8 +45,7 @@ for line in normalToSimple:
 	#else:
 	#	print normal + ' ' + simple
 
-normFreq = float(normFreq)/numSent
-
-simpFreq = float(simpFreq)/numSent
+#normFreq = float(normFreq)/numSent
+#simpFreq = float(simpFreq)/numSent
 
 # print 'The number of good substitutions is ' + str(cnt) + ' and the frequency of normal words is ' + str(normFreq) + ' and the frequency of simple words is ' + str(simpFreq) + ' out of ' + str(numSent)

@@ -42,7 +42,7 @@ public class Test {
 				
 				if( !normal.getWord().toLowerCase().equals(simple.getWord().toLowerCase()) && pos.contains(normal.getPos()) && normal.getPos().equals(simple.getPos())){
 					cnt++;
-					pr.println( normal.getWord() + "\t " + simple.getWord());
+					pr.println( p.getNormal().textString() + "\t" + n + "\t" + normal.getWord() + "\t " + simple.getWord());
 				}
 			}
 			
