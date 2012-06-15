@@ -5,7 +5,11 @@ import com.amazonaws.mturk.service.exception.ServiceException;
 import com.amazonaws.mturk.util.PropertiesClientConfig;
 import com.amazonaws.mturk.requester.Assignment;
 import com.amazonaws.mturk.requester.AssignmentStatus;
+import com.amazonaws.mturk.requester.Comparator;
 import com.amazonaws.mturk.requester.HIT;
+import com.amazonaws.mturk.requester.Locale;
+import com.amazonaws.mturk.requester.QualificationRequirement;
+
 import java.io.*;
 import java.util.StringTokenizer;
 
@@ -34,7 +38,10 @@ public class LexicalSubSurvey{
 	private PrintWriter contextpr;
 	private PrintWriter noTargetpr;
 	private PrintWriter answerOutput;
-
+	private QualificationRequirement acceptanceRate = new QualificationRequirement("000000000000000000L0", Comparator.GreaterThanOrEqualTo, 90, null, false);
+	private QualificationRequirement location = new QualificationRequirement("00000000000000000071", Comparator.EqualTo, 0, new Locale("us"), false);
+	private QualificationRequirement[] requirements = {acceptanceRate, location};
+	
 	/**
 	 * Constructor
 	 */
@@ -49,12 +56,17 @@ public class LexicalSubSurvey{
 		{
 			HIT hit = service.createHIT
 			(
+					null,
 					contextGivenTitle,
 					contextGivenDescription,
+					null,
+					contextGivenSub(firstSentence, word, secondSentence),
 					reward,
-					contextGivenSub(
-							firstSentence, word, secondSentence),
-							numAssignments);
+					null,
+					null, null, numAssignments,
+					"", requirements, null
+			);
+			hit.setQualificationRequirement(requirements);
 
 			// Print out the HITId and the URL to view the HIT.
 			System.out.println("Created HIT: " + hit.getHITId());
@@ -106,7 +118,7 @@ public class LexicalSubSurvey{
 					reward,
 					noContextGivenSub(
 							firstSentence, word, secondSentence),
-							numAssignments);
+					numAssignments);
 
 			// Print out the HITId and the URL to view the HIT.
 			System.out.println("Created HIT: " + hit.getHITId());
@@ -313,7 +325,7 @@ public class LexicalSubSurvey{
 
 							StringTokenizer splitter = new StringTokenizer(input, "\t");
 							String inputSentence = splitter.nextToken();
-							int index = Integer.parseInt(splitter.nextToken().substring(1));
+							int index = Integer.parseInt(splitter.nextToken());
 							StringTokenizer sentenceSplitter = new StringTokenizer(inputSentence);
 							String word = sentenceSplitter.nextToken();
 
