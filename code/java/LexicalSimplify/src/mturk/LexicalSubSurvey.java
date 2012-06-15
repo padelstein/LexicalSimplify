@@ -39,7 +39,7 @@ public class LexicalSubSurvey{
 	private PrintWriter noTargetpr;
 	private PrintWriter answerOutput;
 	private QualificationRequirement acceptanceRate = new QualificationRequirement("000000000000000000L0", Comparator.GreaterThanOrEqualTo, 90, null, false);
-	private QualificationRequirement location = new QualificationRequirement("00000000000000000071", Comparator.EqualTo, 0, new Locale("us"), false);
+	private QualificationRequirement location = new QualificationRequirement("00000000000000000071", Comparator.EqualTo, null, new Locale("US"), false);
 	private QualificationRequirement[] requirements = {acceptanceRate, location};
 	
 	/**
@@ -62,8 +62,8 @@ public class LexicalSubSurvey{
 					null,
 					contextGivenSub(firstSentence, word, secondSentence),
 					reward,
-					null,
-					null, null, numAssignments,
+					(long)3600,
+					(long)432000, (long)172800, numAssignments,
 					"", requirements, null
 			);
 			hit.setQualificationRequirement(requirements);
@@ -87,12 +87,15 @@ public class LexicalSubSurvey{
 		{
 			HIT hit = service.createHIT
 			(
+					null,
 					noTargetGivenTitle,
 					noTargetGivenDescription,
+					null,
+					noTargetGivenSub(firstSentence, word, secondSentence),
 					reward,
-					noTargetGivenSub(
-							firstSentence, word, secondSentence),
-							numAssignments);
+					(long)3600,
+					(long)432000, (long)172800, numAssignments,
+					"", requirements, null);
 
 			// Print out the HITId and the URL to view the HIT.
 			System.out.println("Created HIT: " + hit.getHITId());
@@ -113,12 +116,15 @@ public class LexicalSubSurvey{
 		{
 			HIT hit = service.createHIT
 			(
+					null,
 					noContextGivenTitle,
 					noContextGivenDescription,
+					null,
+					noContextGivenSub(firstSentence, word, secondSentence),
 					reward,
-					noContextGivenSub(
-							firstSentence, word, secondSentence),
-					numAssignments);
+					(long)3600,
+					(long)432000, (long)172800, numAssignments,
+					"", requirements, null);
 
 			// Print out the HITId and the URL to view the HIT.
 			System.out.println("Created HIT: " + hit.getHITId());
@@ -218,69 +224,107 @@ public class LexicalSubSurvey{
 	public static String contextGivenSub(String firstPartQuestion, String word, String secondPartQuestion) {
 		String q = "";
 		q += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
-		q += "<QuestionForm xmlns=\"http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2005-10-01/QuestionForm.xsd\">";
-		q += "  <Question>"; 
-		q += "    <QuestionIdentifier>1</QuestionIdentifier>";
-		q += "    <QuestionContent>";
-		q += "      <FormattedContent><![CDATA[";
-		q += "			<p>Please provide a simpler substitution for the the bolded red word:";
-		q += "			<br/>__________________________________________________________________";			
-		q += "			<br/><br/><font size=\"4\"> "+ firstPartQuestion + "<b><font face=\"bold\" color=\"red\">" + word + "</font></b>" + secondPartQuestion + "</font></p>";
-		q += "		]]></FormattedContent>";
-		q += "    </QuestionContent>"; 
-		q += "    <AnswerSpecification>";
-		q += "      <FreeTextAnswer>";
-		q += "      	<NumberOfLinesSuggestion>1</NumberOfLinesSuggestion>";
-		q += "      </FreeTextAnswer>";
-		q += "    </AnswerSpecification>"; 
-		q += "  </Question>";
-		q += "</QuestionForm>";
+		q += "<HTMLQuestion xmlns=\"http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2011-11-11/HTMLQuestion.xsd\">";
+		q += "	<HTMLContent><![CDATA[";
+		q += "<!DOCTYPE html>";
+		q += "<html>";
+		q += "  <head>";
+		q += "    <script type=\'text/javascript\' src=\'https://s3.amazonaws.com/mturk-public/externalHIT_v1.js\'></script>";
+		q += "  </head>";
+		q += "	<body>";
+		q += "		Please provide a simpler substitution for the the bolded red word:<br/>";
+		q += "      <div id=\"test\"></div>";
+		q += "		<hr />";
+		q += "		<br /><span style = \"font-size:20px;\">" + firstPartQuestion + "<b style=\"color:red;\">" + word + "</b>" + secondPartQuestion + "</span>";
+		q += "      <br/><form name='mturk_form' method='post' id='mturk_form' action='https://www.mturk.com/mturk/externalSubmit' style=\"padding-top:10px\">";
+		q += "      <input type=\'hidden\' value=\'\' name =\'assignmentId\' id=\'assignmentId\'/>";
+		q += "      <input type=\"text\" name=\"HITAnswer\" id=\"answer\"/>";
+		q += "      <input type=\"submit\" value=\"Submit\" id=\"submit_button\"/>";
+		q += "      </form>";
+		q += "    <script language='Javascript'>turkSetAssignmentID();</script>";
+		q += "    <script type=\'text/javascript\'>";
+		q += "      if (document.getElementById(\"assignmentId\").value == \"ASSIGNMENT_ID_NOT_AVAILABLE\") {";
+		q += "        document.getElementById(\"submit_button\").disabled = true;";
+		q += "        document.getElementById(\"answer\").disabled = true; } ";
+		q += "      else {document.getElementById(\"submit_button\").disabled = false;";
+		q += "		  document.getElementById(\"answer\").disabled = false; }";
+		q += "    </script>";
+		q += "  </body>";
+		q += "</html>]]>";
+		q += "  </HTMLContent>";
+		q += "  <FrameHeight>200</FrameHeight>";
+		q += "</HTMLQuestion>";
 		return q;
 	}
 
 	public static String noTargetGivenSub(String firstPartQuestion, String word, String secondPartQuestion) {
 		String q = "";
 		q += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
-		q += "<QuestionForm xmlns=\"http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2005-10-01/QuestionForm.xsd\">";
-		q += "  <Question>"; 
-		q += "    <QuestionIdentifier>1</QuestionIdentifier>";
-		q += "    <QuestionContent>";
-		q += "      <FormattedContent><![CDATA[";
-		q += "			<p>Please provide a simple word for the blank:";
-		q += "			<br/>___________________________________________";
-		q += "			<br/><br/><font size=\"4\"> "+ firstPartQuestion + "_______ " +  secondPartQuestion + "</font></p>";
-		q += "		]]></FormattedContent>";
-		q += "    </QuestionContent>"; 
-		q += "    <AnswerSpecification>";
-		q += "      <FreeTextAnswer>";
-		q += "      	<NumberOfLinesSuggestion>1</NumberOfLinesSuggestion>";
-		q += "      </FreeTextAnswer>";
-		q += "    </AnswerSpecification>"; 
-		q += "  </Question>";
-		q += "</QuestionForm>";
+		q += "<HTMLQuestion xmlns=\"http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2011-11-11/HTMLQuestion.xsd\">";
+		q += "	<HTMLContent><![CDATA[";
+		q += "<!DOCTYPE html>";
+		q += "<html>";
+		q += "  <head>";
+		q += "    <script type=\'text/javascript\' src=\'https://s3.amazonaws.com/mturk-public/externalHIT_v1.js\'></script>";
+		q += "  </head>";
+		q += "	<body>";
+		q += "		Please provide a simple word for the blank:<br/>";
+		q += "      <div id=\"test\"></div>";
+		q += "		<hr />";
+		q += "      <form name='mturk_form' method='post' id='mturk_form' action='https://www.mturk.com/mturk/externalSubmit'>";
+		q += "		<br /><span style = \"font-size:20px;\">" + firstPartQuestion + "<input type=\"text\" name=\"HITAnswer\" id =\"answer\"/> " + secondPartQuestion + "</span>";
+		q += "      <br/><input type=\'hidden\' value=\'\' name =\'assignmentId\' id=\'assignmentId\'/>";
+		q += "      <input type=\"submit\" value=\"Submit\" id=\"submit_button\" style=\"margin-top:10px\"/>";
+		q += "      </form>";
+		q += "    <script language='Javascript'>turkSetAssignmentID();</script>";
+		q += "    <script type=\'text/javascript\'>";
+		q += "      if (document.getElementById(\"assignmentId\").value == \"ASSIGNMENT_ID_NOT_AVAILABLE\") {";
+		q += "        document.getElementById(\"submit_button\").disable = true;";
+		q += "        document.getElementById(\"answer\").disabled = true; } ";
+		q += "      else {document.getElementById(\"submit_button\").disabled = false;";
+		q += "		  document.getElementById(\"answer\").disabled = false; }";
+		q += "    </script>";
+		q += "  </body>";
+		q += "</html>]]>";
+		q += "  </HTMLContent>";
+		q += "  <FrameHeight>200</FrameHeight>";
+		q += "</HTMLQuestion>";
 		return q;
 	}
 
 	public static String noContextGivenSub(String firstPartQuestion, String word, String secondPartQuestion) {
 		String q = "";
 		q += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
-		q += "<QuestionForm xmlns=\"http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2005-10-01/QuestionForm.xsd\">";
-		q += "  <Question>"; 
-		q += "    <QuestionIdentifier>1</QuestionIdentifier>";
-		q += "    <QuestionContent>";
-		q += "      <FormattedContent><![CDATA[";
-		q += "			<p>Please provide a simple substitute for the word below:";
-		q += "			<br/>______________________________________________________";
-		q += "			<br/><br/><b><font size=\"4\" face=\"bold\"> "+ word + "</font></b></p>";
-		q += "		]]></FormattedContent>";
-		q += "    </QuestionContent>"; 
-		q += "    <AnswerSpecification>";
-		q += "      <FreeTextAnswer>";
-		q += "      	<NumberOfLinesSuggestion>1</NumberOfLinesSuggestion>";
-		q += "      </FreeTextAnswer>";
-		q += "    </AnswerSpecification>"; 
-		q += "  </Question>";
-		q += "</QuestionForm>";
+		q += "<HTMLQuestion xmlns=\"http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2011-11-11/HTMLQuestion.xsd\">";
+		q += "	<HTMLContent><![CDATA[";
+		q += "<!DOCTYPE html>";
+		q += "<html>";
+		q += "  <head>";
+		q += "    <script type=\'text/javascript\' src=\'https://s3.amazonaws.com/mturk-public/externalHIT_v1.js\'></script>";
+		q += "  </head>";
+		q += "	<body>";
+		q += "		Please provide a simple substitute for the word below:<br/>";
+		q += "      <div id=\"test\"></div>";
+		q += "		<hr />";
+		q += "		<br /><span style = \"font-size:20px;\"><b>" + word + "</b></span>";
+		q += "      <br/><form name='mturk_form' method='post' id='mturk_form' action='https://www.mturk.com/mturk/externalSubmit' style=\"padding-top:10px\">";
+		q += "      <input type=\'hidden\' value=\'\' name =\'assignmentId\' id=\'assignmentId\'/>";
+		q += "      <input type=\"text\" name=\"HITAnswer\" id=\"answer\"/>";
+		q += "      <input type=\"submit\" value=\"Submit\" id=\"submit_button\"/>";
+		q += "      </form>";
+		q += "    <script language='Javascript'>turkSetAssignmentID();</script>";
+		q += "    <script type=\'text/javascript\'>";
+		q += "      if (document.getElementById(\"assignmentId\").value == \"ASSIGNMENT_ID_NOT_AVAILABLE\") {";
+		q += "        document.getElementById(\"submit_button\").disabled = true;";
+		q += "        document.getElementById(\"answer\").disabled = true; } ";
+		q += "      else {document.getElementById(\"submit_button\").disabled = false;";
+		q += "		  document.getElementById(\"answer\").disabled = false; }";
+		q += "    </script>";
+		q += "  </body>";
+		q += "</html>]]>";
+		q += "  </HTMLContent>";
+		q += "  <FrameHeight>200</FrameHeight>";
+		q += "</HTMLQuestion>";
 		return q;
 	}
 
