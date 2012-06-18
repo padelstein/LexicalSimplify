@@ -259,7 +259,7 @@ public class LexicalSubSurvey{
 		q += "  </body>";
 		q += "</html>]]>";
 		q += "  </HTMLContent>";
-		q += "  <FrameHeight>350</FrameHeight>";
+		q += "  <FrameHeight>400</FrameHeight>";
 		q += "</HTMLQuestion>";
 		return q;
 	}
@@ -294,7 +294,7 @@ public class LexicalSubSurvey{
 		q += "    <script language='Javascript'>turkSetAssignmentID();</script>";
 		q += "    <script type=\'text/javascript\'>";
 		q += "      if (document.getElementById(\"assignmentId\").value == \"ASSIGNMENT_ID_NOT_AVAILABLE\") {";
-		q += "        document.getElementById(\"submit_button\").disabled = true;";
+		q += "        document.getElementById(\"submit_button\").disable = true;";
 		q += "        document.getElementById(\"answer\").disabled = true; } ";
 		q += "      else {document.getElementById(\"submit_button\").disabled = false;";
 		q += "		  document.getElementById(\"answer\").disabled = false; }";
@@ -302,7 +302,7 @@ public class LexicalSubSurvey{
 		q += "  </body>";
 		q += "</html>]]>";
 		q += "  </HTMLContent>";
-		q += "  <FrameHeight>350</FrameHeight>";
+		q += "  <FrameHeight>200</FrameHeight>";
 		q += "</HTMLQuestion>";
 		return q;
 	}
@@ -346,7 +346,7 @@ public class LexicalSubSurvey{
 		q += "  </body>";
 		q += "</html>]]>";
 		q += "  </HTMLContent>";
-		q += "  <FrameHeight>350</FrameHeight>";
+		q += "  <FrameHeight>200</FrameHeight>";
 		q += "</HTMLQuestion>";
 		return q;
 	}

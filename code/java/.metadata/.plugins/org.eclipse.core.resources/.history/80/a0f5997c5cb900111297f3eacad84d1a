@@ -231,15 +231,7 @@ public class LexicalSubSurvey{
 		q += "    <script type=\'text/javascript\' src=\'https://s3.amazonaws.com/mturk-public/externalHIT_v1.js\'></script>";
 		q += "  </head>";
 		q += "	<body>";
-		q += "		Enter a <i>simpler</i> word in the box below that could be substituted for " +
-"the red, bold word in the sentence.  A <i>simpler</i> word is one that " +
-"would be understood by more people or people with a lower reading " +
-"level (e.g. children). <br/> <br/>" +
-"Make sure that the simple word you enter fits in the context of the " +
-"sentence.  For example, given the sentence:<br/> <br/>" +
-"My horse was <span style=\"color:red;\">galloping</span> through the forest. <br/> <br/>" +
-"Replacing <b>galloping</b> with <b>run</b> would NOT be appropriate, however " +
-"replacing <b>galloping</b> with <b>running</b> would be.<br/>";
+		q += "		<p>This is the real ONE</p>Please provide a simpler substitution for the the bolded red word:<br/>";
 		q += "      <div id=\"test\"></div>";
 		q += "		<hr />";
 		q += "		<br /><span style = \"font-size:20px;\">" + firstPartQuestion + "<b style=\"color:red;\">" + word + "</b>" + secondPartQuestion + "</span>";
@@ -259,7 +251,7 @@ public class LexicalSubSurvey{
 		q += "  </body>";
 		q += "</html>]]>";
 		q += "  </HTMLContent>";
-		q += "  <FrameHeight>350</FrameHeight>";
+		q += "  <FrameHeight>200</FrameHeight>";
 		q += "</HTMLQuestion>";
 		return q;
 	}
@@ -276,14 +268,7 @@ public class LexicalSubSurvey{
 		q += "    <script type=\'text/javascript\' src=\'https://s3.amazonaws.com/mturk-public/externalHIT_v1.js\'></script>";
 		q += "  </head>";
 		q += "	<body>";
-		q += "		Enter a <i>simple</i> word in the box below that could be inserted for " +
-"the space in the sentence below.  A <i>simple</i> word is one that " +
-"would be understood by more people or people with a lower reading " +
-"level (e.g. children). <br/> <br/>" +
-"Make sure that the simple word you enter fits in the context of the " +
-"sentence.  For example, given the sentence:<br/> <br/>" +
-"My horse was _________ through the forest. <br/> <br/>" +
-"<b>run</b> would NOT be appropriate, but <b>running</b> would be.";
+		q += "		<p>This is the real ONE</p>Please provide a simple word for the blank:<br/>";
 		q += "      <div id=\"test\"></div>";
 		q += "		<hr />";
 		q += "      <form name='mturk_form' method='post' id='mturk_form' action='https://www.mturk.com/mturk/externalSubmit'>";
@@ -294,7 +279,7 @@ public class LexicalSubSurvey{
 		q += "    <script language='Javascript'>turkSetAssignmentID();</script>";
 		q += "    <script type=\'text/javascript\'>";
 		q += "      if (document.getElementById(\"assignmentId\").value == \"ASSIGNMENT_ID_NOT_AVAILABLE\") {";
-		q += "        document.getElementById(\"submit_button\").disabled = true;";
+		q += "        document.getElementById(\"submit_button\").disable = true;";
 		q += "        document.getElementById(\"answer\").disabled = true; } ";
 		q += "      else {document.getElementById(\"submit_button\").disabled = false;";
 		q += "		  document.getElementById(\"answer\").disabled = false; }";
@@ -302,7 +287,7 @@ public class LexicalSubSurvey{
 		q += "  </body>";
 		q += "</html>]]>";
 		q += "  </HTMLContent>";
-		q += "  <FrameHeight>350</FrameHeight>";
+		q += "  <FrameHeight>200</FrameHeight>";
 		q += "</HTMLQuestion>";
 		return q;
 	}
@@ -319,14 +304,7 @@ public class LexicalSubSurvey{
 		q += "    <script type=\'text/javascript\' src=\'https://s3.amazonaws.com/mturk-public/externalHIT_v1.js\'></script>";
 		q += "  </head>";
 		q += "	<body>";
-		q += "		Below is a word with its part of speech and definition.  Enter a " +
-"<i>simpler</i> word in the box below that has the same meaning as the given " +
-"word.  A <i>simpler</i> word is one that would be understood by more people " +
-"or people with a lower reading level (e.g. children).<br/><br/>" +
-"Make sure that the simple word that you enter has the same tense as " +
-"the provided word.  For example, given the word:<br/><br/>" +
-"galloping (VERB): go at galloping speed<br/><br/>" +
-"<b>run</b> would NOT be appropriate, but <b>running</b> would be.";
+		q += "		<p>This is the real ONE</p>Please provide a simple substitute for the word below:<br/>";
 		q += "      <div id=\"test\"></div>";
 		q += "		<hr />";
 		q += "		<br /><span style = \"font-size:20px;\"><b>" + word + "</b>: (" + POS + ") " + sense + "</span>";
@@ -346,7 +324,7 @@ public class LexicalSubSurvey{
 		q += "  </body>";
 		q += "</html>]]>";
 		q += "  </HTMLContent>";
-		q += "  <FrameHeight>350</FrameHeight>";
+		q += "  <FrameHeight>200</FrameHeight>";
 		q += "</HTMLQuestion>";
 		return q;
 	}
@@ -495,8 +473,8 @@ public class LexicalSubSurvey{
 									}
 
 //									System.out.println(firstPart + target + secondPart);
-									app.createContextGivenSurvey(firstPart, target, secondPart);
-									app.createNoTargetGivenSurvey(firstPart, target, secondPart);
+//									app.createContextGivenSurvey(firstPart, target, secondPart);
+//									app.createNoTargetGivenSurvey(firstPart, target, secondPart);
 									app.createNoContextGivenSurvey(firstPart, target, secondPart, sense, POS);
 								}
 							}

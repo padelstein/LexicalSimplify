@@ -259,7 +259,7 @@ public class LexicalSubSurvey{
 		q += "  </body>";
 		q += "</html>]]>";
 		q += "  </HTMLContent>";
-		q += "  <FrameHeight>350</FrameHeight>";
+		q += "  <FrameHeight>400</FrameHeight>";
 		q += "</HTMLQuestion>";
 		return q;
 	}
@@ -294,7 +294,7 @@ public class LexicalSubSurvey{
 		q += "    <script language='Javascript'>turkSetAssignmentID();</script>";
 		q += "    <script type=\'text/javascript\'>";
 		q += "      if (document.getElementById(\"assignmentId\").value == \"ASSIGNMENT_ID_NOT_AVAILABLE\") {";
-		q += "        document.getElementById(\"submit_button\").disabled = true;";
+		q += "        document.getElementById(\"submit_button\").disable = true;";
 		q += "        document.getElementById(\"answer\").disabled = true; } ";
 		q += "      else {document.getElementById(\"submit_button\").disabled = false;";
 		q += "		  document.getElementById(\"answer\").disabled = false; }";
@@ -302,7 +302,7 @@ public class LexicalSubSurvey{
 		q += "  </body>";
 		q += "</html>]]>";
 		q += "  </HTMLContent>";
-		q += "  <FrameHeight>350</FrameHeight>";
+		q += "  <FrameHeight>200</FrameHeight>";
 		q += "</HTMLQuestion>";
 		return q;
 	}
@@ -319,14 +319,7 @@ public class LexicalSubSurvey{
 		q += "    <script type=\'text/javascript\' src=\'https://s3.amazonaws.com/mturk-public/externalHIT_v1.js\'></script>";
 		q += "  </head>";
 		q += "	<body>";
-		q += "		Below is a word with its part of speech and definition.  Enter a " +
-"<i>simpler</i> word in the box below that has the same meaning as the given " +
-"word.  A <i>simpler</i> word is one that would be understood by more people " +
-"or people with a lower reading level (e.g. children).<br/><br/>" +
-"Make sure that the simple word that you enter has the same tense as " +
-"the provided word.  For example, given the word:<br/><br/>" +
-"galloping (VERB): go at galloping speed<br/><br/>" +
-"<b>run</b> would NOT be appropriate, but <b>running</b> would be.";
+		q += "		";
 		q += "      <div id=\"test\"></div>";
 		q += "		<hr />";
 		q += "		<br /><span style = \"font-size:20px;\"><b>" + word + "</b>: (" + POS + ") " + sense + "</span>";
@@ -346,7 +339,7 @@ public class LexicalSubSurvey{
 		q += "  </body>";
 		q += "</html>]]>";
 		q += "  </HTMLContent>";
-		q += "  <FrameHeight>350</FrameHeight>";
+		q += "  <FrameHeight>200</FrameHeight>";
 		q += "</HTMLQuestion>";
 		return q;
 	}
@@ -496,8 +489,8 @@ public class LexicalSubSurvey{
 
 //									System.out.println(firstPart + target + secondPart);
 									app.createContextGivenSurvey(firstPart, target, secondPart);
-									app.createNoTargetGivenSurvey(firstPart, target, secondPart);
-									app.createNoContextGivenSurvey(firstPart, target, secondPart, sense, POS);
+//									app.createNoTargetGivenSurvey(firstPart, target, secondPart);
+//									app.createNoContextGivenSurvey(firstPart, target, secondPart, sense, POS);
 								}
 							}
 							

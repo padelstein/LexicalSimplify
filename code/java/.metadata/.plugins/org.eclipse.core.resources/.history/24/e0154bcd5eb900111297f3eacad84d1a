@@ -294,7 +294,7 @@ public class LexicalSubSurvey{
 		q += "    <script language='Javascript'>turkSetAssignmentID();</script>";
 		q += "    <script type=\'text/javascript\'>";
 		q += "      if (document.getElementById(\"assignmentId\").value == \"ASSIGNMENT_ID_NOT_AVAILABLE\") {";
-		q += "        document.getElementById(\"submit_button\").disabled = true;";
+		q += "        document.getElementById(\"submit_button\").disable = true;";
 		q += "        document.getElementById(\"answer\").disabled = true; } ";
 		q += "      else {document.getElementById(\"submit_button\").disabled = false;";
 		q += "		  document.getElementById(\"answer\").disabled = false; }";
