@@ -5,7 +5,11 @@ import com.amazonaws.mturk.service.exception.ServiceException;
 import com.amazonaws.mturk.util.PropertiesClientConfig;
 import com.amazonaws.mturk.requester.Assignment;
 import com.amazonaws.mturk.requester.AssignmentStatus;
+import com.amazonaws.mturk.requester.Comparator;
 import com.amazonaws.mturk.requester.HIT;
+import com.amazonaws.mturk.requester.Locale;
+import com.amazonaws.mturk.requester.QualificationRequirement;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,6 +49,9 @@ public class LexicalSubSurvey{
 	private PrintWriter noTargetpr;
 	private PrintWriter answerOutput;
 
+	private QualificationRequirement acceptanceRate = new QualificationRequirement("000000000000000000L0", Comparator.GreaterThanOrEqualTo, 90, null, false);
+	private QualificationRequirement location = new QualificationRequirement("00000000000000000071", Comparator.EqualTo, null, new Locale("US"), false);
+	private QualificationRequirement[] requirements = {acceptanceRate, location};
 	/**
 	 * Constructor
 	 */
@@ -60,12 +67,16 @@ public class LexicalSubSurvey{
 		{
 			HIT hit = service.createHIT
 			(
+					null,
 					contextGivenTitle,
 					contextGivenDescription,
+					null,
+					contextGivenSub(firstSentence, word, secondSentence),
 					reward,
-					contextGivenSub(
-							firstSentence, word, secondSentence),
-							numAssignments);
+					(long)3600,
+					(long)432000, (long)172800, numAssignments,
+					"", requirements, null
+			);
 
 			// Print out the HITId and the URL to view the HIT.
 			System.out.println("Created HIT: " + hit.getHITId());
@@ -87,12 +98,15 @@ public class LexicalSubSurvey{
 		{
 			HIT hit = service.createHIT
 			(
+					null,
 					noTargetGivenTitle,
 					noTargetGivenDescription,
+					null,
+					noTargetGivenSub(firstSentence, word, secondSentence),
 					reward,
-					noTargetGivenSub(
-							firstSentence, word, secondSentence),
-							numAssignments);
+					(long)3600,
+					(long)432000, (long)172800, numAssignments,
+					"", requirements, null);
 
 			// Print out the HITId and the URL to view the HIT.
 			System.out.println("Created HIT: " + hit.getHITId());
@@ -114,12 +128,17 @@ public class LexicalSubSurvey{
 		{
 			HIT hit = service.createHIT
 			(
+					null,
 					noContextGivenTitle,
 					noContextGivenDescription,
-					reward,
+					null,
 					noContextGivenSub(
 							firstSentence, word, secondSentence, sense, POS),
-							numAssignments);
+					reward,
+					(long)3600,
+					(long)432000, (long)172800, numAssignments,
+					"", requirements, null);
+
 
 			// Print out the HITId and the URL to view the HIT.
 			System.out.println("Created HIT: " + hit.getHITId());
