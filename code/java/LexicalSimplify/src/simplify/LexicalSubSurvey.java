@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
 
 /**
  * A class to create lexical simplification HITs
@@ -31,27 +32,36 @@ public class LexicalSubSurvey{
 	private RequesterService service;
 
 	// Define the properties of the HIT to be created.
-	private String contextGivenTitle = "Word Simplification in Sentence";
-	private String noTargetGivenTitle = "Word Suggestion in Sentence";
-	private String noContextGivenTitle = "Word Simplification";
+	private String contextGivenTitle = "Suggest a Simpler Word in the Sentence";
+	private String noTargetGivenTitle = "Fill in the Blank with a Simpler Word";
+	private String noContextGivenTitle = "Suggest a Simpler Word";
 	private String contextGivenDescription = 
 		"Replace a word with a simple substitute in the given sentence.";
 	private String noTargetGivenDescription = 
 		"Suggest a simple word in the given sentence.";
 	private String noContextGivenDescription = 
 		"Replace a word with a simple substitute.";
-	private int numAssignments = 1;
+	private int numAssignments = 10;
 	private double reward = 00.02;
 	
 	// define the writers for storage of HIT IDs
 	private PrintWriter noContextpr;
 	private PrintWriter contextpr;
 	private PrintWriter noTargetpr;
-	private PrintWriter answerOutput;
+	private PrintWriter noContextAnswerOutput;
+	private PrintWriter contextAnswerOutput;
+	private PrintWriter noTargetAnswerOutput;
 
-	private QualificationRequirement acceptanceRate = new QualificationRequirement("000000000000000000L0", Comparator.GreaterThanOrEqualTo, 90, null, false);
+	private QualificationRequirement acceptanceRate = new QualificationRequirement("000000000000000000L0", Comparator.GreaterThanOrEqualTo, 95, null, false);
 	private QualificationRequirement location = new QualificationRequirement("00000000000000000071", Comparator.EqualTo, null, new Locale("US"), false);
 	private QualificationRequirement[] requirements = {acceptanceRate, location};
+	
+	private String typeId1 = null;
+	private String typeId2 = null;
+	private String typeId3 = null;
+	
+	private Worker[] workers;
+	
 	/**
 	 * Constructor
 	 */
@@ -73,7 +83,7 @@ public class LexicalSubSurvey{
 					null,
 					contextGivenSub(firstSentence, word, secondSentence),
 					reward,
-					(long)3600,
+					(long)300,
 					(long)432000, (long)172800, numAssignments,
 					"", requirements, null
 			);
@@ -104,7 +114,7 @@ public class LexicalSubSurvey{
 					null,
 					noTargetGivenSub(firstSentence, word, secondSentence),
 					reward,
-					(long)3600,
+					(long)300,
 					(long)432000, (long)172800, numAssignments,
 					"", requirements, null);
 
@@ -135,7 +145,7 @@ public class LexicalSubSurvey{
 					noContextGivenSub(
 							firstSentence, word, secondSentence, sense, POS),
 					reward,
-					(long)3600,
+					(long)300,
 					(long)432000, (long)172800, numAssignments,
 					"", requirements, null);
 
@@ -185,20 +195,54 @@ public class LexicalSubSurvey{
 
 			hitId.trim();
 			HIT currentHIT = service.getHIT(hitId);
-			Assignment[] answers = service.getAssignmentsForHIT
+			String HITtype = currentHIT.getHITTypeId();
+			
+			if ( typeId1 == null ){
+				typeId1 = HITtype;
+			} else if ( typeId2 == null ){
+				typeId2 = HITtype;
+			} else if ( typeId3 == null ){
+				typeId3 = HITtype;
+			}
+				
+			Assignment[] answers = service.getAllAssignmentsForHIT
 			(
-					hitId,
-					currentHIT.getMaxAssignments()
+					hitId
 			);
 
 			// Print out the HITId and the URL to view the HIT.
-			System.out.println("Retrieved HIT: " + hitId);
+			System.out.println("Retrieved HIT: " + hitId + " " + currentHIT.getHITTypeId() );
+			
+//			System.out.println( "# of hits available: " + answers.length );
+			PrintWriter answerOutput = null;
+			
+			if ( HITtype.equals( typeId1 ) ){
+				answerOutput = noContextAnswerOutput;
+			} else if ( HITtype.equals( typeId2 ) ){
+				answerOutput = contextAnswerOutput;
+			} else if ( HITtype.equals( typeId3 ) ){
+				answerOutput = noTargetAnswerOutput;
+			}
+			
+			answerOutput.println("<br /><br />");
+			answerOutput.println( currentHIT.getQuestion() );
+			
+			Map<String, Integer> frequencyCounter = new HashMap<String, Integer>();
 			
 			for (Assignment answer: answers){
 				int textStart = answer.getAnswer().indexOf("<FreeText>");
 				int textEnd = answer.getAnswer().indexOf("</FreeText>");
-				answerOutput.print(answer.getAnswer().substring(textStart + 10, textEnd) + " ");
+				String answerText = answer.getAnswer().substring(textStart + 10, textEnd).toLowerCase();
+				if (frequencyCounter.containsKey(answerText))
+					frequencyCounter.put(answerText, frequencyCounter.get(answerText) + 1);
+				else
+					frequencyCounter.put(answerText, 1);
 			}
+			TreeMap<String, Integer> sortedFrequencies = new TreeMap<String, Integer>();
+			sortedFrequencies.putAll(frequencyCounter);
+			for (String text: sortedFrequencies.keySet())
+				answerOutput.print(text + ": " + frequencyCounter.get(text) + " ");
+			answerOutput.println();
 			answerOutput.println();
 
 		}
@@ -208,6 +252,28 @@ public class LexicalSubSurvey{
 		}
 	}
 	
+	public void getHITs() throws IOException
+	{
+		
+		
+		try 
+		{
+
+			HIT[] HITs = service.getAllReviewableHITs(null);
+			
+			int i = 1;
+			
+			for ( HIT current: HITs){
+				System.out.println( i + " " + current.getHITId() );
+				i++;
+			}
+
+		}
+		catch (ServiceException e) 
+		{
+			System.err.println(e.getLocalizedMessage());
+		}
+	}
 	// approves all hits we have IDs stored for in NoContextGivenIDs, NoTargetGivenIDs, ContextGivenIDs
 	public void approveHIT(String hitId) throws IOException
 	{
@@ -250,17 +316,16 @@ public class LexicalSubSurvey{
 		q += "    <script type=\'text/javascript\' src=\'https://s3.amazonaws.com/mturk-public/externalHIT_v1.js\'></script>";
 		q += "  </head>";
 		q += "	<body>";
-		q += "		Enter a <i>simpler</i> word in the box below that could be substituted for " +
-"the red, bold word in the sentence.  A <i>simpler</i> word is one that " +
-"would be understood by more people or people with a lower reading " +
-"level (e.g. children). <br/> <br/>" +
-"Make sure that the simple word you enter fits in the context of the " +
-"sentence.  For example, given the sentence:<br/> <br/>" +
-"My horse was <span style=\"color:red;\">galloping</span> through the forest. <br/> <br/>" +
-"Replacing <b>galloping</b> with <b>run</b> would NOT be appropriate, however " +
-"replacing <b>galloping</b> with <b>running</b> would be.<br/>";
+		q += "		<u><b><span style=\"font-size:25px;\">Instructions:</span></b></u><br /><br />";
+		q += "		Enter a <i>simpler</i> word in the box below that could be substituted for the red, bold word in the sentence.";
+		q += "		A <i>simpler</i> word is one that would be understood by more people or people with a lower reading level (e.g. children). <br/> <br/>";
+		q += "		Make sure that the simple word you enter fits in the context of the sentence.";
+		q += "		For example, given the sentence:<br/> <br/>" ;
+		q += "		My horse was <span style=\"color:red;\">galloping</span> through the forest. <br/> <br/>";
+		q += "		Entering <b>run</b> would NOT be appropriate, however <b>running</b> would be.<br/>";
 		q += "      <div id=\"test\"></div>";
 		q += "		<hr />";
+		q += "		<br /><u><b><span style=\"font-size:25px;\">Task:</span></b></u><br />";
 		q += "		<br /><span style = \"font-size:20px;\">" + firstPartQuestion + "<b style=\"color:red;\">" + word + "</b>" + secondPartQuestion + "</span>";
 		q += "      <br/><form name='mturk_form' method='post' id='mturk_form' action='https://www.mturk.com/mturk/externalSubmit' style=\"padding-top:10px\">";
 		q += "      <input type=\'hidden\' value=\'\' name =\'assignmentId\' id=\'assignmentId\'/>";
@@ -278,7 +343,7 @@ public class LexicalSubSurvey{
 		q += "  </body>";
 		q += "</html>]]>";
 		q += "  </HTMLContent>";
-		q += "  <FrameHeight>350</FrameHeight>";
+		q += "  <FrameHeight>500</FrameHeight>";
 		q += "</HTMLQuestion>";
 		return q;
 	}
@@ -295,16 +360,16 @@ public class LexicalSubSurvey{
 		q += "    <script type=\'text/javascript\' src=\'https://s3.amazonaws.com/mturk-public/externalHIT_v1.js\'></script>";
 		q += "  </head>";
 		q += "	<body>";
-		q += "		Enter a <i>simple</i> word in the box below that could be inserted for " +
-"the space in the sentence below.  A <i>simple</i> word is one that " +
-"would be understood by more people or people with a lower reading " +
-"level (e.g. children). <br/> <br/>" +
-"Make sure that the simple word you enter fits in the context of the " +
-"sentence.  For example, given the sentence:<br/> <br/>" +
-"My horse was _________ through the forest. <br/> <br/>" +
-"<b>run</b> would NOT be appropriate, but <b>running</b> would be.";
+		q += "		<u><b><span style=\"font-size:25px;\">Instructions:</span></b></u><br /><br />";
+		q += "		Enter a <i>simple</i> word in the box below that could be inserted for the space in the sentence below.";
+		q += "		A <i>simple</i> word is one that would be understood by more people or people with a lower reading level (e.g. children). <br/> <br/>";
+		q += "		Make sure that the simple word you enter fits in the context of the sentence.";
+		q += "		For example, given the sentence:<br/> <br/>";
+		q += "		My horse was _________ through the forest. <br/> <br/>";
+		q += "		<b>run</b> would NOT be appropriate, but <b>running</b> would be.";
 		q += "      <div id=\"test\"></div>";
 		q += "		<hr />";
+		q += "		<u><b><span style=\"font-size:25px;\">Task:</span></b></u><br /><br />";
 		q += "      <form name='mturk_form' method='post' id='mturk_form' action='https://www.mturk.com/mturk/externalSubmit'>";
 		q += "		<br /><span style = \"font-size:20px;\">" + firstPartQuestion + "<input type=\"text\" name=\"HITAnswer\" id =\"answer\"/> " + secondPartQuestion + "</span>";
 		q += "      <br/><input type=\'hidden\' value=\'\' name =\'assignmentId\' id=\'assignmentId\'/>";
@@ -321,7 +386,7 @@ public class LexicalSubSurvey{
 		q += "  </body>";
 		q += "</html>]]>";
 		q += "  </HTMLContent>";
-		q += "  <FrameHeight>350</FrameHeight>";
+		q += "  <FrameHeight>500</FrameHeight>";
 		q += "</HTMLQuestion>";
 		return q;
 	}
@@ -338,16 +403,17 @@ public class LexicalSubSurvey{
 		q += "    <script type=\'text/javascript\' src=\'https://s3.amazonaws.com/mturk-public/externalHIT_v1.js\'></script>";
 		q += "  </head>";
 		q += "	<body>";
-		q += "		Below is a word with its part of speech and definition.  Enter a " +
-"<i>simpler</i> word in the box below that has the same meaning as the given " +
-"word.  A <i>simpler</i> word is one that would be understood by more people " +
-"or people with a lower reading level (e.g. children).<br/><br/>" +
-"Make sure that the simple word that you enter has the same tense as " +
-"the provided word.  For example, given the word:<br/><br/>" +
-"galloping (VERB): go at galloping speed<br/><br/>" +
-"<b>run</b> would NOT be appropriate, but <b>running</b> would be.";
+		q += "		<u><b><span style=\"font-size:25px;\">Instructions:</span></b></u><br /><br />";
+		q += "		Below is a word with its part of speech and definition. ";
+		q += "		Enter a <i>simpler</i> word in the box below that has the same meaning as the given word.";
+		q += "		A <i>simpler</i> word is one that would be understood by more people or people with a lower reading level (e.g. children).<br/><br/>";
+		q += "		Make sure that the simple word that you enter has the same tense as the provided word.";
+		q += "		For example, given the word:<br/><br/>";
+		q += "		galloping (VERB): go at galloping speed<br/><br/>";
+		q += "		<b>run</b> would NOT be appropriate, but <b>running</b> would be.";
 		q += "      <div id=\"test\"></div>";
 		q += "		<hr />";
+		q += "		<u><b><span style=\"font-size:25px;\">Task:</span></b></u><br />";
 		q += "		<br /><span style = \"font-size:20px;\"><b>" + word + "</b>: (" + POS + ") " + sense + "</span>";
 		q += "      <br/><form name='mturk_form' method='post' id='mturk_form' action='https://www.mturk.com/mturk/externalSubmit' style=\"padding-top:10px\">";
 		q += "      <input type=\'hidden\' value=\'\' name =\'assignmentId\' id=\'assignmentId\'/>";
@@ -365,7 +431,7 @@ public class LexicalSubSurvey{
 		q += "  </body>";
 		q += "</html>]]>";
 		q += "  </HTMLContent>";
-		q += "  <FrameHeight>350</FrameHeight>";
+		q += "  <FrameHeight>500</FrameHeight>";
 		q += "</HTMLQuestion>";
 		return q;
 	}
@@ -497,19 +563,32 @@ public class LexicalSubSurvey{
 								
 								if( diffWords && normWordSimplePOS && posEqual && !normalIsAlreadySimple && doWeHaveSense && contextMatch){
 									String firstPart = "";
-									String target = normal.getWord() + " ";
+									String wordAfterFocus = normalWords.get(n+1).getWord();
+									String target = normal.getWord();
+									if ( !( wordAfterFocus.length() == 1 && wordAfterFocus.compareTo("A") < 0 ) ){
+										target += " ";
+									}
 									String secondPart = "";
 									sense = wordToSense.get(normal.getWord())[1];
 									String POS = codeToPOS.get(normal.getPos());
 									
 									for ( int i = 0; i < normalWords.size(); i++ ){
+										String currentWord = normalWords.get(i).getWord();
+										String nextWord = "";
+										if ( i+1 < normalWords.size() ){
+											nextWord = normalWords.get(i+1).getWord();
+										}
 										if ( i < n ){
-											firstPart += normalWords.get(i).getWord();
-											firstPart += " ";
+											firstPart += currentWord;
+											if ( !( nextWord.length() == 1 && nextWord.compareTo("A") < 0 )){
+												firstPart += " ";
+											}
 										}
 										if ( i > n ){
-											secondPart += normalWords.get(i).getWord();
-											secondPart += " ";
+											secondPart += currentWord;
+											if ( !( nextWord.length() == 1 && nextWord.compareTo("A") < 0 )){
+												secondPart += " ";
+											}
 										}
 									}
 
@@ -553,12 +632,17 @@ public class LexicalSubSurvey{
 						BufferedReader fileReader = new BufferedReader(new InputStreamReader(new FileInputStream(inputFile)));
 						String hitId = "";
 						String destination = inputFile.getName() + "Results";
-						app.answerOutput = new PrintWriter(new FileOutputStream(new File(destination)));
+						app.noContextAnswerOutput = new PrintWriter(new FileOutputStream(new File("noContextAnswerOutput")));
+						app.contextAnswerOutput = new PrintWriter(new FileOutputStream(new File("contextAnswerOutput")));
+						app.noTargetAnswerOutput = new PrintWriter(new FileOutputStream(new File("noTargetAnswerOutput")));
 						for (hitId = fileReader.readLine(); hitId !=null; hitId = fileReader.readLine()){
 							System.out.println(hitId);
 							app.getAssignmentsHIT(hitId);
 						}
-						app.answerOutput.close();
+						app.noContextAnswerOutput.close();
+						app.contextAnswerOutput.close();
+						app.noTargetAnswerOutput.close();
+//						app.getHITs();
 					}else {
 						System.err.println("No valid options were provided");
 						System.out.println(usageError);
@@ -574,5 +658,44 @@ public class LexicalSubSurvey{
 
 		}else
 			System.out.println(usageError);
+	}
+	
+	
+	private class Worker{
+		public ArrayList<String> question1Answers; //the hitTypeId is stored at index 0
+		public ArrayList<String> question2Answers;
+		public ArrayList<String> question3Answers;
+		
+		public String workerId;
+		
+		
+		public Worker(String id){
+			workerId = id;
+		}
+		
+		public void addAnswer(String text, String hitTypeId){
+			if (hitTypeId.equals(question1Answers.get(0))){
+				question1Answers.add(text);
+			}else if (hitTypeId.equals(question2Answers.get(0))){
+				question2Answers.add(text);
+			}else if (hitTypeId.equals(question3Answers.get(0))){
+				question3Answers.add(text);
+			}
+		}
+		
+		public void setTypeId(int question, String typeId){
+			switch (question){
+			case 1:
+				question1Answers.set(0, typeId);
+				break;
+			case 2:
+				question2Answers.set(0, typeId);
+				break;
+			case 3:
+				question3Answers.set(0, typeId);
+				break;
+			}
+		}
+		
 	}
 }
