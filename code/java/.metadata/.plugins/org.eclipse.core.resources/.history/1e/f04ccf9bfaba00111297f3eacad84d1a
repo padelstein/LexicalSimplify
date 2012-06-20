@@ -668,10 +668,10 @@ public class LexicalSubSurvey{
 							app.getAssignmentsHIT(hitId);
 						}
 						for (Worker i: app.workers){
-							app.workerOutput.println(i.workerId + "\t");
+							app.workerOutput.print(i.workerId + "\t");
 							app.workerOutput.println(i.question1Answers.toString());
-							app.workerOutput.println(i.question2Answers.toString());
-							app.workerOutput.println(i.question3Answers.toString());
+							app.workerOutput.println(i.workerId + i.question2Answers.toString());
+							app.workerOutput.println(i.workerId + i.question3Answers.toString());
 						}
 						app.workerOutput.close();
 						app.noContextAnswerOutput.close();

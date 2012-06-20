@@ -18,8 +18,6 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
-//import simplify.LexicalSubSurvey.Worker;
-
 /**
  * A class to create lexical simplification HITs
  * Patrick Adelstein, Teddy Pendergast, David Kauchack, Middlebury College Summer 2012
@@ -53,7 +51,6 @@ public class LexicalSubSurvey{
 	private PrintWriter noContextAnswerOutput;
 	private PrintWriter contextAnswerOutput;
 	private PrintWriter noTargetAnswerOutput;
-	private PrintWriter workerOutput;
 
 	private QualificationRequirement acceptanceRate = new QualificationRequirement("000000000000000000L0", Comparator.GreaterThanOrEqualTo, 95, null, false);
 	private QualificationRequirement location = new QualificationRequirement("00000000000000000071", Comparator.EqualTo, null, new Locale("US"), false);
@@ -63,8 +60,7 @@ public class LexicalSubSurvey{
 //	private String typeId2 = null;
 //	private String typeId3 = null;
 	
-	private ArrayList<Worker> workers = new ArrayList<Worker>();
-	private int HITindex = 0;
+	private Worker[] workers;
 	
 	/**
 	 * Constructor
@@ -224,7 +220,6 @@ public class LexicalSubSurvey{
 				answerOutput = noContextAnswerOutput;
 			} else if ( HITtype.equals("20ASTLB3L0FBPWA8FU5JZEVE5SUJV7") ){
 				answerOutput = contextAnswerOutput;
-				HITindex++;
 			} else if ( HITtype.equals("2ZZ2NJQ2172ZFWI1AMBLKVEBU27XPN") ){
 				answerOutput = noTargetAnswerOutput;
 			}
@@ -235,10 +230,6 @@ public class LexicalSubSurvey{
 			Map<String, Integer> frequencyCounter = new HashMap<String, Integer>();
 			
 			for (Assignment answer: answers){
-				String workerID = answer.getWorkerId();
-				Worker currentWorker = null;
-				boolean alreadyDocumentedWorker = false;
-				
 				int textStart = answer.getAnswer().indexOf("<FreeText>");
 				int textEnd = answer.getAnswer().indexOf("</FreeText>");
 				String answerText = answer.getAnswer().substring(textStart + 10, textEnd).toLowerCase();
@@ -246,25 +237,7 @@ public class LexicalSubSurvey{
 					frequencyCounter.put(answerText, frequencyCounter.get(answerText) + 1);
 				else
 					frequencyCounter.put(answerText, 1);
-			
-				// checks if we have already documented the worker
-				for ( Worker i: workers ){
-					if ( i.workerId.equals(workerID) ){
-						currentWorker = i;
-						alreadyDocumentedWorker = true;
-						break;
-					} 
-				}
-				// adds the answer to the worker
-				if ( alreadyDocumentedWorker ){
-					currentWorker.addAnswer(answerText, HITtype, HITindex);
-				} else {
-					currentWorker = new Worker(workerID);
-					workers.add(currentWorker);
-					currentWorker.addAnswer(answerText, HITtype, HITindex);
-				}
 			}
-			
 			TreeMap<String, Integer> sortedFrequencies = new TreeMap<String, Integer>();
 			sortedFrequencies.putAll(frequencyCounter);
 			for (String text: sortedFrequencies.keySet())
@@ -662,18 +635,10 @@ public class LexicalSubSurvey{
 						app.noContextAnswerOutput = new PrintWriter(new FileOutputStream(new File("noContextAnswerOutput")));
 						app.contextAnswerOutput = new PrintWriter(new FileOutputStream(new File("contextAnswerOutput")));
 						app.noTargetAnswerOutput = new PrintWriter(new FileOutputStream(new File("noTargetAnswerOutput")));
-						app.workerOutput = new PrintWriter(new FileOutputStream(new File("workerOutput")));
 						for (hitId = fileReader.readLine(); hitId !=null; hitId = fileReader.readLine()){
 							System.out.println(hitId);
 							app.getAssignmentsHIT(hitId);
 						}
-						for (Worker i: app.workers){
-							app.workerOutput.println(i.workerId + "\t");
-							app.workerOutput.println(i.question1Answers.toString());
-							app.workerOutput.println(i.question2Answers.toString());
-							app.workerOutput.println(i.question3Answers.toString());
-						}
-						app.workerOutput.close();
 						app.noContextAnswerOutput.close();
 						app.contextAnswerOutput.close();
 						app.noTargetAnswerOutput.close();
@@ -697,41 +662,37 @@ public class LexicalSubSurvey{
 	
 	
 	private class Worker{
-		public ArrayList<String> question1Answers = new ArrayList<String>(26); //the hitTypeId is stored at index 0
-		public ArrayList<String> question2Answers = new ArrayList<String>(26);
-		public ArrayList<String> question3Answers = new ArrayList<String>(26);
+		public ArrayList<String> question1Answers; //the hitTypeId is stored at index 0
+		public ArrayList<String> question2Answers;
+		public ArrayList<String> question3Answers;
 		
 		public String workerId;
 		
 		
-		
 		public Worker(String id){
 			workerId = id;
-			setTypeId(1, "25D2JE1M7PKKF8JGAZQAK04LZYTXQE");
-			setTypeId(2, "20ASTLB3L0FBPWA8FU5JZEVE5SUJV7");
-			setTypeId(3, "2ZZ2NJQ2172ZFWI1AMBLKVEBU27XPN");
 		}
 		
 		public void addAnswer(String text, String hitTypeId, int HITindex){
 			if (hitTypeId.equals(question1Answers.get(0))){
-				question1Answers.add( /*HITindex,*/ text );
+				question1Answers.set( HITindex, text );
 			}else if (hitTypeId.equals(question2Answers.get(0))){
-				question2Answers.add( /*HITindex,*/ text );
+				question2Answers.set( HITindex, text );
 			}else if (hitTypeId.equals(question3Answers.get(0))){
-				question3Answers.add( /*HITindex,*/ text );
+				question3Answers.set( HITindex, text );
 			}
 		}
 		
 		public void setTypeId(int question, String typeId){
 			switch (question){
 			case 1:
-				question1Answers.add(0, typeId);
+				question1Answers.set(0, typeId);
 				break;
 			case 2:
-				question2Answers.add(0, typeId);
+				question2Answers.set(0, typeId);
 				break;
 			case 3:
-				question3Answers.add(0, typeId);
+				question3Answers.set(0, typeId);
 				break;
 			}
 		}

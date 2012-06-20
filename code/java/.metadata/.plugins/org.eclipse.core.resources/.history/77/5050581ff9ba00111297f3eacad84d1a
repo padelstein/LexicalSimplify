@@ -265,6 +265,15 @@ public class LexicalSubSurvey{
 				}
 			}
 			
+			if ( HITtype.equals("25D2JE1M7PKKF8JGAZQAK04LZYTXQE") ){
+				answerOutput = noContextAnswerOutput;
+			} else if ( HITtype.equals("20ASTLB3L0FBPWA8FU5JZEVE5SUJV7") ){
+				answerOutput = contextAnswerOutput;
+				HITindex++;
+			} else if ( HITtype.equals("2ZZ2NJQ2172ZFWI1AMBLKVEBU27XPN") ){
+				answerOutput = noTargetAnswerOutput;
+			}
+			
 			TreeMap<String, Integer> sortedFrequencies = new TreeMap<String, Integer>();
 			sortedFrequencies.putAll(frequencyCounter);
 			for (String text: sortedFrequencies.keySet())
@@ -668,10 +677,10 @@ public class LexicalSubSurvey{
 							app.getAssignmentsHIT(hitId);
 						}
 						for (Worker i: app.workers){
-							app.workerOutput.println(i.workerId + "\t");
+							app.workerOutput.print(i.workerId + "\t");
 							app.workerOutput.println(i.question1Answers.toString());
-							app.workerOutput.println(i.question2Answers.toString());
-							app.workerOutput.println(i.question3Answers.toString());
+							app.workerOutput.println(i.workerId + i.question1Answers.toString());
+							app.workerOutput.println(i.workerId + i.question1Answers.toString());
 						}
 						app.workerOutput.close();
 						app.noContextAnswerOutput.close();
@@ -714,11 +723,11 @@ public class LexicalSubSurvey{
 		
 		public void addAnswer(String text, String hitTypeId, int HITindex){
 			if (hitTypeId.equals(question1Answers.get(0))){
-				question1Answers.add( /*HITindex,*/ text );
+				question1Answers.add( HITindex, text );
 			}else if (hitTypeId.equals(question2Answers.get(0))){
-				question2Answers.add( /*HITindex,*/ text );
+				question2Answers.add( HITindex, text );
 			}else if (hitTypeId.equals(question3Answers.get(0))){
-				question3Answers.add( /*HITindex,*/ text );
+				question3Answers.add( HITindex, text );
 			}
 		}
 		

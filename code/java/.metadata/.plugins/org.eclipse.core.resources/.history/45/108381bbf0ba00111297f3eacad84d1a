@@ -63,7 +63,7 @@ public class LexicalSubSurvey{
 //	private String typeId2 = null;
 //	private String typeId3 = null;
 	
-	private ArrayList<Worker> workers = new ArrayList<Worker>();
+	private ArrayList<Worker> workers;
 	private int HITindex = 0;
 	
 	/**
@@ -200,6 +200,7 @@ public class LexicalSubSurvey{
 			hitId.trim();
 			HIT currentHIT = service.getHIT(hitId);
 			String HITtype = currentHIT.getHITTypeId();
+			int HITindex = hitId.hashCode();
 			
 //			if ( typeId1 == null ){
 //				typeId1 = HITtype;
@@ -263,6 +264,15 @@ public class LexicalSubSurvey{
 					workers.add(currentWorker);
 					currentWorker.addAnswer(answerText, HITtype, HITindex);
 				}
+			}
+			
+			if ( HITtype.equals("25D2JE1M7PKKF8JGAZQAK04LZYTXQE") ){
+				answerOutput = noContextAnswerOutput;
+			} else if ( HITtype.equals("20ASTLB3L0FBPWA8FU5JZEVE5SUJV7") ){
+				answerOutput = contextAnswerOutput;
+				HITindex++;
+			} else if ( HITtype.equals("2ZZ2NJQ2172ZFWI1AMBLKVEBU27XPN") ){
+				answerOutput = noTargetAnswerOutput;
 			}
 			
 			TreeMap<String, Integer> sortedFrequencies = new TreeMap<String, Integer>();
@@ -668,10 +678,10 @@ public class LexicalSubSurvey{
 							app.getAssignmentsHIT(hitId);
 						}
 						for (Worker i: app.workers){
-							app.workerOutput.println(i.workerId + "\t");
+							app.workerOutput.print(i.workerId + "\t");
 							app.workerOutput.println(i.question1Answers.toString());
-							app.workerOutput.println(i.question2Answers.toString());
-							app.workerOutput.println(i.question3Answers.toString());
+							app.workerOutput.println(i.workerId + i.question1Answers.toString());
+							app.workerOutput.println(i.workerId + i.question1Answers.toString());
 						}
 						app.workerOutput.close();
 						app.noContextAnswerOutput.close();
@@ -697,9 +707,9 @@ public class LexicalSubSurvey{
 	
 	
 	private class Worker{
-		public ArrayList<String> question1Answers = new ArrayList<String>(26); //the hitTypeId is stored at index 0
-		public ArrayList<String> question2Answers = new ArrayList<String>(26);
-		public ArrayList<String> question3Answers = new ArrayList<String>(26);
+		public ArrayList<String> question1Answers; //the hitTypeId is stored at index 0
+		public ArrayList<String> question2Answers;
+		public ArrayList<String> question3Answers;
 		
 		public String workerId;
 		
@@ -714,24 +724,24 @@ public class LexicalSubSurvey{
 		
 		public void addAnswer(String text, String hitTypeId, int HITindex){
 			if (hitTypeId.equals(question1Answers.get(0))){
-				question1Answers.add( /*HITindex,*/ text );
+				question1Answers.set( HITindex, text );
 			}else if (hitTypeId.equals(question2Answers.get(0))){
-				question2Answers.add( /*HITindex,*/ text );
+				question2Answers.set( HITindex, text );
 			}else if (hitTypeId.equals(question3Answers.get(0))){
-				question3Answers.add( /*HITindex,*/ text );
+				question3Answers.set( HITindex, text );
 			}
 		}
 		
 		public void setTypeId(int question, String typeId){
 			switch (question){
 			case 1:
-				question1Answers.add(0, typeId);
+				question1Answers.set(0, typeId);
 				break;
 			case 2:
-				question2Answers.add(0, typeId);
+				question2Answers.set(0, typeId);
 				break;
 			case 3:
-				question3Answers.add(0, typeId);
+				question3Answers.set(0, typeId);
 				break;
 			}
 		}
