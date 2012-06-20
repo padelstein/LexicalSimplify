@@ -30,6 +30,7 @@ for line in corpus:
 #for key, value in sorted (resultsFreq.iteritems(), key = lambda (k,v): (v,k) ):
 for line in results:
 	(key, value) = line.split("\t")
+	value = value.strip("\n")
 	if not corpusFreq.has_key(key):
 		corpusFreq[key] = 0	
 	print value + "," + str(float(corpusFreq[key])/float(grossNumberOfWords)) 
