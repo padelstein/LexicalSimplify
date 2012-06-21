@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <br /><br />
 <?xml version="1.0" encoding="UTF-8"?><HTMLQuestion xmlns="http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2011-11-11/HTMLQuestion.xsd">	<HTMLContent><![CDATA[<!DOCTYPE html><html>  <head>    <script type='text/javascript' src='https://s3.amazonaws.com/mturk-public/externalHIT_v1.js'></script>  </head>	<body>		<u><b><span style="font-size:25px;">Instructions:</span></b></u><br /><br />		Enter a <i>simpler</i> word in the box below that could be substituted for the red, bold word in the sentence.		A <i>simpler</i> word is one that would be understood by more people or people with a lower reading level (e.g. children). <br/> <br/>		Make sure that the simple word you enter fits in the context of the sentence.		For example, given the sentence:<br/> <br/>		My horse was <span style="color:red;">galloping</span> through the forest. <br/> <br/>		Entering <b>run</b> would NOT be appropriate, however <b>running</b> would be.<br/>      <div id="test"></div>		<hr />		<br /><u><b><span style="font-size:25px;">Task:</span></b></u><br />		<br /><span style = "font-size:20px;">It rapidly <b style="color:red;">intensified </b>into Tropical Storm Marco with 65 mph winds that afternoon. </span>      <br/><form name='mturk_form' method='post' id='mturk_form' action='https://www.mturk.com/mturk/externalSubmit' style="padding-top:10px">      <input type='hidden' value='' name ='assignmentId' id='assignmentId'/>      <input type="text" name="HITAnswer" id="answer"/>      <input type="submit" value="Submit" id="submit_button"/>      </form>    <script language='Javascript'>turkSetAssignmentID();</script>    <script type='text/javascript'>      if (document.getElementById("assignmentId").value == "ASSIGNMENT_ID_NOT_AVAILABLE") {        document.getElementById("submit_button").disabled = true;        document.getElementById("answer").disabled = true; }       else {document.getElementById("submit_button").disabled = false;		  document.getElementById("answer").disabled = false; }    </script>  </body></html>]]>  </HTMLContent>  <FrameHeight>500</FrameHeight></HTMLQuestion>2JP4J79KQW61EAWQY86CL45XC2FKIQ
 aggravated: 1 deepened: 1 grew: 3 strengthened: 2 transformed: 1 worsened: 2 
@@ -93,4 +94,105 @@ hides: 10
 <br /><br />
 <?xml version="1.0" encoding="UTF-8"?><HTMLQuestion xmlns="http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2011-11-11/HTMLQuestion.xsd">	<HTMLContent><![CDATA[<!DOCTYPE html><html>  <head>    <script type='text/javascript' src='https://s3.amazonaws.com/mturk-public/externalHIT_v1.js'></script>  </head>	<body>		<u><b><span style="font-size:25px;">Instructions:</span></b></u><br /><br />		Enter a <i>simpler</i> word in the box below that could be substituted for the red, bold word in the sentence.		A <i>simpler</i> word is one that would be understood by more people or people with a lower reading level (e.g. children). <br/> <br/>		Make sure that the simple word you enter fits in the context of the sentence.		For example, given the sentence:<br/> <br/>		My horse was <span style="color:red;">galloping</span> through the forest. <br/> <br/>		Entering <b>run</b> would NOT be appropriate, however <b>running</b> would be.<br/>      <div id="test"></div>		<hr />		<br /><u><b><span style="font-size:25px;">Task:</span></b></u><br />		<br /><span style = "font-size:20px;">Elsa and her new husband are ushered in with the well-known bridal chorus, and the couple <b style="color:red;">express </b>their love for each other. </span>      <br/><form name='mturk_form' method='post' id='mturk_form' action='https://www.mturk.com/mturk/externalSubmit' style="padding-top:10px">      <input type='hidden' value='' name ='assignmentId' id='assignmentId'/>      <input type="text" name="HITAnswer" id="answer"/>      <input type="submit" value="Submit" id="submit_button"/>      </form>    <script language='Javascript'>turkSetAssignmentID();</script>    <script type='text/javascript'>      if (document.getElementById("assignmentId").value == "ASSIGNMENT_ID_NOT_AVAILABLE") {        document.getElementById("submit_button").disabled = true;        document.getElementById("answer").disabled = true; }       else {document.getElementById("submit_button").disabled = false;		  document.getElementById("answer").disabled = false; }    </script>  </body></html>]]>  </HTMLContent>  <FrameHeight>500</FrameHeight></HTMLQuestion>2LAMEZZ2MIKMTWMSTKP3GTWWX6PN64
 announced: 1 exhibit: 1 share: 1 show: 7 
+=======
+The original target word:intensified
+The ideal substitution would be: strengthened
+Top submissions were: grew: 3 
+
+The original target word:received
+The ideal substitution would be: won
+Top submissions were: got: 4 
+
+The original target word:sovereign
+The ideal substitution would be: monarch
+Top submissions were: ruler: 5 
+
+The original target word:installment
+The ideal substitution would be: consoles
+No majority submission, all submissions are: chapter: 1 edition: 1 game: 2 part: 2 release: 1 version: 2 volume: 1 
+
+The original target word:obligated
+The ideal substitution would be: forced
+Top submissions were: required: 9 
+
+The original target word:published
+The ideal substitution would be: written
+Top submissions were: printed: 5 written: 4 
+
+The original target word:carcass
+The ideal substitution would be: animal
+Top submissions were: body: 4 
+
+The original target word:satellite
+The ideal substitution would be: moon
+Top submissions were: moon: 6 
+
+The original target word:ancient
+The ideal substitution would be: old
+Top submissions were: old: 10 
+
+The original target word:practice
+The ideal substitution would be: use
+Top submissions were: habit: 3 way: 3 
+
+The original target word:edited
+The ideal substitution would be: changed
+Top submissions were: changed: 3 
+
+The original target word:invaded
+The ideal substitution would be: attacked
+Top submissions were: attacked: 4 
+
+The original target word:antagonist
+The ideal substitution would be: horror
+Top submissions were: enemy: 4 
+
+The original target word:combat
+The ideal substitution would be: fight
+Top submissions were: fight: 9 
+
+The original target word:predominantly
+The ideal substitution would be: mainly
+Top submissions were: mainly: 6 mostly: 3 
+
+The original target word:retired
+The ideal substitution would be: former
+Top submissions were: former: 3 
+
+The original target word:founded
+The ideal substitution would be: started
+Top submissions were: created: 5 started: 4 
+
+The original target word:founded
+The ideal substitution would be: started
+Top submissions were: created: 4 started: 5 
+
+The original target word:longevity
+The ideal substitution would be: life
+No majority submission, all submissions are: a long life: 1 a long time: 1 age: 1 endurance: 2 life: 2 long life: 2 old age: 1 
+
+The original target word:settled
+The ideal substitution would be: moved
+Top submissions were: moved: 4 
+
+The original target word:produced
+The ideal substitution would be: made
+Top submissions were: created: 4 made: 4 
+
+The original target word:competitions
+The ideal substitution would be: tournaments
+Top submissions were: contests: 3 
+
+The original target word:footballer
+The ideal substitution would be: player
+Top submissions were: athlete: 3 player: 4 
+
+The original target word:conceals
+The ideal substitution would be: hides
+Top submissions were: hides: 10 
+
+The original target word:express
+The ideal substitution would be: say
+Top submissions were: show: 7 
+>>>>>>> 5d46f06654095ab238aeae4c7a717f91c5832af6
 

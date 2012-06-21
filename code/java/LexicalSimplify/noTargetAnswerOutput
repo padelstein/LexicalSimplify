@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <br /><br />
 <?xml version="1.0" encoding="UTF-8"?><HTMLQuestion xmlns="http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2011-11-11/HTMLQuestion.xsd">	<HTMLContent><![CDATA[<!DOCTYPE html><html>  <head>    <script type='text/javascript' src='https://s3.amazonaws.com/mturk-public/externalHIT_v1.js'></script>  </head>	<body>		<u><b><span style="font-size:25px;">Instructions:</span></b></u><br /><br />		Enter a <i>simple</i> word in the box below that could be inserted for the space in the sentence below.		A <i>simple</i> word is one that would be understood by more people or people with a lower reading level (e.g. children). <br/> <br/>		Make sure that the simple word you enter fits in the context of the sentence.		For example, given the sentence:<br/> <br/>		My horse was _________ through the forest. <br/> <br/>		<b>run</b> would NOT be appropriate, but <b>running</b> would be.      <div id="test"></div>		<hr />		<u><b><span style="font-size:25px;">Task:</span></b></u><br /><br />      <form name='mturk_form' method='post' id='mturk_form' action='https://www.mturk.com/mturk/externalSubmit'>		<br /><span style = "font-size:20px;">It rapidly <input type="text" name="HITAnswer" id ="answer"/> into Tropical Storm Marco with 65 mph winds that afternoon. </span>      <br/><input type='hidden' value='' name ='assignmentId' id='assignmentId'/>      <input type="submit" value="Submit" id="submit_button" style="margin-top:10px"/>      </form>    <script language='Javascript'>turkSetAssignmentID();</script>    <script type='text/javascript'>      if (document.getElementById("assignmentId").value == "ASSIGNMENT_ID_NOT_AVAILABLE") {        document.getElementById("submit_button").disabled = true;        document.getElementById("answer").disabled = true; }       else {document.getElementById("submit_button").disabled = false;		  document.getElementById("answer").disabled = false; }    </script>  </body></html>]]>  </HTMLContent>  <FrameHeight>500</FrameHeight></HTMLQuestion>2BLK4F0OHOVR7RAHOZTLH2HECKX32O
 developed: 1 grew: 2 turned: 6 worsened: 1 
@@ -93,4 +94,105 @@ hides: 5 places: 1 puts: 2 sits: 1 tosses: 1
 <br /><br />
 <?xml version="1.0" encoding="UTF-8"?><HTMLQuestion xmlns="http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2011-11-11/HTMLQuestion.xsd">	<HTMLContent><![CDATA[<!DOCTYPE html><html>  <head>    <script type='text/javascript' src='https://s3.amazonaws.com/mturk-public/externalHIT_v1.js'></script>  </head>	<body>		<u><b><span style="font-size:25px;">Instructions:</span></b></u><br /><br />		Enter a <i>simple</i> word in the box below that could be inserted for the space in the sentence below.		A <i>simple</i> word is one that would be understood by more people or people with a lower reading level (e.g. children). <br/> <br/>		Make sure that the simple word you enter fits in the context of the sentence.		For example, given the sentence:<br/> <br/>		My horse was _________ through the forest. <br/> <br/>		<b>run</b> would NOT be appropriate, but <b>running</b> would be.      <div id="test"></div>		<hr />		<u><b><span style="font-size:25px;">Task:</span></b></u><br /><br />      <form name='mturk_form' method='post' id='mturk_form' action='https://www.mturk.com/mturk/externalSubmit'>		<br /><span style = "font-size:20px;">Elsa and her new husband are ushered in with the well-known bridal chorus, and the couple <input type="text" name="HITAnswer" id ="answer"/> their love for each other. </span>      <br/><input type='hidden' value='' name ='assignmentId' id='assignmentId'/>      <input type="submit" value="Submit" id="submit_button" style="margin-top:10px"/>      </form>    <script language='Javascript'>turkSetAssignmentID();</script>    <script type='text/javascript'>      if (document.getElementById("assignmentId").value == "ASSIGNMENT_ID_NOT_AVAILABLE") {        document.getElementById("submit_button").disabled = true;        document.getElementById("answer").disabled = true; }       else {document.getElementById("submit_button").disabled = false;		  document.getElementById("answer").disabled = false; }    </script>  </body></html>]]>  </HTMLContent>  <FrameHeight>500</FrameHeight></HTMLQuestion>2QAKMT6YTWX4NQ9MTMVDH9GI665V0S
 declare: 1 expressed: 1 recite: 1 share: 2 show: 2 showed: 3 
+=======
+The original target word:obligated
+The ideal substitution would be: forced
+Top submissions were: turned: 6 
+
+The original target word:obligated
+The ideal substitution would be: forced
+Top submissions were: won: 9 
+
+The original target word:settled
+The ideal substitution would be: moved
+Top submissions were: emperor: 4 
+
+The original target word:settled
+The ideal substitution would be: moved
+Top submissions were: game: 4 installment: 3 
+
+The original target word:obligated
+The ideal substitution would be: forced
+No majority submission, all submissions are: able: 2 allowed: 1 encouraged: 2 excited: 1 going: 1 happy: 1 lucky: 1 required: 1 
+
+The original target word:published
+The ideal substitution would be: written
+Top submissions were: written: 6 
+
+The original target word:settled
+The ideal substitution would be: moved
+Top submissions were: carcass: 5 
+
+The original target word:settled
+The ideal substitution would be: moved
+Top submissions were: moon: 3 satellite: 4 
+
+The original target word:settled
+The ideal substitution would be: moved
+Top submissions were: old: 3 
+
+The original target word:practice
+The ideal substitution would be: use
+Top submissions were: method: 3 
+
+The original target word:settled
+The ideal substitution would be: moved
+No majority submission, all submissions are: flagged: 1 ignored: 1 loaded: 1 modified: 1 read: 1 removed: 1 seen: 2 selected: 1 viewed: 1 
+
+The original target word:invaded
+The ideal substitution would be: attacked
+Top submissions were: invaded: 4 
+
+The original target word:obligated
+The ideal substitution would be: forced
+Top submissions were: character: 7 
+
+The original target word:settled
+The ideal substitution would be: moved
+Top submissions were: fight: 3 
+
+The original target word:settled
+The ideal substitution would be: moved
+Top submissions were: primarily: 3 
+
+The original target word:settled
+The ideal substitution would be: moved
+No majority submission, all submissions are: famous: 2 german: 1 good: 2 pennsylvania: 1 premier: 1 retired: 1 tall: 1 well-known: 1 
+
+The original target word:settled
+The ideal substitution would be: moved
+Top submissions were: founded: 4 started: 4 
+
+The original target word:settled
+The ideal substitution would be: moved
+Top submissions were: founded: 4 
+
+The original target word:longevity
+The ideal substitution would be: life
+No majority submission, all submissions are: fortune: 1 hope: 1 life: 1 long life: 2 luck: 2 patients: 1 slowness: 1 wisdom: 1 
+
+The original target word:settled
+The ideal substitution would be: moved
+Top submissions were: lived: 5 moved: 3 
+
+The original target word:settled
+The ideal substitution would be: moved
+No majority submission, all submissions are: celebrated: 1 completed: 2 created: 2 made: 2 painted: 2 sketches: 1 
+
+The original target word:settled
+The ideal substitution would be: moved
+No majority submission, all submissions are: competition: 2 competitions : 1 contest: 1 do: 1 fights: 1 go and: 1 playoffs: 1 tournament: 1 usually: 1 
+
+The original target word:settled
+The ideal substitution would be: moved
+Top submissions were: athlete: 6 
+
+The original target word:conceals
+The ideal substitution would be: hides
+Top submissions were: hides: 5 
+
+The original target word:settled
+The ideal substitution would be: moved
+Top submissions were: showed: 3 
+>>>>>>> 5d46f06654095ab238aeae4c7a717f91c5832af6
 
