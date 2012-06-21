@@ -230,7 +230,7 @@ public class LexicalSubSurvey{
 			}
 			
 			answerOutput.println("<br /><br />");
-			answerOutput.println( currentHIT.getQuestion() + hitId);
+			answerOutput.println( currentHIT.getQuestion());
 			
 			Map<String, Integer> frequencyCounter = new HashMap<String, Integer>();
 			
