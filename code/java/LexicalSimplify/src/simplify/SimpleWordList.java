@@ -2,7 +2,7 @@ package simplify;
 
 import java.util.ArrayList;
 
-public class simpleWordList {
+public class SimpleWordList {
 
 	static String[] simpleList = {"America", "American", "April", "August", "Christmas", "December", "English", "February", 
 			"French", "Friday", "God", "I", "I'd", "I'll", "I'm", "I've", "Indian", "January", "July", "June", "March", 
@@ -247,7 +247,7 @@ public class simpleWordList {
 	ArrayList<String> simpleWordsList = new ArrayList<String>();
 	
 	
-	public simpleWordList(){
+	public SimpleWordList(){
 		for (int i=0; i<simpleList.length; i++){
 			simpleWordsList.add(simpleList[i]);
 		}

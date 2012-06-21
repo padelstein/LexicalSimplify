@@ -59,6 +59,13 @@ public class LexicalSubSurvey{
 	private QualificationRequirement location = new QualificationRequirement("00000000000000000071", Comparator.EqualTo, null, new Locale("US"), false);
 	private QualificationRequirement[] requirements = {acceptanceRate, location};
 	
+	ArrayList<String> noContextAnswers = new ArrayList<String>();
+	ArrayList<String> contextAnswers= new ArrayList<String>();
+	ArrayList<String> noTargetAnswers= new ArrayList<String>() ;;
+	
+	Map<String, Integer> hitTopSubCount = new HashMap<String, Integer>();
+	
+	
 //	private String typeId1 = null;
 //	private String typeId2 = null;
 //	private String typeId3 = null;
@@ -192,7 +199,7 @@ public class LexicalSubSurvey{
 	}
 
 	//  gets the results for all the HITs we have IDs stored for in NoContextGivenIDs, NoTargetGivenIDs, ContextGivenIDs
-	public void getAssignmentsHIT(String hitId) throws IOException
+	public void getAssignmentsHIT(String hitId, Map<String, String[]> wordToSense) throws IOException
 	{
 		try 
 		{
@@ -200,6 +207,7 @@ public class LexicalSubSurvey{
 			hitId.trim();
 			HIT currentHIT = service.getHIT(hitId);
 			String HITtype = currentHIT.getHITTypeId();
+			ArrayList<String>  compareList = null;
 			
 //			if ( typeId1 == null ){
 //				typeId1 = HITtype;
@@ -222,15 +230,35 @@ public class LexicalSubSurvey{
 			
 			if ( HITtype.equals("25D2JE1M7PKKF8JGAZQAK04LZYTXQE") ){
 				answerOutput = noContextAnswerOutput;
+				compareList = noContextAnswers;
 			} else if ( HITtype.equals("20ASTLB3L0FBPWA8FU5JZEVE5SUJV7") ){
 				answerOutput = contextAnswerOutput;
+				compareList = contextAnswers;
 				HITindex++;
 			} else if ( HITtype.equals("2ZZ2NJQ2172ZFWI1AMBLKVEBU27XPN") ){
 				answerOutput = noTargetAnswerOutput;
+				compareList = noTargetAnswers;
 			}
+			String question = currentHIT.getQuestion();
+//			answerOutput.println("<br /><br />");
+//			answerOutput.println(question);
 			
-			answerOutput.println("<br /><br />");
-			answerOutput.println( currentHIT.getQuestion());
+			int wordStart = question.substring(question.indexOf("<b", question.indexOf("Task:") + 35)).indexOf(">") + question.indexOf("<b", question.indexOf("Task:") + 35) + 1;
+			int wordEnd = question.indexOf("</b>", question.indexOf("Task:") + 17 );
+			String word = ""; 
+			if (wordStart < 0 || wordEnd <0){
+				for (String key: wordToSense.keySet()){
+					String firstHalf = wordToSense.get(key)[0];
+					if (question.indexOf(firstHalf) > 0){
+						word = key;
+					}
+				}
+			} else
+				word = question.substring(wordStart, wordEnd);
+			
+			word = word.trim();
+			
+			System.out.println("word: " + word);
 			
 			Map<String, Integer> frequencyCounter = new HashMap<String, Integer>();
 			
@@ -267,8 +295,33 @@ public class LexicalSubSurvey{
 			
 			TreeMap<String, Integer> sortedFrequencies = new TreeMap<String, Integer>();
 			sortedFrequencies.putAll(frequencyCounter);
-			for (String text: sortedFrequencies.keySet())
-				answerOutput.print(text + ": " + frequencyCounter.get(text) + " ");
+			
+			if (wordToSense != null){
+				answerOutput.println("The original target word:" + word);
+				answerOutput.println("The ideal substitution would be: " + wordToSense.get(word)[2]);
+			}
+			
+			boolean topAnswers = false;
+			String wordList = "";
+			hitTopSubCount.put(hitId, 0);
+			for (String text: sortedFrequencies.keySet()){
+				int freq = frequencyCounter.get(text);
+				if (freq > hitTopSubCount.get(hitId)){
+					hitTopSubCount.put(hitId, freq);
+				}
+				if (freq >= 3){
+					if (!topAnswers){
+						answerOutput.print("Top submissions were: ");
+						compareList.add(text.trim());
+					}
+					answerOutput.print(text + ": " + freq + " ");
+					topAnswers = true;
+				} else
+					wordList += text + ": " + freq + " ";
+			}
+			if (!topAnswers){
+				answerOutput.print("No majority submission, all submissions are: " + wordList);
+			}
 			answerOutput.println();
 			answerOutput.println();
 
@@ -525,41 +578,21 @@ public class LexicalSubSurvey{
 						String focusWord = "";
 						String sense = "";
 						String context = "";
+						String simpleWord;
 						while (input != null){
 							StringTokenizer splitter = new StringTokenizer(input, "\t");
 							context = splitter.nextToken();
 							splitter.nextToken();
 							focusWord = splitter.nextToken();
-							splitter.nextToken();
+							simpleWord = splitter.nextToken();
 							sense = splitter.nextToken();
 
-							String[] wordAssociations = {context, sense};
+							String[] wordAssociations = {context, sense, simpleWord};
 							
 							wordToSense.put(focusWord, wordAssociations);
 							
 							input = in.readLine();
 						}
-						
-//
-//							for (int i = 0; sentenceSplitter.hasMoreTokens(); i++){
-//								if (i < index)
-//									firstPart += word + " ";
-//								if (i > index)
-//									secondPart += word + " ";
-//
-//								else
-//									focus = word +" ";
-//
-//
-//								sampleSentence += word + " ";
-//								word = sentenceSplitter.nextToken();
-//							}
-//
-//							sampleSentence = sampleSentence +".";
-
-//							app.createContextGivenSurvey(firstPart, focus, secondPart);
-//							app.createNoTargetGivenSurvey(firstPart, focus, secondPart);
-//							app.createNoContextGivenSurvey(firstPart, focus, secondPart);
 						
 						for( int k = 0; k <1000; k++ ){ // for counted input
 //						while ( input != null ){ // for text input
@@ -570,8 +603,8 @@ public class LexicalSubSurvey{
 							ArrayList<Word> simpleWords = p.getSimple().getWords();
 							
 							ArrayList<String> simpleWordsList = new ArrayList<String>();
-								for (int i=0; i<simpleWordList.simpleList.length; i++){
-									simpleWordsList.add(simpleWordList.simpleList[i]);
+								for (int i=0; i<SimpleWordList.simpleList.length; i++){
+									simpleWordsList.add(SimpleWordList.simpleList[i]);
 								}
 							
 							for( AlignPair pair: align){
@@ -657,15 +690,45 @@ public class LexicalSubSurvey{
 						System.out.println("retrieving");
 						// IDs are usually stored in these files: NoContextGivenIDs, NoTargetGivenIDs, ContextGivenIDs 
 						BufferedReader fileReader = new BufferedReader(new InputStreamReader(new FileInputStream(inputFile)));
+						BufferedReader in = null;
+						if (args[2].equals("-i"))
+								in = new BufferedReader(new InputStreamReader(new FileInputStream(args[3])));
 						String hitId = "";
 						String destination = inputFile.getName() + "Results";
 						app.noContextAnswerOutput = new PrintWriter(new FileOutputStream(new File("noContextAnswerOutput")));
 						app.contextAnswerOutput = new PrintWriter(new FileOutputStream(new File("contextAnswerOutput")));
 						app.noTargetAnswerOutput = new PrintWriter(new FileOutputStream(new File("noTargetAnswerOutput")));
 						app.workerOutput = new PrintWriter(new FileOutputStream(new File("workerOutput")));
+						
+						Map<String, String[]> wordToSense = null;
+						if (in != null){
+							String input = in.readLine();
+							wordToSense = new HashMap<String, String[]>(25);
+							String focusWord = "";
+							String sense = "";
+							String context = "";
+							String simpleWord;
+							while (input != null){
+								StringTokenizer splitter = new StringTokenizer(input, "\t");
+								context = splitter.nextToken();
+								int firstHalf = Integer.parseInt(splitter.nextToken());
+								context = context.substring(0, firstHalf);
+								focusWord = splitter.nextToken();
+								simpleWord = splitter.nextToken();
+								sense = splitter.nextToken();
+
+								String[] wordAssociations = {context, sense, simpleWord};
+
+								wordToSense.put(focusWord, wordAssociations);
+
+								input = in.readLine();
+							}
+						}
+						
+						
 						for (hitId = fileReader.readLine(); hitId !=null; hitId = fileReader.readLine()){
 							System.out.println(hitId);
-							app.getAssignmentsHIT(hitId);
+							app.getAssignmentsHIT(hitId, wordToSense);
 						}
 						for (Worker i: app.workers){
 							app.workerOutput.println(i.workerId + "\t");
@@ -673,10 +736,31 @@ public class LexicalSubSurvey{
 							app.workerOutput.println(i.question2Answers.toString());
 							app.workerOutput.println(i.question3Answers.toString());
 						}
+						int matching = 0;
+						for( int i = 0; i< app.noContextAnswers.size(); i ++){
+							if (app.contextAnswers.get(i).equals(app.noContextAnswers.get(i)))
+								matching++;
+							if (i > 0)
+								if(app.contextAnswers.get(i).equals(app.noContextAnswers.get(i- 1)))
+									matching++;
+							if (i < app.noContextAnswers.size() - 1)
+								if(app.contextAnswers.get(i).equals(app.noContextAnswers.get(i + 1)))
+									matching++;
+						}
+						System.out.print("Percentage hits with same top submission: " +  matching*100.0 / app.contextAnswers.size());
+						
 						app.workerOutput.close();
 						app.noContextAnswerOutput.close();
 						app.contextAnswerOutput.close();
 						app.noTargetAnswerOutput.close();
+						
+						PrintWriter statData = new PrintWriter(new FileOutputStream(new File("statData.csv")));
+						
+						for (String hitIdKey: app.hitTopSubCount.keySet()){
+							statData.println(hitIdKey +"," + app.hitTopSubCount.get(hitIdKey));
+						}
+						
+						break;
 //						app.getHITs();
 					}else {
 						System.err.println("No valid options were provided");
