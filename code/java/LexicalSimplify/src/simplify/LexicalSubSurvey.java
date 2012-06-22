@@ -54,6 +54,7 @@ public class LexicalSubSurvey{
 	private PrintWriter contextAnswerOutput;
 	private PrintWriter noTargetAnswerOutput;
 	private PrintWriter workerOutput;
+	private PrintWriter substitutionOutput;
 
 	private QualificationRequirement acceptanceRate = new QualificationRequirement("000000000000000000L0", Comparator.GreaterThanOrEqualTo, 95, null, false);
 	private QualificationRequirement location = new QualificationRequirement("00000000000000000071", Comparator.EqualTo, null, new Locale("US"), false);
@@ -64,6 +65,7 @@ public class LexicalSubSurvey{
 	ArrayList<String> noTargetAnswers= new ArrayList<String>() ;;
 	
 	Map<String, Integer> hitTopSubCount = new HashMap<String, Integer>();
+	Map<String, String> hitIdtoType = new HashMap<String, String>();
 	
 	
 //	private String typeId1 = null;
@@ -209,6 +211,8 @@ public class LexicalSubSurvey{
 			String HITtype = currentHIT.getHITTypeId();
 			ArrayList<String>  compareList = null;
 			
+			hitIdtoType.put(hitId, HITtype);
+			
 //			if ( typeId1 == null ){
 //				typeId1 = HITtype;
 //			} else if ( typeId2 == null ){
@@ -217,10 +221,7 @@ public class LexicalSubSurvey{
 //				typeId3 = HITtype;
 //			}
 				
-			Assignment[] answers = service.getAllAssignmentsForHIT
-			(
-					hitId
-			);
+			Assignment[] answers = service.getAllAssignmentsForHIT(hitId);
 
 			// Print out the HITId and the URL to view the HIT.
 			System.out.println("Retrieved HIT: " + hitId + " " + currentHIT.getHITTypeId() );
@@ -228,6 +229,7 @@ public class LexicalSubSurvey{
 //			System.out.println( "# of hits available: " + answers.length );
 			PrintWriter answerOutput = null;
 			
+			//uses hittypeId to check what kind of hit we are looking at and sets the outputstream accordingly.
 			if ( HITtype.equals("25D2JE1M7PKKF8JGAZQAK04LZYTXQE") ){
 				answerOutput = noContextAnswerOutput;
 				compareList = noContextAnswers;
@@ -243,6 +245,7 @@ public class LexicalSubSurvey{
 //			answerOutput.println("<br /><br />");
 //			answerOutput.println(question);
 			
+			//WordToSense maps the focus word to the context, simple word, 
 			int wordStart = question.substring(question.indexOf("<b", question.indexOf("Task:") + 35)).indexOf(">") + question.indexOf("<b", question.indexOf("Task:") + 35) + 1;
 			int wordEnd = question.indexOf("</b>", question.indexOf("Task:") + 17 );
 			String word = ""; 
@@ -261,6 +264,7 @@ public class LexicalSubSurvey{
 			System.out.println("word: " + word);
 			
 			Map<String, Integer> frequencyCounter = new HashMap<String, Integer>();
+			//frequencyCounter keeps track of each words frequency over all the assignments.
 			
 			for (Assignment answer: answers){
 				String workerID = answer.getWorkerId();
@@ -293,35 +297,42 @@ public class LexicalSubSurvey{
 				}
 			}
 			
-			TreeMap<String, Integer> sortedFrequencies = new TreeMap<String, Integer>();
-			sortedFrequencies.putAll(frequencyCounter);
-			
 			if (wordToSense != null){
 				answerOutput.println("The original target word:" + word);
 				answerOutput.println("The ideal substitution would be: " + wordToSense.get(word)[2]);
 			}
 			
+			/* 
+			 * uses frequency counter to check for the word with the highest frequency and it prints out all words with frequencies >= three
+			 * otherwise prints out a list of all submissions and their frequencies. Also takes the most frequent word and records the normal word
+			 * and they frequent word for comparison.
+			 */
 			boolean topAnswers = false;
 			String wordList = "";
 			hitTopSubCount.put(hitId, 0);
-			for (String text: sortedFrequencies.keySet()){
+			compareList.add("");
+			for (String text: frequencyCounter.keySet()){
 				int freq = frequencyCounter.get(text);
 				if (freq > hitTopSubCount.get(hitId)){
 					hitTopSubCount.put(hitId, freq);
+					compareList.set(HITindex - 1, text.trim());
 				}
+				if (wordToSense != null && !HITtype.equals("2ZZ2NJQ2172ZFWI1AMBLKVEBU27XPN"))
+					substitutionOutput.println(word + "\t" + text);
 				if (freq >= 3){
 					if (!topAnswers){
 						answerOutput.print("Top submissions were: ");
-						compareList.add(text.trim());
 					}
 					answerOutput.print(text + ": " + freq + " ");
 					topAnswers = true;
+					
 				} else
 					wordList += text + ": " + freq + " ";
 			}
 			if (!topAnswers){
 				answerOutput.print("No majority submission, all submissions are: " + wordList);
 			}
+			
 			answerOutput.println();
 			answerOutput.println();
 
@@ -691,15 +702,16 @@ public class LexicalSubSurvey{
 						// IDs are usually stored in these files: NoContextGivenIDs, NoTargetGivenIDs, ContextGivenIDs 
 						BufferedReader fileReader = new BufferedReader(new InputStreamReader(new FileInputStream(inputFile)));
 						BufferedReader in = null;
-						if (args[2].equals("-i"))
-								in = new BufferedReader(new InputStreamReader(new FileInputStream(args[3])));
+						if (args[args.length-2].equals("-i")) // this tag denotes the input file which contains the Hit data in the form context \t wordIndex \t normalWord \t simpleWord \t sense
+								in = new BufferedReader(new InputStreamReader(new FileInputStream(args[args.length-1])));
 						String hitId = "";
-						String destination = inputFile.getName() + "Results";
 						app.noContextAnswerOutput = new PrintWriter(new FileOutputStream(new File("noContextAnswerOutput")));
 						app.contextAnswerOutput = new PrintWriter(new FileOutputStream(new File("contextAnswerOutput")));
 						app.noTargetAnswerOutput = new PrintWriter(new FileOutputStream(new File("noTargetAnswerOutput")));
 						app.workerOutput = new PrintWriter(new FileOutputStream(new File("workerOutput")));
+						app.substitutionOutput = new PrintWriter(new FileOutputStream(new File("allSubstitionsOnly")));
 						
+						//wordToSense maps each word to the rest of the data associated with it: simple word, context and sense.
 						Map<String, String[]> wordToSense = null;
 						if (in != null){
 							String input = in.readLine();
@@ -730,12 +742,16 @@ public class LexicalSubSurvey{
 							System.out.println(hitId);
 							app.getAssignmentsHIT(hitId, wordToSense);
 						}
+						
+						//prints out each workers Id and the answers to the questions
 						for (Worker i: app.workers){
 							app.workerOutput.println(i.workerId + "\t");
 							app.workerOutput.println(i.question1Answers.toString());
 							app.workerOutput.println(i.question2Answers.toString());
 							app.workerOutput.println(i.question3Answers.toString());
 						}
+						
+						//Checks the for the percentage of words that match up between the context given and no context given answers
 						int matching = 0;
 						for( int i = 0; i< app.noContextAnswers.size(); i ++){
 							if (app.contextAnswers.get(i).equals(app.noContextAnswers.get(i)))
@@ -749,16 +765,20 @@ public class LexicalSubSurvey{
 						}
 						System.out.print("Percentage hits with same top submission: " +  matching*100.0 / app.contextAnswers.size());
 						
+						//closing all printWriters
 						app.workerOutput.close();
 						app.noContextAnswerOutput.close();
 						app.contextAnswerOutput.close();
 						app.noTargetAnswerOutput.close();
+						app.substitutionOutput.close();
 						
+						//Writes out the data so that it can be imported into excel using csv format.
 						PrintWriter statData = new PrintWriter(new FileOutputStream(new File("statData.csv")));
 						
 						for (String hitIdKey: app.hitTopSubCount.keySet()){
-							statData.println(hitIdKey +"," + app.hitTopSubCount.get(hitIdKey));
+							statData.println(app.hitIdtoType.get(hitIdKey) + ", " + hitIdKey +", " + app.hitTopSubCount.get(hitIdKey));
 						}
+						statData.close();
 						
 						break;
 //						app.getHITs();
