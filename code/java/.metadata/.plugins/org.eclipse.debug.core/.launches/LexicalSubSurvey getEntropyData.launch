@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/LexicalSimplify/src/simplify/LexicalSubSurvey.java"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="1"/>
+</listAttribute>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="simplify.LexicalSubSurvey"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-getEntropyData noContextAnswerOutput.cleaned contextAnswerOutput.cleaned"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="LexicalSimplify"/>
+</launchConfiguration>
