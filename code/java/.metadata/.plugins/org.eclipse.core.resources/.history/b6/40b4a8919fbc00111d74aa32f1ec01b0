@@ -58,11 +58,11 @@ public class LexicalSubSurvey{
 	private QualificationRequirement location = new QualificationRequirement("00000000000000000071", Comparator.EqualTo, null, new Locale("US"), false);
 	private QualificationRequirement[] requirements = {acceptanceRate, location};
 	
-	private ArrayList<OurHIT> contextHITs = new ArrayList<OurHIT>();
-	private ArrayList<OurHIT> noContextHITs = new ArrayList<OurHIT>();
+	private ArrayList<OurHIT> contextHITs;
+	private ArrayList<OurHIT> noContextHITs;
 	
-	public ArrayList<String> noContextAnswers = new ArrayList<String>();
-	public ArrayList<String> contextAnswers = new ArrayList<String>();
+	ArrayList<String> noContextAnswers = new ArrayList<String>(10);
+	ArrayList<String> contextAnswers = new ArrayList<String>(10);
 	
 	Map<String, Integer> hitTopSubCount = new HashMap<String, Integer>();
 	
