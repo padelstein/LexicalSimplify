@@ -15,7 +15,7 @@ public class OurHIT
 	public HIT amazonHIT = null;
 	public String ID = null;
 	public String typeID = null;
-	public ArrayList<String> answers = new ArrayList<String>(10);
+	public ArrayList<String> answers = new ArrayList<String>();
 	public Assignment[] assignments = null;
 	public String targetWord = "";
 	public Map<String, Integer> frequencyCounter = new HashMap<String, Integer>();
@@ -25,6 +25,8 @@ public class OurHIT
 	{
 		hitID.trim();
 		amazonHIT = service.getHIT(hitID);
+		typeID = amazonHIT.getHITTypeId();
+		ID = hitID;
 	
 		getAnswers();
 		getTargetWord(wordToSense);
@@ -126,5 +128,12 @@ public class OurHIT
 	public Map<String, Integer> getFrequencyCounter()
 	{
 		return frequencyCounter;
+	}
+	
+	public String toString(){
+		String out = ID + '\t' + typeID + '\t' + targetWord + '\t';
+		for(String answer: answers)
+			out += answer + " ";
+		return out;
 	}
 }
