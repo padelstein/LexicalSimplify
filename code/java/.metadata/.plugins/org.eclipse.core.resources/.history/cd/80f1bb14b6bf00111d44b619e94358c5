@@ -3,7 +3,6 @@ package simplify;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.lang.*;
 
 import com.amazonaws.mturk.requester.Assignment;
 import com.amazonaws.mturk.requester.HIT;
@@ -21,7 +20,6 @@ public class OurHIT
 	public String targetWord = "";
 	public Map<String, Integer> frequencyCounter = new HashMap<String, Integer>();
 	public int highestFreq = 0;
-	public double entropy = 0;
 	
 	public OurHIT(String hitID, Map<String, String[]> wordToSense)
 	{
@@ -30,9 +28,8 @@ public class OurHIT
 		typeID = amazonHIT.getHITTypeId();
 		ID = hitID;
 	
-		calcAnswers();
-		calcTargetWord(wordToSense);
-		calcEntropy();
+		getAnswers();
+		getTargetWord(wordToSense);
 
 	}
 	
@@ -57,19 +54,9 @@ public class OurHIT
 				highestFreq = freq;
 			}
 		}
-		calcEntropy();
 	}
 	
-	public void calcEntropy()
-	{
-		for ( Integer value : frequencyCounter.values() )
-		{
-			double p = value/(double)answers.size();
-			entropy += -1.0 * p * Math.log10(p);
-		}
-	}
-
-	public void calcAnswers()
+	public void getAnswers()
 	{
 		assignments = service.getAllAssignmentsForHIT
 		(
@@ -101,7 +88,7 @@ public class OurHIT
 		}
 	}
 
-	public void calcTargetWord(Map<String, String[]> wordToSense)
+	public void getTargetWord(Map<String, String[]> wordToSense)
 	{
 		String question = amazonHIT.getQuestion();
 		int wordStart = question.substring(question.indexOf("<b", question.indexOf("Task:") + 35)).indexOf(">") + question.indexOf("<b", question.indexOf("Task:") + 35) + 1;

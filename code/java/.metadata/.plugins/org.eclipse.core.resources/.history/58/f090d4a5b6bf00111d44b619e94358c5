@@ -42,6 +42,7 @@ public class OurHIT
 		this.typeID = typeID;
 		targetWord = word;
 		answers = answerArray;
+		calcEntropy();
 		
 		for (String answer: answers)
 		{
@@ -57,7 +58,6 @@ public class OurHIT
 				highestFreq = freq;
 			}
 		}
-		calcEntropy();
 	}
 	
 	public void calcEntropy()

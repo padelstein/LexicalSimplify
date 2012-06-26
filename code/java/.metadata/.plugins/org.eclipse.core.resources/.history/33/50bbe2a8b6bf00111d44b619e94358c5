@@ -864,11 +864,11 @@ public class LexicalSubSurvey{
 						
 						for ( OurHIT currentHIT : app.contextHITs)
 						{
-							app.contextAnswerOutput.println(currentHIT.targetWord + "," + currentHIT.entropy);
+							app.contextAnswerOutput.println(currentHIT.targetWord + currentHIT.entropy);
 						}
 						for ( OurHIT currentHIT : app.noContextHITs)
 						{
-							app.noContextAnswerOutput.println(currentHIT.targetWord + "," + currentHIT.entropy);
+							app.noContextAnswerOutput.println(currentHIT.targetWord + currentHIT.entropy);
 						}
 						app.noContextAnswerOutput.close();
 						app.contextAnswerOutput.close();
@@ -890,6 +890,7 @@ public class LexicalSubSurvey{
 						
 						
 						for (OurHIT contextHit: app.contextHITs){
+							System.out.println(contextHit.toString());
 							for (OurHIT noContextHit: app.noContextHITs){
 								Map<String, Integer> contextFreq = contextHit.frequencyCounter;
 								Map<String, Integer> noContextFreq = noContextHit.frequencyCounter;
@@ -943,7 +944,7 @@ public class LexicalSubSurvey{
 						System.out.println("Cosine: " + cosineTotal/app.contextHITs.size());
 						System.out.println("Kullback-Liebler from context: " + kLIndicator/app.contextHITs.size());
 						System.out.println("Kullback-Liebler from no context: " + kLIndicatorNoContext/app.noContextHITs.size());
-						System.out.println("percentage of top submissions that match: " + topMatch/app.noContextHITs.size());
+						System.out.println("percentage of top submissions that match: " + topMatch);
 					} else {
 						System.err.println("No valid options were provided");
 						System.out.println(usageError);
