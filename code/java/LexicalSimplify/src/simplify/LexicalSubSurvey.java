@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
+import java.lang.*;
 
 //import simplify.LexicalSubSurvey.Worker;
 
@@ -672,8 +673,8 @@ public class LexicalSubSurvey{
 								in = new BufferedReader(new InputStreamReader(new FileInputStream(args[args.length-1])));
 						String hitId = "";
 						
-						app.noContextAnswerOutput = new PrintWriter(new FileOutputStream(new File("noContextAnswerOutput.cleaned")));
-						app.contextAnswerOutput = new PrintWriter(new FileOutputStream(new File("contextAnswerOutput.cleaned")));
+						app.noContextAnswerOutput = new PrintWriter(new FileOutputStream(new File("noContextAnswerOutput")));
+						app.contextAnswerOutput = new PrintWriter(new FileOutputStream(new File("contextAnswerOutput")));
 						app.workerOutput = new PrintWriter(new FileOutputStream(new File("workerOutput")));
 						app.substitutionOutput = new PrintWriter(new FileOutputStream(new File("allSubstitionsOnly")));
 						
@@ -730,6 +731,27 @@ public class LexicalSubSurvey{
 									matching++;
 						}
 						
+						for (OurHIT hit : app.contextHITs)
+						{
+							String q = hit.amazonHIT.getHITId() + "\t" + hit.amazonHIT.getHITTypeId() + "\t" + hit.targetWord;
+							for (String s : hit.answers)
+							{
+								q += "\t" + s;
+							}
+							
+							app.contextAnswerOutput.println(q);}
+						
+						for (OurHIT hit : app.noContextHITs)
+						{
+							String q = hit.amazonHIT.getHITId() + "\t" + hit.amazonHIT.getHITTypeId() + "\t" + hit.targetWord;
+							for (String s : hit.answers)
+							{
+								q += "\t" + s;
+							}
+							
+							app.noContextAnswerOutput.println(q);
+						}
+						
 //						for (some HITs) {
 //						boolean topAnswers = false;
 //						for (String text: currentHIT.getFrequencyCounter().keySet()){
@@ -779,7 +801,7 @@ public class LexicalSubSurvey{
 								String[] words = input.split("\t");
 								ArrayList<String> answers = new ArrayList<String>(10);
 								String typeID = "";
-								for ( int i = 3; i < 13; i++)
+								for ( int i = 3; i < words.length; i++)
 								{
 									answers.add(words[i].trim() );
 								}
@@ -788,8 +810,18 @@ public class LexicalSubSurvey{
 
 								OurHIT currentHIT = new OurHIT(words[0], typeID, words[2], answers);
 
-								System.out.println(currentHIT.targetWord);
-//								System.out.println(app.contextHITs.toString());
+								
+								double entropy = 0;
+								
+								for ( Map.Entry<String, Integer> entry : currentHIT.frequencyCounter.entrySet() )
+								{
+									String key = entry.getKey();
+									Integer value = entry.getValue();
+									double p = value/(double)currentHIT.answers.size();
+									entropy += -1.0 * p * Math.log10(p);
+								}
+								
+								System.out.println(entropy);
 
 								if ( typeID.equals("20ASTLB3L0FBPWA8FU5JZEVE5SUJV7") )
 								{
@@ -807,8 +839,6 @@ public class LexicalSubSurvey{
 						
 						app.noContextAnswerOutput.close();
 						app.contextAnswerOutput.close();
-
-						break;
 					}else {
 						System.err.println("No valid options were provided");
 						System.out.println(usageError);

@@ -66,7 +66,11 @@ public class OurHIT
 			int textStart = ass.getAnswer().indexOf("<FreeText>");
 			int textEnd = ass.getAnswer().indexOf("</FreeText>");
 			String answerText = ass.getAnswer().substring(textStart + 10, textEnd).toLowerCase();
-			answers.add(answerText);
+			answerText.trim();
+			if ( !answerText.equals("") )
+			{
+				answers.add(answerText);
+			}
 			
 			if (frequencyCounter.containsKey(answerText))
 				frequencyCounter.put(answerText, frequencyCounter.get(answerText) + 1);
