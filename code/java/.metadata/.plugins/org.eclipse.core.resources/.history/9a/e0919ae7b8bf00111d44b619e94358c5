@@ -545,10 +545,10 @@ public class LexicalSubSurvey{
 		if (args.length >=1){
 			// Create an instance of this class.
 			LexicalSubSurvey app = new LexicalSubSurvey();
-			File inputFile = null;
+			
 				try {
 					if (args.length>1)
-						inputFile = new File(args[1]);
+						File inputFile = new File(args[1]);
 					
 
 					if (args[0].equals("-add")){
@@ -851,6 +851,8 @@ public class LexicalSubSurvey{
 //							statData.println(hitIdKey +"," + app.hitTopSubCount.get(hitIdKey));
 //						}
 //						statData.close();
+						
+						break;
 //						app.getHITs();
 					}else if (args[0].equals("-getEntropyData")){
 						System.out.println("gathering data...");
@@ -888,6 +890,7 @@ public class LexicalSubSurvey{
 						
 						
 						for (OurHIT contextHit: app.contextHITs){
+							System.out.println(contextHit.toString());
 							for (OurHIT noContextHit: app.noContextHITs){
 								Map<String, Integer> contextFreq = contextHit.frequencyCounter;
 								Map<String, Integer> noContextFreq = noContextHit.frequencyCounter;
@@ -941,10 +944,11 @@ public class LexicalSubSurvey{
 						System.out.println("Cosine: " + cosineTotal/app.contextHITs.size());
 						System.out.println("Kullback-Liebler from context: " + kLIndicator/app.contextHITs.size());
 						System.out.println("Kullback-Liebler from no context: " + kLIndicatorNoContext/app.noContextHITs.size());
-						System.out.println("percentage of top submissions that match: " + topMatch/app.noContextHITs.size());
+						System.out.println("percentage of top submissions that match: " + topMatch);
 					} else {
 						System.err.println("No valid options were provided");
 						System.out.println(usageError);
+						break;
 					}
 					
 				} catch (IOException e){
