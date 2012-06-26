@@ -545,10 +545,10 @@ public class LexicalSubSurvey{
 		if (args.length >=1){
 			// Create an instance of this class.
 			LexicalSubSurvey app = new LexicalSubSurvey();
-			File inputFile = null;
+			
 				try {
 					if (args.length>1)
-						inputFile = new File(args[1]);
+						File inputFile = new File(args[1]);
 					
 
 					if (args[0].equals("-add")){
@@ -851,6 +851,8 @@ public class LexicalSubSurvey{
 //							statData.println(hitIdKey +"," + app.hitTopSubCount.get(hitIdKey));
 //						}
 //						statData.close();
+						
+						break;
 //						app.getHITs();
 					}else if (args[0].equals("-getEntropyData")){
 						System.out.println("gathering data...");
@@ -946,6 +948,7 @@ public class LexicalSubSurvey{
 					} else {
 						System.err.println("No valid options were provided");
 						System.out.println(usageError);
+						break;
 					}
 					
 				} catch (IOException e){

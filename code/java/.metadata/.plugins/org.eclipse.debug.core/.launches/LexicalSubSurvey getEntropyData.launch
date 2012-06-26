@@ -7,6 +7,6 @@
 <listEntry value="1"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="simplify.LexicalSubSurvey"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-getEntropyData noContextAnswerOutput.cleaned contextAnswerOutput.cleaned"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-getEntropyData"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="LexicalSimplify"/>
 </launchConfiguration>

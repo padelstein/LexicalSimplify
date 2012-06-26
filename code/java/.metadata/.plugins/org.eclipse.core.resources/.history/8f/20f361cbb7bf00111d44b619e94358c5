@@ -542,13 +542,13 @@ public class LexicalSubSurvey{
 		"\n -approveAll FILENAME [more files...]    *approves all the assignments for all HITs with IDs in the given file(s)*" +
 		"\n -getAnswers FILENAME [more files...]    *retrieves all assignments for the HITs matching the IDs in the given file(s) outputs them to the originals filename with \'Results\' appended*";
 		
-		if (args.length >=1){
+		if (args.length >=2){
 			// Create an instance of this class.
 			LexicalSubSurvey app = new LexicalSubSurvey();
-			File inputFile = null;
+			
+			for (int j = 1; j<args.length; j++){
 				try {
-					if (args.length>1)
-						inputFile = new File(args[1]);
+					File inputFile = new File(args[j]);
 					
 
 					if (args[0].equals("-add")){
@@ -851,12 +851,14 @@ public class LexicalSubSurvey{
 //							statData.println(hitIdKey +"," + app.hitTopSubCount.get(hitIdKey));
 //						}
 //						statData.close();
+						
+						break;
 //						app.getHITs();
 					}else if (args[0].equals("-getEntropyData")){
 						System.out.println("gathering data...");
 						// IDs are usually stored in these files: NoContextGivenIDs, NoTargetGivenIDs, ContextGivenIDs 
-						app.fillHitList(new File("/home/padelstein/LexicalSimplify/code/java/LexicalSimplify/contextAnswerOutput.cleaned"));
-						app.fillHitList(new File("/home/padelstein/LexicalSimplify/code/java/LexicalSimplify/noContextAnswerOutput.cleaned"));
+						app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/contextAnswerOutput.cleaned"));
+						app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/noContextAnswerOutput.cleaned"));
 						app.noContextAnswerOutput = new PrintWriter(new FileOutputStream(new File("noContextEntropy.data")));
 						app.contextAnswerOutput = new PrintWriter(new FileOutputStream(new File("contextEntropy.data")));
 						
@@ -946,13 +948,15 @@ public class LexicalSubSurvey{
 					} else {
 						System.err.println("No valid options were provided");
 						System.out.println(usageError);
+						break;
 					}
 					
 				} catch (IOException e){
-					System.err.println("Could not find the file: \"" + args[1] + "\"");
+					System.err.println("Could not find the file: \"" + args[j] + "\"");
 					System.err.println("Please provide a valid file name");
 				}
 
+			}
 
 		}else
 			System.out.println(usageError);
