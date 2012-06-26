@@ -864,11 +864,29 @@ public class LexicalSubSurvey{
 						
 						for ( OurHIT currentHIT : app.contextHITs)
 						{
-							app.contextAnswerOutput.println(currentHIT.targetWord + "," + currentHIT.entropy);
+							double entropy = 0;
+
+							for ( Map.Entry<String, Integer> entry : currentHIT.frequencyCounter.entrySet() )
+							{
+								String key = entry.getKey();
+								Integer value = entry.getValue();
+								double p = value/(double)currentHIT.answers.size();
+								entropy += -1.0 * p * Math.log10(p);
+								app.noContextAnswerOutput.println(currentHIT.targetWord + "," + entropy);
+							}
 						}
 						for ( OurHIT currentHIT : app.noContextHITs)
 						{
-							app.noContextAnswerOutput.println(currentHIT.targetWord + "," + currentHIT.entropy);
+							double entropy = 0;
+
+							for ( Map.Entry<String, Integer> entry : currentHIT.frequencyCounter.entrySet() )
+							{
+								String key = entry.getKey();
+								Integer value = entry.getValue();
+								double p = value/(double)currentHIT.answers.size();
+								entropy += -1.0 * p * Math.log10(p);
+								app.noContextAnswerOutput.println(currentHIT.targetWord + "," + entropy);
+							}
 						}
 						app.noContextAnswerOutput.close();
 						app.contextAnswerOutput.close();

@@ -864,11 +864,11 @@ public class LexicalSubSurvey{
 						
 						for ( OurHIT currentHIT : app.contextHITs)
 						{
-							app.contextAnswerOutput.println(currentHIT.targetWord + "," + currentHIT.entropy);
+							app.contextAnswerOutput.println(currentHIT.targetWord + currentHIT.entropy);
 						}
 						for ( OurHIT currentHIT : app.noContextHITs)
 						{
-							app.noContextAnswerOutput.println(currentHIT.targetWord + "," + currentHIT.entropy);
+							app.noContextAnswerOutput.println(currentHIT.targetWord + currentHIT.entropy);
 						}
 						app.noContextAnswerOutput.close();
 						app.contextAnswerOutput.close();
