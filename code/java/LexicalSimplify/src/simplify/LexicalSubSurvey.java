@@ -13,10 +13,8 @@ import com.amazonaws.mturk.requester.QualificationRequirement;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.TreeMap;
 
 //import simplify.LexicalSubSurvey.Worker;
 
@@ -362,6 +360,39 @@ public class LexicalSubSurvey{
 		}
 	}
 	
+	public void fillHitList(File input) throws IOException{
+		BufferedReader fileReader = new BufferedReader(new InputStreamReader(new FileInputStream(input)));
+		if (fileReader != null){
+			String inputLine = fileReader.readLine();
+			while (inputLine != null){
+				String[] words = inputLine.split("\t");
+				ArrayList<String> answers = new ArrayList<String>(10);
+				String typeID = "";
+				for ( int i = 3; i < words.length; i++)
+				{
+					answers.add(words[i].trim() );
+				}
+
+				typeID = words[1];
+
+				OurHIT currentHIT = new OurHIT(words[0], typeID, words[2], answers);
+
+				System.out.println(currentHIT.targetWord);
+//				System.out.println(app.contextHITs.toString());
+
+				if ( typeID.equals("20ASTLB3L0FBPWA8FU5JZEVE5SUJV7") )
+				{
+					contextHITs.add(currentHIT);
+				} else if ( typeID.equals("25D2JE1M7PKKF8JGAZQAK04LZYTXQE") )
+				{
+					noContextHITs.add(currentHIT);
+				}
+
+				inputLine = fileReader.readLine();
+			}
+		}
+	}
+	
 	// HTML for a HIT with context and the target word provided
 	public static String contextGivenSub(String firstPartQuestion, String word, String secondPartQuestion) {
 		String q = "";
@@ -665,6 +696,8 @@ public class LexicalSubSurvey{
 						}
 					}else if (args[0].equals("-getAnswers")){
 						System.out.println("retrieving");
+//						app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/contextAnswerOutput.cleaned"));
+//						app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/noContextAnswerOutput.cleaned"));
 						// IDs are usually stored in these files: NoContextGivenIDs, NoTargetGivenIDs, ContextGivenIDs 
 						BufferedReader fileReader = new BufferedReader(new InputStreamReader(new FileInputStream(inputFile)));
 						BufferedReader in = null;
@@ -730,22 +763,55 @@ public class LexicalSubSurvey{
 									matching++;
 						}
 						
-//						for (some HITs) {
-//						boolean topAnswers = false;
-//						for (String text: currentHIT.getFrequencyCounter().keySet()){
-//							int freq = currentHIT.getFrequencyCounter().get(text);
-//							if (freq >=3){
-//								if(!topAnswers)
-//									answerOutput.print("Top submissions were: ");
-//								answerOutput.print(text + ": " + freq + " ");
-//								topAnswers = true;
-//							} else
-//								wordList += text + ": " + freq + " ";
-//						}
-//						if (!topAnswers){
-//							answerOutput.print("No majority submission, all submissions are: " + wordList);
-//						}
+						PrintWriter answerOutput = new PrintWriter(new FileOutputStream(new File("Hit output formatted")));
+						
+						for (OurHIT currentHIT: app.contextHITs) {
+							String wordList = "";
+							boolean topAnswers = false;
+							for (String text: currentHIT.getFrequencyCounter().keySet()){
+								int freq = currentHIT.getFrequencyCounter().get(text);
+								if (freq >=3){
+									if(!topAnswers)
+										answerOutput.print("Top submissions were: ");
+									answerOutput.print(text + ": " + freq + " ");
+									topAnswers = true;
+								} else
+									wordList += text + ": " + freq + " ";
+							}
+							if (!topAnswers){
+								answerOutput.print("No majority submission, all submissions are: " + wordList);
+							}
+							answerOutput.println();
+							app.contextAnswerOutput.print(currentHIT.ID + '\t' + currentHIT.typeID + '\t' + currentHIT.targetWord + '\t');
+							for (String sub: currentHIT.answers)
+								app.contextAnswerOutput.print(sub +" ");
+							app.contextAnswerOutput.println();
+						}
+
+						for (OurHIT currentHIT: app.noContextHITs) {
+							String wordList = "";
+							boolean topAnswers = false;
+							for (String text: currentHIT.getFrequencyCounter().keySet()){
+								int freq = currentHIT.getFrequencyCounter().get(text);
+								if (freq >=3){
+									if(!topAnswers)
+										answerOutput.print("Top submissions were: ");
+									answerOutput.print(text + ": " + freq + " ");
+									topAnswers = true;
+								} else
+									wordList += text + ": " + freq + " ";
+							}
+							if (!topAnswers){
+								answerOutput.print("No majority submission, all submissions are: " + wordList);
+							}
+							answerOutput.println();
+							app.noContextAnswerOutput.print(currentHIT.ID + '\t' + currentHIT.typeID + '\t' + currentHIT.targetWord + '\t');
+							for (String sub: currentHIT.answers)
+								app.noContextAnswerOutput.print(sub +" ");
+							app.noContextAnswerOutput.println();
+						}
 //					
+						answerOutput.close();
 						
 //						System.out.print("Percentage hits with same top submission: " +  matching*100.0 / app.contextAnswers.size());
 						
@@ -769,47 +835,88 @@ public class LexicalSubSurvey{
 					}else if (args[0].equals("-getEntropyData")){
 						System.out.println("gathering data...");
 						// IDs are usually stored in these files: NoContextGivenIDs, NoTargetGivenIDs, ContextGivenIDs 
-						BufferedReader fileReader = new BufferedReader(new InputStreamReader(new FileInputStream(inputFile)));
 						app.noContextAnswerOutput = new PrintWriter(new FileOutputStream(new File("noContextEntropy.data")));
 						app.contextAnswerOutput = new PrintWriter(new FileOutputStream(new File("contextEntropy.data")));
 						
-						if (fileReader != null){
-							String input = fileReader.readLine();
-							while (input != null){
-								String[] words = input.split("\t");
-								ArrayList<String> answers = new ArrayList<String>(10);
-								String typeID = "";
-								for ( int i = 3; i < 13; i++)
-								{
-									answers.add(words[i].trim() );
-								}
-
-								typeID = words[1];
-
-								OurHIT currentHIT = new OurHIT(words[0], typeID, words[2], answers);
-
-								System.out.println(currentHIT.targetWord);
-//								System.out.println(app.contextHITs.toString());
-
-								if ( typeID.equals("20ASTLB3L0FBPWA8FU5JZEVE5SUJV7") )
-								{
-									app.contextHITs.add(currentHIT);
-								} else if ( typeID.equals("25D2JE1M7PKKF8JGAZQAK04LZYTXQE") )
-								{
-									app.noContextHITs.add(currentHIT);
-								}
-
-								input = fileReader.readLine();
-							}
-						}
-						
-						
+						app.fillHitList(inputFile);
 						
 						app.noContextAnswerOutput.close();
 						app.contextAnswerOutput.close();
 
 						break;
-					}else {
+					} else if (args[0].equals("-checkSimilarity")){
+						app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/contextAnswerOutput.cleaned"));
+						app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/noContextAnswerOutput.cleaned"));
+						int overlapIndicator = 0;
+						int overlapDivisor = 0;
+						int sorensen = 0;
+						int jaccardDivisor = 0;
+						int jaccardIndicator = 0;
+						int cosineIndicator = 0;
+						double cosineDivisor = 0;
+						double cosineTotal = 0;
+						double kLIndicator = 0;
+						double kLIndicatorNoContext = 0;
+						int topMatch = 0;
+						
+						
+						for (OurHIT contextHit: app.contextHITs){
+							System.out.println(contextHit.toString());
+							for (OurHIT noContextHit: app.noContextHITs){
+								Map<String, Integer> contextFreq = contextHit.frequencyCounter;
+								Map<String, Integer> noContextFreq = noContextHit.frequencyCounter;
+								int weightMatched=0;
+								int matched = 0;
+								double contextMagnitude = 0;
+								double noContextMagnitude = 0;
+								cosineIndicator = 0;
+								if (contextHit.targetWord.equals(noContextHit.targetWord)){
+									sorensen += contextHit.answers.size() + noContextHit.answers.size();
+									for (String contextSubmission: contextFreq.keySet()){
+										noContextMagnitude = 0;
+										for (String noContextSubmission: noContextFreq.keySet()){
+											if (contextSubmission.equals(noContextSubmission)){
+												double contextSubFreq = contextFreq.get(contextSubmission);
+												double noContextSubFreq = noContextFreq.get(noContextSubmission);
+												if (contextSubFreq == contextHit.highestFreq && noContextSubFreq == noContextHit.highestFreq)
+													topMatch++;
+												matched++;
+												cosineIndicator += contextSubFreq * noContextSubFreq;
+												kLIndicator += (contextSubFreq/contextHit.answers.size())* Math.log((contextSubFreq/contextHit.answers.size())/(noContextSubFreq/noContextHit.answers.size()));
+												kLIndicatorNoContext += (noContextSubFreq/noContextHit.answers.size())* Math.log((noContextSubFreq/noContextHit.answers.size())/(contextSubFreq/contextHit.answers.size()));
+												for (int i =0; i < Math.min(contextSubFreq, noContextSubFreq); i++){
+													// do match
+													weightMatched++;
+													overlapIndicator++;
+													overlapDivisor++;
+												}
+											}
+											noContextMagnitude += noContextFreq.get(noContextSubmission)* noContextFreq.get(noContextSubmission);
+										}
+										contextMagnitude += contextFreq.get(contextSubmission)* contextFreq.get(contextSubmission);
+									}
+									jaccardDivisor += contextFreq.keySet().size() + noContextFreq.keySet().size() - matched;
+									jaccardIndicator += matched;
+									noContextMagnitude = Math.sqrt(noContextMagnitude);
+									contextMagnitude = Math.sqrt(contextMagnitude);
+									for (int k =0; k< Math.min(contextHit.answers.size(), noContextHit.answers.size()) - weightMatched; k++){
+										//Do no match
+										overlapDivisor++;
+									}
+									cosineDivisor = noContextMagnitude*contextMagnitude;
+									cosineTotal += cosineIndicator/cosineDivisor;
+									break;
+								}
+							}
+						}
+						System.out.println("Overlap: " + overlapIndicator/(double)overlapDivisor);
+//						System.out.println((2.0*overlapIndicator)/sorensen);
+						System.out.println("Jaccard: " + jaccardIndicator/(double)jaccardDivisor);
+						System.out.println("Cosine: " + cosineTotal/app.contextHITs.size());
+						System.out.println("Kullback-Liebler from context: " + kLIndicator/app.contextHITs.size());
+						System.out.println("Kullback-Liebler from no context: " + kLIndicatorNoContext/app.noContextHITs.size());
+						System.out.println("percentage of top submissions that match: " + topMatch);
+					} else {
 						System.err.println("No valid options were provided");
 						System.out.println(usageError);
 						break;
