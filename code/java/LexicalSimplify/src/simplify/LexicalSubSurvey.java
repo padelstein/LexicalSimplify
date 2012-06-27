@@ -418,7 +418,7 @@ public class LexicalSubSurvey{
 		q += "		<hr />";
 		q += "		<br /><u><b><span style=\"font-size:25px;\">Task:</span></b></u><br />";
 		q += "		<br /><span style = \"font-size:20px;\">" + firstPartQuestion + "<b style=\"color:red;\">" + word + "</b>" + secondPartQuestion + "</span>";
-		q += "      <br/><form name='mturk_form' method='post' id='mturk_form' action='https://www.mturk.com/mturk/externalSubmit' style=\"padding-top:10px\">";
+		q += "      <br/><form name='mturk_form' method='post' id='mturk_form' onsubmit=\"return validateForm()\" action='https://www.mturk.com/mturk/externalSubmit' style=\"padding-top:10px\">";
 		q += "      <input type=\'hidden\' value=\'\' name =\'assignmentId\' id=\'assignmentId\'/>";
 		q += "      <input type=\"text\" name=\"HITAnswer\" id=\"answer\"/>";
 		q += "      <input type=\"submit\" value=\"Submit\" id=\"submit_button\"/>";
@@ -430,6 +430,12 @@ public class LexicalSubSurvey{
 		q += "        document.getElementById(\"answer\").disabled = true; } ";
 		q += "      else {document.getElementById(\"submit_button\").disabled = false;";
 		q += "		  document.getElementById(\"answer\").disabled = false; }";
+		q += "		function validateForm(){";
+		q += "			if (document.getElementById(\"answer\").value == null || document.getElementById(\"answer\").value.trim() == \"\"){";
+		q += " 				alert(\"Please provide a word.\"";
+		q += " 				return false;";
+		q += " 			}";
+		q += " 		}";
 		q += "    </script>";
 		q += "  </body>";
 		q += "</html>]]>";
@@ -506,7 +512,7 @@ public class LexicalSubSurvey{
 		q += "		<hr />";
 		q += "		<u><b><span style=\"font-size:25px;\">Task:</span></b></u><br />";
 		q += "		<br /><span style = \"font-size:20px;\"><b>" + word + "</b>: (" + POS + ") " + sense + "</span>";
-		q += "      <br/><form name='mturk_form' method='post' id='mturk_form' action='https://www.mturk.com/mturk/externalSubmit' style=\"padding-top:10px\">";
+		q += "      <br/><form name='mturk_form' method='post' id='mturk_form' onsubmit=\"return validateForm()\" action='https://www.mturk.com/mturk/externalSubmit' style=\"padding-top:10px\">";
 		q += "      <input type=\'hidden\' value=\'\' name =\'assignmentId\' id=\'assignmentId\'/>";
 		q += "      <input type=\"text\" name=\"HITAnswer\" id=\"answer\"/>";
 		q += "      <input type=\"submit\" value=\"Submit\" id=\"submit_button\"/>";
@@ -518,6 +524,12 @@ public class LexicalSubSurvey{
 		q += "        document.getElementById(\"answer\").disabled = true; } ";
 		q += "      else {document.getElementById(\"submit_button\").disabled = false;";
 		q += "		  document.getElementById(\"answer\").disabled = false; }";
+		q += "		function validateForm(){";
+		q += "			if (document.getElementById(\"answer\").value == null || document.getElementById(\"answer\").value.trim() == \"\"){";
+		q += " 				alert(\"Please provide a word.\"";
+		q += " 				return false;";
+		q += " 			}";
+		q += " 		}";
 		q += "    </script>";
 		q += "  </body>";
 		q += "</html>]]>";
@@ -874,6 +886,8 @@ public class LexicalSubSurvey{
 					} else if (args[0].equals("-checkSimilarity")){
 						app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/contextAnswerOutput.cleaned"));
 						app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/noContextAnswerOutput.cleaned"));
+						
+						PrintWriter similarity = new PrintWriter(new FileOutputStream(new File("simlarityData.csv")));
 						int overlapIndicator = 0;
 						int overlapDivisor = 0;
 						int sorensen = 0;
@@ -896,6 +910,7 @@ public class LexicalSubSurvey{
 								double contextMagnitude = 0;
 								double noContextMagnitude = 0;
 								cosineIndicator = 0;
+								double indivKL = 0;
 								if (contextHit.targetWord.equals(noContextHit.targetWord)){
 									sorensen += contextHit.answers.size() + noContextHit.answers.size();
 									for (String contextSubmission: contextFreq.keySet()){
@@ -909,6 +924,7 @@ public class LexicalSubSurvey{
 												matched++;
 												cosineIndicator += contextSubFreq * noContextSubFreq;
 												kLIndicator += (contextSubFreq/contextHit.answers.size())* Math.log((contextSubFreq/contextHit.answers.size())/(noContextSubFreq/noContextHit.answers.size()));
+												indivKL += (contextSubFreq/contextHit.answers.size())* Math.log((contextSubFreq/contextHit.answers.size())/(noContextSubFreq/noContextHit.answers.size()));
 												kLIndicatorNoContext += (noContextSubFreq/noContextHit.answers.size())* Math.log((noContextSubFreq/noContextHit.answers.size())/(contextSubFreq/contextHit.answers.size()));
 												for (int i =0; i < Math.min(contextSubFreq, noContextSubFreq); i++){
 													// do match
@@ -921,6 +937,7 @@ public class LexicalSubSurvey{
 										}
 										contextMagnitude += contextFreq.get(contextSubmission)* contextFreq.get(contextSubmission);
 									}
+									similarity.println("jaccard, " + contextHit.targetWord + ", " + matched/(double)(contextFreq.keySet().size() + noContextFreq.keySet().size() - matched));
 									jaccardDivisor += contextFreq.keySet().size() + noContextFreq.keySet().size() - matched;
 									jaccardIndicator += matched;
 									noContextMagnitude = Math.sqrt(noContextMagnitude);
@@ -929,8 +946,11 @@ public class LexicalSubSurvey{
 										//Do no match
 										overlapDivisor++;
 									}
+									similarity.println("Kullback-Liebler, " + contextHit.targetWord + ", " + indivKL);
 									cosineDivisor = noContextMagnitude*contextMagnitude;
+									similarity.println("Cosine, " + contextHit.targetWord + ", " + cosineIndicator/cosineDivisor);
 									cosineTotal += cosineIndicator/cosineDivisor;
+									similarity.println("Overlap, " + contextHit.targetWord + ", " + weightMatched/(double)Math.min(contextHit.answers.size(), noContextHit.answers.size()));
 									break;
 								}
 							}
@@ -942,6 +962,7 @@ public class LexicalSubSurvey{
 						System.out.println("Kullback-Liebler from context: " + kLIndicator/app.contextHITs.size());
 						System.out.println("Kullback-Liebler from no context: " + kLIndicatorNoContext/app.noContextHITs.size());
 						System.out.println("percentage of top submissions that match: " + topMatch/app.noContextHITs.size());
+						similarity.close();
 					} else {
 						System.err.println("No valid options were provided");
 						System.out.println(usageError);
