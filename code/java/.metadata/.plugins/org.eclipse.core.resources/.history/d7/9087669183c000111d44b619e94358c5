@@ -19,7 +19,7 @@ import java.util.StringTokenizer;
 //import simplify.LexicalSubSurvey.Worker;
 
 /**
- * A class to create and analyze lexical simplification HITs
+ * A class to create lexical simplification HITs
  * Patrick Adelstein, Teddy Pendergast, David Kauchack, Middlebury College Summer 2012
  */
 public class LexicalSubSurvey
@@ -609,8 +609,10 @@ public class LexicalSubSurvey
 						ArrayList<Word> normalWords = p.getNormal().getWords();
 						ArrayList<Word> simpleWords = p.getSimple().getWords();
 
-						// creates object = list of simple words
-						SimpleWordsList simpleWordsList = new SimpleWordsList();
+						ArrayList<String> simpleWordsList = new ArrayList<String>();
+						for (int i=0; i<SimpleWordList.simpleList.length; i++){
+							simpleWordsList.add(SimpleWordList.simpleList[i]);
+						}
 
 						for( AlignPair pair: align){
 							int n = pair.getNormalIndex();
@@ -664,7 +666,7 @@ public class LexicalSubSurvey
 						}
 
 
-						// input = in.readLine();
+						//							input = in.readLine();
 					}
 					app.contextpr.close();
 					app.noTargetpr.close();

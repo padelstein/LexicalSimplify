@@ -21,27 +21,27 @@ public class OurHIT
 	public Map<String, Integer> frequencyCounter = new HashMap<String, Integer>();
 	public int highestFreq = 0;
 	public double entropy = 0;
-
+	
 	public OurHIT(String hitID, Map<String, String[]> wordToSense)
 	{
 		hitID.trim();
 		amazonHIT = service.getHIT(hitID);
 		typeID = amazonHIT.getHITTypeId();
 		ID = hitID;
-
+	
 		calcAnswers();
 		calcTargetWord(wordToSense);
 		calcEntropy();
 
 	}
-
+	
 	public OurHIT(String hitID, String typeID, String word, ArrayList<String> answerArray)
 	{
 		ID = hitID;
 		this.typeID = typeID;
 		targetWord = word;
 		answers = answerArray;
-
+		
 		for (String answer: answers)
 		{
 			if (frequencyCounter.containsKey(answer))
@@ -49,7 +49,7 @@ public class OurHIT
 			else
 				frequencyCounter.put(answer, 1);
 		}
-
+		
 		for (String text: frequencyCounter.keySet()){
 			int freq = frequencyCounter.get(text);
 			if (freq > highestFreq){
@@ -58,7 +58,7 @@ public class OurHIT
 		}
 		calcEntropy();
 	}
-
+	
 	public void calcEntropy()
 	{
 		for ( Integer value : frequencyCounter.values() )
@@ -74,7 +74,7 @@ public class OurHIT
 		(
 				amazonHIT.getHITId()
 		);
-
+	
 		for (Assignment ass: assignments)
 		{
 			int textStart = ass.getAnswer().indexOf("<FreeText>");
@@ -85,13 +85,13 @@ public class OurHIT
 			{
 				answers.add(answerText);
 			}
-
+			
 			if (frequencyCounter.containsKey(answerText))
 				frequencyCounter.put(answerText, frequencyCounter.get(answerText) + 1);
 			else
 				frequencyCounter.put(answerText, 1);
 		}
-
+		
 		for (String text: frequencyCounter.keySet()){
 			int freq = frequencyCounter.get(text);
 			if (freq > highestFreq){
@@ -105,7 +105,7 @@ public class OurHIT
 		String question = amazonHIT.getQuestion();
 		int wordStart = question.substring(question.indexOf("<b", question.indexOf("Task:") + 35)).indexOf(">") + question.indexOf("<b", question.indexOf("Task:") + 35) + 1;
 		int wordEnd = question.indexOf("</b>", question.indexOf("Task:") + 17 );
-
+		 
 		if (wordStart < 0 || wordEnd <0)
 		{
 			for (String key: wordToSense.keySet())
@@ -122,6 +122,26 @@ public class OurHIT
 		targetWord = targetWord.trim();
 	}
 
+	public ArrayList<String> getHITAnswers()
+	{
+		return answers;
+	}
+
+	public Assignment[] getHITassignments()
+	{
+		return assignments;
+	}
+	
+	public String getHITtype()
+	{
+		return amazonHIT.getHITTypeId();
+	}
+
+	public Map<String, Integer> getFrequencyCounter()
+	{
+		return frequencyCounter;
+	}
+	
 	public String toString(){
 		String out = ID + '\t' + typeID + '\t' + targetWord;
 		for(String answer: answers)

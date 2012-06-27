@@ -19,11 +19,10 @@ import java.util.StringTokenizer;
 //import simplify.LexicalSubSurvey.Worker;
 
 /**
- * A class to create and analyze lexical simplification HITs
+ * A class to create lexical simplification HITs
  * Patrick Adelstein, Teddy Pendergast, David Kauchack, Middlebury College Summer 2012
  */
-public class LexicalSubSurvey
-{
+public class LexicalSubSurvey{
 
 	// pointers to the data
 	private static String DATADIR = "/home/padelstein/LexicalSimplify/data/Parsed.aligned";
@@ -326,7 +325,7 @@ public class LexicalSubSurvey
 			System.err.println(e.getLocalizedMessage());
 		}
 	}
-
+	
 	// approves all hits we have IDs stored for in NoContextGivenIDs, NoTargetGivenIDs, ContextGivenIDs
 	public void approveHIT(String hitId) throws IOException
 	{
@@ -541,7 +540,7 @@ public class LexicalSubSurvey
 			// Create an instance of this class.
 			LexicalSubSurvey app = new LexicalSubSurvey();
 			File inputFile = null;
-
+			
 			try {
 				if (args.length>1)
 					inputFile = new File(args[1]);
@@ -609,8 +608,10 @@ public class LexicalSubSurvey
 						ArrayList<Word> normalWords = p.getNormal().getWords();
 						ArrayList<Word> simpleWords = p.getSimple().getWords();
 
-						// creates object = list of simple words
-						SimpleWordsList simpleWordsList = new SimpleWordsList();
+						ArrayList<String> simpleWordsList = new ArrayList<String>();
+						for (int i=0; i<SimpleWordList.simpleList.length; i++){
+							simpleWordsList.add(SimpleWordList.simpleList[i]);
+						}
 
 						for( AlignPair pair: align){
 							int n = pair.getNormalIndex();
@@ -664,7 +665,7 @@ public class LexicalSubSurvey
 						}
 
 
-						// input = in.readLine();
+						//							input = in.readLine();
 					}
 					app.contextpr.close();
 					app.noTargetpr.close();
@@ -754,7 +755,7 @@ public class LexicalSubSurvey
 							if(app.contextAnswers.get(i).equals(app.noContextAnswers.get(i + 1)))
 								matching++;
 					}
-
+			
 					PrintWriter answerOutput = new PrintWriter(new FileOutputStream(new File("Hit output formatted")));
 
 					for (OurHIT currentHIT: app.contextHITs) {
@@ -796,7 +797,7 @@ public class LexicalSubSurvey
 						answerOutput.println();
 						app.noContextAnswerOutput.println(currentHIT.toString());
 					}
-
+				
 					answerOutput.close();
 
 					//	System.out.print("Percentage hits with same top submission: " +  matching*100.0 / app.contextAnswers.size());

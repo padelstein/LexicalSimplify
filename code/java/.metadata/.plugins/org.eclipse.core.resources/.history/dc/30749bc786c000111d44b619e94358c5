@@ -609,7 +609,6 @@ public class LexicalSubSurvey
 						ArrayList<Word> normalWords = p.getNormal().getWords();
 						ArrayList<Word> simpleWords = p.getSimple().getWords();
 
-						// creates object = list of simple words
 						SimpleWordsList simpleWordsList = new SimpleWordsList();
 
 						for( AlignPair pair: align){
@@ -664,7 +663,7 @@ public class LexicalSubSurvey
 						}
 
 
-						// input = in.readLine();
+						//							input = in.readLine();
 					}
 					app.contextpr.close();
 					app.noTargetpr.close();

@@ -19,11 +19,10 @@ import java.util.StringTokenizer;
 //import simplify.LexicalSubSurvey.Worker;
 
 /**
- * A class to create and analyze lexical simplification HITs
+ * A class to create lexical simplification HITs
  * Patrick Adelstein, Teddy Pendergast, David Kauchack, Middlebury College Summer 2012
  */
-public class LexicalSubSurvey
-{
+public class LexicalSubSurvey{
 
 	// pointers to the data
 	private static String DATADIR = "/home/padelstein/LexicalSimplify/data/Parsed.aligned";
@@ -201,13 +200,13 @@ public class LexicalSubSurvey
 
 			ArrayList<String>  compareList = null;
 			// Print out the HITId and the URL to view the HIT.
-			System.out.println("Retrieved HIT: " + hitId + " " + currentHIT.typeID );
+			System.out.println("Retrieved HIT: " + hitId + " " + currentHIT.getHITtype() );
 
 			//uses hittypeId to check what kind of hit we are looking at
-			if ( currentHIT.typeID.equals("25D2JE1M7PKKF8JGAZQAK04LZYTXQE") ){
+			if ( currentHIT.getHITtype().equals("25D2JE1M7PKKF8JGAZQAK04LZYTXQE") ){
 				noContextHITs.add(currentHIT);
 				compareList = noContextAnswers;
-			} else if ( currentHIT.typeID.equals("20ASTLB3L0FBPWA8FU5JZEVE5SUJV7") ){
+			} else if ( currentHIT.getHITtype().equals("20ASTLB3L0FBPWA8FU5JZEVE5SUJV7") ){
 				contextHITs.add(currentHIT);
 				compareList = contextAnswers;
 				HITindex++;
@@ -215,7 +214,7 @@ public class LexicalSubSurvey
 				return;
 			}
 
-			for (Assignment answer: currentHIT.assignments ){
+			for (Assignment answer: currentHIT.getHITassignments() ){
 				String workerID = answer.getWorkerId();
 				Worker currentWorker = null;
 				boolean alreadyDocumentedWorker = false;
@@ -231,11 +230,11 @@ public class LexicalSubSurvey
 				}
 				// adds the answer to the worker
 				if ( alreadyDocumentedWorker ){
-					currentWorker.addAnswer(answerText, currentHIT.typeID, HITindex);
+					currentWorker.addAnswer(answerText, currentHIT.getHITtype(), HITindex);
 				} else {
 					currentWorker = new Worker(workerID);
 					workers.add(currentWorker);
-					currentWorker.addAnswer(answerText, currentHIT.typeID, HITindex);
+					currentWorker.addAnswer(answerText, currentHIT.getHITtype(), HITindex);
 				}
 			}
 
@@ -249,9 +248,9 @@ public class LexicalSubSurvey
 			 * otherwise prints out a list of all submissions and their frequencies. Also takes the most frequent word and records the normal word
 			 * and they frequent word for comparison.
 			 */
-			for ( String text: currentHIT.frequencyCounter.keySet() ){
-				int freq = currentHIT.frequencyCounter.get(text);
-				if ( freq == currentHIT.highestFreq ){
+			for (String text: currentHIT.getFrequencyCounter().keySet()){
+				int freq = currentHIT.getFrequencyCounter().get(text);
+				if (freq == currentHIT.highestFreq){
 					compareList.add(text.trim());
 				}
 			}
@@ -287,7 +286,7 @@ public class LexicalSubSurvey
 					return;
 				}
 
-				for (Assignment answer: currentHIT.assignments ){
+				for (Assignment answer: currentHIT.getHITassignments() ){
 					String workerID = answer.getWorkerId();
 					Worker currentWorker = null;
 					boolean alreadyDocumentedWorker = false;
@@ -303,16 +302,16 @@ public class LexicalSubSurvey
 					}
 					// adds the answer to the worker
 					if ( alreadyDocumentedWorker ){
-						currentWorker.addAnswer(answerText, currentHIT.typeID, HITindex);
+						currentWorker.addAnswer(answerText, currentHIT.getHITtype(), HITindex);
 					} else {
 						currentWorker = new Worker(workerID);
 						workers.add(currentWorker);
-						currentWorker.addAnswer(answerText, currentHIT.typeID, HITindex);
+						currentWorker.addAnswer(answerText, currentHIT.getHITtype(), HITindex);
 					}
 
-					for (String text: currentHIT.frequencyCounter.keySet())
+					for (String text: currentHIT.getFrequencyCounter().keySet())
 					{
-						int freq = currentHIT.frequencyCounter.get(text);
+						int freq = currentHIT.getFrequencyCounter().get(text);
 						if (freq == currentHIT.highestFreq)
 						{
 							compareList.add(text.trim());
@@ -326,7 +325,7 @@ public class LexicalSubSurvey
 			System.err.println(e.getLocalizedMessage());
 		}
 	}
-
+	
 	// approves all hits we have IDs stored for in NoContextGivenIDs, NoTargetGivenIDs, ContextGivenIDs
 	public void approveHIT(String hitId) throws IOException
 	{
@@ -541,7 +540,7 @@ public class LexicalSubSurvey
 			// Create an instance of this class.
 			LexicalSubSurvey app = new LexicalSubSurvey();
 			File inputFile = null;
-
+			
 			try {
 				if (args.length>1)
 					inputFile = new File(args[1]);
@@ -609,8 +608,10 @@ public class LexicalSubSurvey
 						ArrayList<Word> normalWords = p.getNormal().getWords();
 						ArrayList<Word> simpleWords = p.getSimple().getWords();
 
-						// creates object = list of simple words
-						SimpleWordsList simpleWordsList = new SimpleWordsList();
+						ArrayList<String> simpleWordsList = new ArrayList<String>();
+						for (int i=0; i<SimpleWordList.simpleList.length; i++){
+							simpleWordsList.add(SimpleWordList.simpleList[i]);
+						}
 
 						for( AlignPair pair: align){
 							int n = pair.getNormalIndex();
@@ -664,7 +665,7 @@ public class LexicalSubSurvey
 						}
 
 
-						// input = in.readLine();
+						//							input = in.readLine();
 					}
 					app.contextpr.close();
 					app.noTargetpr.close();
@@ -754,14 +755,14 @@ public class LexicalSubSurvey
 							if(app.contextAnswers.get(i).equals(app.noContextAnswers.get(i + 1)))
 								matching++;
 					}
-
+			
 					PrintWriter answerOutput = new PrintWriter(new FileOutputStream(new File("Hit output formatted")));
 
 					for (OurHIT currentHIT: app.contextHITs) {
 						String wordList = "";
 						boolean topAnswers = false;
-						for (String text: currentHIT.frequencyCounter.keySet()){
-							int freq = currentHIT.frequencyCounter.get(text);
+						for (String text: currentHIT.getFrequencyCounter().keySet()){
+							int freq = currentHIT.getFrequencyCounter().get(text);
 							if (freq >=3){
 								if(!topAnswers)
 									answerOutput.print("Top submissions were: ");
@@ -774,14 +775,17 @@ public class LexicalSubSurvey
 							answerOutput.print("No majority submission, all submissions are: " + wordList);
 						}
 						answerOutput.println();
-						app.contextAnswerOutput.println(currentHIT.toString());
+						app.contextAnswerOutput.print(currentHIT.ID + '\t' + currentHIT.typeID + '\t' + currentHIT.targetWord);
+						for (String sub: currentHIT.answers)
+							app.contextAnswerOutput.print('\t' + sub);
+						app.contextAnswerOutput.println();
 					}
 
 					for (OurHIT currentHIT: app.noContextHITs) {
 						String wordList = "";
 						boolean topAnswers = false;
-						for (String text: currentHIT.frequencyCounter.keySet()){
-							int freq = currentHIT.frequencyCounter.get(text);
+						for (String text: currentHIT.getFrequencyCounter().keySet()){
+							int freq = currentHIT.getFrequencyCounter().get(text);
 							if (freq >=3){
 								if(!topAnswers)
 									answerOutput.print("Top submissions were: ");
@@ -794,9 +798,12 @@ public class LexicalSubSurvey
 							answerOutput.print("No majority submission, all submissions are: " + wordList);
 						}
 						answerOutput.println();
-						app.noContextAnswerOutput.println(currentHIT.toString());
+						app.noContextAnswerOutput.print(currentHIT.ID + '\t' + currentHIT.typeID + '\t' + currentHIT.targetWord);
+						for (String sub: currentHIT.answers)
+							app.noContextAnswerOutput.print('\t' + sub);
+						app.noContextAnswerOutput.println();
 					}
-
+				
 					answerOutput.close();
 
 					//	System.out.print("Percentage hits with same top submission: " +  matching*100.0 / app.contextAnswers.size());
