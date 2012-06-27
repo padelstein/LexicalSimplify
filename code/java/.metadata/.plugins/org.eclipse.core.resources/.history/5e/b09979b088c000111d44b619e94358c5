@@ -77,28 +77,24 @@ public class OurHIT
 
 		for (Assignment ass: assignments)
 		{
-			if ( ass.getAssignmentStatus().equals("Approved") )
+			int textStart = ass.getAnswer().indexOf("<FreeText>");
+			int textEnd = ass.getAnswer().indexOf("</FreeText>");
+			String answerText = ass.getAnswer().substring(textStart + 10, textEnd).toLowerCase();
+			answerText.trim();
+			if ( !answerText.equals("") )
 			{
-				int textStart = ass.getAnswer().indexOf("<FreeText>");
-				int textEnd = ass.getAnswer().indexOf("</FreeText>");
-				String answerText = ass.getAnswer().substring(textStart + 10, textEnd).toLowerCase();
-				answerText.trim();
-				if ( !answerText.equals("") )
-				{
-					answers.add(answerText);
-				}
-
-				if (frequencyCounter.containsKey(answerText))
-					frequencyCounter.put(answerText, frequencyCounter.get(answerText) + 1);
-				else
-					frequencyCounter.put(answerText, 1);
+				answers.add(answerText);
 			}
+
+			if (frequencyCounter.containsKey(answerText))
+				frequencyCounter.put(answerText, frequencyCounter.get(answerText) + 1);
+			else
+				frequencyCounter.put(answerText, 1);
 		}
-		for (String text: frequencyCounter.keySet())
-		{
+
+		for (String text: frequencyCounter.keySet()){
 			int freq = frequencyCounter.get(text);
-			if (freq > highestFreq)
-			{
+			if (freq > highestFreq){
 				highestFreq = freq;
 			}
 		}
