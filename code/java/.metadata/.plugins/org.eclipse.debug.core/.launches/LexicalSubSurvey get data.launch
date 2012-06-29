@@ -10,6 +10,7 @@
 <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="simplify.LexicalSubSurvey"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-getAnswers /home/padelstein/LexicalSimplify/data/FirstExperiment/firstTrialHITids -i /home/padelstein/LexicalSimplify/data/FirstExperiment/mTurkSet1"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-getAnswers -i /home/padelstein/LexicalSimplify/data/FirstExperiment/mTurkSet1"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="LexicalSimplify"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xmx4g"/>
 </launchConfiguration>
