@@ -367,7 +367,7 @@ public class LexicalSubSurvey
 				String typeID = "";
 				for ( int i = 3; i < words.length; i++)
 				{
-					answers.add(words[i].trim() );
+					answers.add(words[i].trim());
 				}
 
 				typeID = words[1];
@@ -712,8 +712,8 @@ public class LexicalSubSurvey
 					if (args[args.length-2].equals("-i")) // this tag denotes the input file which contains the Hit data in the form context \t wordIndex \t normalWord \t simpleWord \t sense
 						in = new BufferedReader(new InputStreamReader(new FileInputStream(args[args.length-1])));
 
-					app.noContextAnswerOutput = new PrintWriter(new FileOutputStream(new File("noContextAnswerOutput")));
-					app.contextAnswerOutput = new PrintWriter(new FileOutputStream(new File("contextAnswerOutput")));
+					app.noContextAnswerOutput = new PrintWriter(new FileOutputStream(new File("noContextAnswer.cleaned")));
+					app.contextAnswerOutput = new PrintWriter(new FileOutputStream(new File("contextAnswerOutput.cleaned")));
 					app.workerOutput = new PrintWriter(new FileOutputStream(new File("workerOutput")));
 					app.substitutionOutput = new PrintWriter(new FileOutputStream(new File("allSubstitionsOnly")));
 
@@ -755,17 +755,17 @@ public class LexicalSubSurvey
 					}
 
 					//Checks the for the percentage of words that match up between the context given and no context given answers
-					int matching = 0;
-					for( int i = 0; i< app.noContextAnswers.size(); i ++){
-						if (app.contextAnswers.get(i).equals(app.noContextAnswers.get(i)))
-							matching++;
-						if (i > 0)
-							if(app.contextAnswers.get(i).equals(app.noContextAnswers.get(i- 1)))
-								matching++;
-						if (i < app.noContextAnswers.size() - 1)
-							if(app.contextAnswers.get(i).equals(app.noContextAnswers.get(i + 1)))
-								matching++;
-					}
+//					int matching = 0;
+//					for( int i = 0; i< app.noContextAnswers.size(); i ++){
+//						if (app.contextAnswers.get(i).equals(app.noContextAnswers.get(i)))
+//							matching++;
+//						if (i > 0)
+//							if(app.contextAnswers.get(i).equals(app.noContextAnswers.get(i- 1)))
+//								matching++;
+//						if (i < app.noContextAnswers.size() - 1)
+//							if(app.contextAnswers.get(i).equals(app.noContextAnswers.get(i + 1)))
+//								matching++;
+//					}
 
 					PrintWriter answerOutput = new PrintWriter(new FileOutputStream(new File("Hit output formatted")));
 
@@ -805,187 +805,185 @@ public class LexicalSubSurvey
 						if (!topAnswers){
 							answerOutput.print("No majority submission, all submissions are: " + wordList);
 						}
-						app.noContextAnswerOutput.close();
-						app.contextAnswerOutput.close();
 						answerOutput.println();
-					app.noContextAnswerOutput.println(currentHIT.toString());
-				}
+						app.noContextAnswerOutput.println(currentHIT.toString());
+					}
 
-				answerOutput.close();
+					answerOutput.close();
 
-				//	System.out.print("Percentage hits with same top submission: " +  matching*100.0 / app.contextAnswers.size());
+					//	System.out.print("Percentage hits with same top submission: " +  matching*100.0 / app.contextAnswers.size());
 
-				// closing all printWriters
-				app.workerOutput.close();
-				app.noContextAnswerOutput.close();
-				app.contextAnswerOutput.close();
-				app.substitutionOutput.close();
+					// closing all printWriters
+					app.workerOutput.close();
+					app.noContextAnswerOutput.close();
+					app.contextAnswerOutput.close();
+					app.substitutionOutput.close();
 
-				//Writes out the data so that it can be imported into excel using csv format.
+					//Writes out the data so that it can be imported into excel using csv format.
 
-				//						PrintWriter statData = new PrintWriter(new FileOutputStream(new File("statData.csv")));
-				//						
-				//						for (String hitIdKey: app.hitTopSubCount.keySet()){
-				//							statData.println(hitIdKey +"," + app.hitTopSubCount.get(hitIdKey));
-				//						}
-				//						statData.close();
-				//						app.getHITs();
-			}else if (args[0].equals("-getEntropyData")){
-				System.out.println("gathering data...");
-				// IDs are usually stored in these files: NoContextGivenIDs, NoTargetGivenIDs, ContextGivenIDs 
-				app.fillHitList(new File("/home/padelstein/LexicalSimplify/code/java/LexicalSimplify/contextAnswerOutput.cleaned"));
-				app.fillHitList(new File("/home/padelstein/LexicalSimplify/code/java/LexicalSimplify/noContextAnswerOutput.cleaned"));
-				app.noContextAnswerOutput = new PrintWriter(new FileOutputStream(new File("noContextEntropy.data")));
-				app.contextAnswerOutput = new PrintWriter(new FileOutputStream(new File("contextEntropy.data")));
+					//						PrintWriter statData = new PrintWriter(new FileOutputStream(new File("statData.csv")));
+					//						
+					//						for (String hitIdKey: app.hitTopSubCount.keySet()){
+					//							statData.println(hitIdKey +"," + app.hitTopSubCount.get(hitIdKey));
+					//						}
+					//						statData.close();
+					//						app.getHITs();
+				}else if (args[0].equals("-getEntropyData")){
+					System.out.println("gathering data...");
+					// IDs are usually stored in these files: NoContextGivenIDs, NoTargetGivenIDs, ContextGivenIDs 
+					app.fillHitList(new File("/home/padelstein/LexicalSimplify/code/java/LexicalSimplify/contextAnswerOutput.cleaned"));
+					app.fillHitList(new File("/home/padelstein/LexicalSimplify/code/java/LexicalSimplify/noContextAnswerOutput.cleaned"));
+					app.noContextAnswerOutput = new PrintWriter(new FileOutputStream(new File("noContextEntropy.data")));
+					app.contextAnswerOutput = new PrintWriter(new FileOutputStream(new File("contextEntropy.data")));
 
-				for ( OurHIT currentHIT : app.contextHITs)
-				{
-					app.contextAnswerOutput.println(currentHIT.targetWord + "," + currentHIT.entropy);
-				}
-				for ( OurHIT currentHIT : app.noContextHITs)
-				{
-					app.noContextAnswerOutput.println(currentHIT.targetWord + "," + currentHIT.entropy);
-				}
-				app.noContextAnswerOutput.close();
-				app.contextAnswerOutput.close();
+					for ( OurHIT currentHIT : app.contextHITs)
+					{
+						app.contextAnswerOutput.println(currentHIT.targetWord + "," + currentHIT.entropy);
+					}
+					for ( OurHIT currentHIT : app.noContextHITs)
+					{
+						app.noContextAnswerOutput.println(currentHIT.targetWord + "," + currentHIT.entropy);
+					}
+					app.noContextAnswerOutput.close();
+					app.contextAnswerOutput.close();
 
-			} else if (args[0].equals("-checkSimilarity")){
-				app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/contextAnswerOutput.cleaned"));
-				app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/noContextAnswerOutput.cleaned"));
-				PrintWriter similarity = new PrintWriter(new FileOutputStream(new File("similarityData.csv")));
+				} else if (args[0].equals("-checkSimilarity")){
+					app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/contextAnswerOutput.cleaned"));
+					app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/noContextAnswerOutput.cleaned"));
+					PrintWriter similarity = new PrintWriter(new FileOutputStream(new File("similarityData.csv")));
 
-				int overlapIndicator = 0;
-				int overlapDivisor = 0;
-				int sorensen = 0;
-				int jaccardDivisor = 0;
-				int jaccardIndicator = 0;
-				int cosineIndicator = 0;
-				double cosineDivisor = 0;
-				double cosineTotal = 0;
-				double kLIndicator = 0;
-				double kLIndicatorNoContext = 0;
-				int topMatch = 0;
+					int overlapIndicator = 0;
+					int overlapDivisor = 0;
+					int sorensen = 0;
+					int jaccardDivisor = 0;
+					int jaccardIndicator = 0;
+					int cosineIndicator = 0;
+					double cosineDivisor = 0;
+					double cosineTotal = 0;
+					double kLIndicator = 0;
+					double kLIndicatorNoContext = 0;
+					int topMatch = 0;
 
 
-				for (OurHIT contextHit: app.contextHITs){
-					for (OurHIT noContextHit: app.noContextHITs){
-						Map<String, Integer> contextFreq = contextHit.frequencyCounter;
-						Map<String, Integer> noContextFreq = noContextHit.frequencyCounter;
-						int weightMatched=0;
-						int matched = 0;
-						double contextMagnitude = 0;
-						double noContextMagnitude = 0;
-						cosineIndicator = 0;
-						double indivKL = 0;
-						if (contextHit.targetWord.equals(noContextHit.targetWord)){
-							sorensen += contextHit.answers.size() + noContextHit.answers.size();
-							for (String contextSubmission: contextFreq.keySet()){
-								noContextMagnitude = 0;
-								for (String noContextSubmission: noContextFreq.keySet()){
-									if (contextSubmission.equals(noContextSubmission)){
-										double contextSubFreq = contextFreq.get(contextSubmission);
-										double noContextSubFreq = noContextFreq.get(noContextSubmission);
-										if (contextSubFreq == contextHit.highestFreq && noContextSubFreq == noContextHit.highestFreq)
-											topMatch++;
-										matched++;
-										cosineIndicator += contextSubFreq * noContextSubFreq;
-										kLIndicator += (contextSubFreq/contextHit.answers.size())* Math.log((contextSubFreq/contextHit.answers.size())/(noContextSubFreq/noContextHit.answers.size()));
-										indivKL += (contextSubFreq/contextHit.answers.size())* Math.log((contextSubFreq/contextHit.answers.size())/(noContextSubFreq/noContextHit.answers.size()));
-										kLIndicatorNoContext += (noContextSubFreq/noContextHit.answers.size())* Math.log((noContextSubFreq/noContextHit.answers.size())/(contextSubFreq/contextHit.answers.size()));
-										for (int i =0; i < Math.min(contextSubFreq, noContextSubFreq); i++){
-											// do match
-											weightMatched++;
-											overlapIndicator++;
+					for (OurHIT contextHit: app.contextHITs){
+						for (OurHIT noContextHit: app.noContextHITs){
+							Map<String, Integer> contextFreq = contextHit.frequencyCounter;
+							Map<String, Integer> noContextFreq = noContextHit.frequencyCounter;
+							int weightMatched=0;
+							int matched = 0;
+							double contextMagnitude = 0;
+							double noContextMagnitude = 0;
+							cosineIndicator = 0;
+							double indivKL = 0;
+							if (contextHit.targetWord.equals(noContextHit.targetWord)){
+								sorensen += contextHit.answers.size() + noContextHit.answers.size();
+								for (String contextSubmission: contextFreq.keySet()){
+									noContextMagnitude = 0;
+									for (String noContextSubmission: noContextFreq.keySet()){
+										if (contextSubmission.equals(noContextSubmission)){
+											double contextSubFreq = contextFreq.get(contextSubmission);
+											double noContextSubFreq = noContextFreq.get(noContextSubmission);
+											if (contextSubFreq == contextHit.highestFreq && noContextSubFreq == noContextHit.highestFreq)
+												topMatch++;
+											matched++;
+											cosineIndicator += contextSubFreq * noContextSubFreq;
+											kLIndicator += (contextSubFreq/contextHit.answers.size())* Math.log((contextSubFreq/contextHit.answers.size())/(noContextSubFreq/noContextHit.answers.size()));
+											indivKL += (contextSubFreq/contextHit.answers.size())* Math.log((contextSubFreq/contextHit.answers.size())/(noContextSubFreq/noContextHit.answers.size()));
+											kLIndicatorNoContext += (noContextSubFreq/noContextHit.answers.size())* Math.log((noContextSubFreq/noContextHit.answers.size())/(contextSubFreq/contextHit.answers.size()));
+											for (int i =0; i < Math.min(contextSubFreq, noContextSubFreq); i++){
+												// do match
+												weightMatched++;
+												overlapIndicator++;
+												overlapDivisor++;
+											}
+
+											contextMagnitude += contextFreq.get(contextSubmission)* contextFreq.get(contextSubmission);
+										}
+										similarity.println("jaccard, " + contextHit.targetWord + ", " + matched/(double)(contextFreq.keySet().size() + noContextFreq.keySet().size() - matched));
+										jaccardDivisor += contextFreq.keySet().size() + noContextFreq.keySet().size() - matched;
+										jaccardIndicator += matched;
+										noContextMagnitude = Math.sqrt(noContextMagnitude);
+										contextMagnitude = Math.sqrt(contextMagnitude);
+										for (int k =0; k< Math.min(contextHit.answers.size(), noContextHit.answers.size()) - weightMatched; k++){
+											//Do no match
 											overlapDivisor++;
 										}
-
-										contextMagnitude += contextFreq.get(contextSubmission)* contextFreq.get(contextSubmission);
+										similarity.println("Kullback-Liebler, " + contextHit.targetWord + ", " + indivKL);
+										cosineDivisor = noContextMagnitude*contextMagnitude;
+										similarity.println("Cosine, " + contextHit.targetWord + ", " + cosineIndicator/cosineDivisor);
+										cosineTotal += cosineIndicator/cosineDivisor;
+										similarity.println("Overlap, " + contextHit.targetWord + ", " + weightMatched/(double)Math.min(contextHit.answers.size(), noContextHit.answers.size()));
+										noContextMagnitude += noContextFreq.get(noContextSubmission)* noContextFreq.get(noContextSubmission);
+										break;
 									}
-									similarity.println("jaccard, " + contextHit.targetWord + ", " + matched/(double)(contextFreq.keySet().size() + noContextFreq.keySet().size() - matched));
-									jaccardDivisor += contextFreq.keySet().size() + noContextFreq.keySet().size() - matched;
-									jaccardIndicator += matched;
-									noContextMagnitude = Math.sqrt(noContextMagnitude);
-									contextMagnitude = Math.sqrt(contextMagnitude);
-									for (int k =0; k< Math.min(contextHit.answers.size(), noContextHit.answers.size()) - weightMatched; k++){
-										//Do no match
-										overlapDivisor++;
-									}
-									similarity.println("Kullback-Liebler, " + contextHit.targetWord + ", " + indivKL);
-									cosineDivisor = noContextMagnitude*contextMagnitude;
-									similarity.println("Cosine, " + contextHit.targetWord + ", " + cosineIndicator/cosineDivisor);
-									cosineTotal += cosineIndicator/cosineDivisor;
-									similarity.println("Overlap, " + contextHit.targetWord + ", " + weightMatched/(double)Math.min(contextHit.answers.size(), noContextHit.answers.size()));
-									noContextMagnitude += noContextFreq.get(noContextSubmission)* noContextFreq.get(noContextSubmission);
-									break;
+									contextMagnitude += contextFreq.get(contextSubmission)* contextFreq.get(contextSubmission);
 								}
-								contextMagnitude += contextFreq.get(contextSubmission)* contextFreq.get(contextSubmission);
 							}
 						}
 					}
-				}
 
-				System.out.println("Overlap: " + overlapIndicator/(double)overlapDivisor);
-				//						System.out.println((2.0*overlapIndicator)/sorensen);
-				System.out.println("Jaccard: " + jaccardIndicator/(double)jaccardDivisor);
-				System.out.println("Cosine: " + cosineTotal/app.contextHITs.size());
-				System.out.println("Kullback-Liebler from context: " + kLIndicator/app.contextHITs.size());
-				System.out.println("Kullback-Liebler from no context: " + kLIndicatorNoContext/app.noContextHITs.size());
-				System.out.println("percentage of top submissions that match: " + topMatch/app.noContextHITs.size());
-				similarity.close();
-			} else {
-				System.err.println("No valid options were provided");
-				System.out.println(usageError);
+					System.out.println("Overlap: " + overlapIndicator/(double)overlapDivisor);
+					//						System.out.println((2.0*overlapIndicator)/sorensen);
+					System.out.println("Jaccard: " + jaccardIndicator/(double)jaccardDivisor);
+					System.out.println("Cosine: " + cosineTotal/app.contextHITs.size());
+					System.out.println("Kullback-Liebler from context: " + kLIndicator/app.contextHITs.size());
+					System.out.println("Kullback-Liebler from no context: " + kLIndicatorNoContext/app.noContextHITs.size());
+					System.out.println("percentage of top submissions that match: " + topMatch/app.noContextHITs.size());
+					similarity.close();
+				} else {
+					System.err.println("No valid options were provided");
+					System.out.println(usageError);
+				}
+			}catch (IOException e){
+				System.err.println("Could not find the file: \"" + args[1] + "\"");
+				System.err.println("Please provide a valid file name");
 			}
-		}catch (IOException e){
-			System.err.println("Could not find the file: \"" + args[1] + "\"");
-			System.err.println("Please provide a valid file name");
+
+
+		}else
+			System.out.println(usageError);
+	}
+
+
+	private class Worker
+	{
+		public ArrayList<String> question1Answers = new ArrayList<String>(26); //the hitTypeId is stored at index 0
+		public ArrayList<String> question2Answers = new ArrayList<String>(26);
+		public ArrayList<String> question3Answers = new ArrayList<String>(26);
+
+		public String workerId;
+
+		public Worker(String id){
+			workerId = id;
+			setTypeId(1, "25D2JE1M7PKKF8JGAZQAK04LZYTXQE");
+			setTypeId(2, "20ASTLB3L0FBPWA8FU5JZEVE5SUJV7");
+			setTypeId(3, "2ZZ2NJQ2172ZFWI1AMBLKVEBU27XPN");
 		}
 
-
-	}else
-		System.out.println(usageError);
+		public void addAnswer(String text, String hitTypeId, int HITindex){
+			if (hitTypeId.equals(question1Answers.get(0))){
+				question1Answers.add( /*HITindex,*/ text );
+			}else if (hitTypeId.equals(question2Answers.get(0))){
+				question2Answers.add( /*HITindex,*/ text );
+			}else if (hitTypeId.equals(question3Answers.get(0))){
+				question3Answers.add( /*HITindex,*/ text );
 			}
+		}
 
-
-				private class Worker
-				{
-					public ArrayList<String> question1Answers = new ArrayList<String>(26); //the hitTypeId is stored at index 0
-					public ArrayList<String> question2Answers = new ArrayList<String>(26);
-					public ArrayList<String> question3Answers = new ArrayList<String>(26);
-
-					public String workerId;
-
-					public Worker(String id){
-						workerId = id;
-						setTypeId(1, "25D2JE1M7PKKF8JGAZQAK04LZYTXQE");
-						setTypeId(2, "20ASTLB3L0FBPWA8FU5JZEVE5SUJV7");
-						setTypeId(3, "2ZZ2NJQ2172ZFWI1AMBLKVEBU27XPN");
-					}
-
-					public void addAnswer(String text, String hitTypeId, int HITindex){
-						if (hitTypeId.equals(question1Answers.get(0))){
-							question1Answers.add( /*HITindex,*/ text );
-						}else if (hitTypeId.equals(question2Answers.get(0))){
-							question2Answers.add( /*HITindex,*/ text );
-						}else if (hitTypeId.equals(question3Answers.get(0))){
-							question3Answers.add( /*HITindex,*/ text );
-						}
-					}
-
-					public void setTypeId(int question, String typeId){
-						switch (question){
-						case 1:
-							question1Answers.add(0, typeId);
-							break;
-						case 2:
-							question2Answers.add(0, typeId);
-							break;
-						case 3:
-							question3Answers.add(0, typeId);
-							break;
-						}
-					}
-
-				}
-
+		public void setTypeId(int question, String typeId){
+			switch (question){
+			case 1:
+				question1Answers.add(0, typeId);
+				break;
+			case 2:
+				question2Answers.add(0, typeId);
+				break;
+			case 3:
+				question3Answers.add(0, typeId);
+				break;
 			}
+		}
+
+	}
+
+}

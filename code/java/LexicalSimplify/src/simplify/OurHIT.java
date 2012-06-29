@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.amazonaws.mturk.requester.Assignment;
+import com.amazonaws.mturk.requester.AssignmentStatus;
 import com.amazonaws.mturk.requester.HIT;
 import com.amazonaws.mturk.service.axis.RequesterService;
 import com.amazonaws.mturk.util.PropertiesClientConfig;
@@ -21,6 +22,8 @@ public class OurHIT
 	public Map<String, Integer> frequencyCounter = new HashMap<String, Integer>();
 	public int highestFreq = 0;
 	public double entropy = 0;
+//	public double entropyy25 = 0;
+//	public double entropy50 = 0;
 
 	public OurHIT(String hitID, Map<String, String[]> wordToSense)
 	{
@@ -64,7 +67,8 @@ public class OurHIT
 		for ( Integer value : frequencyCounter.values() )
 		{
 			double p = value/(double)answers.size();
-			entropy += -1.0 * p * Math.log10(p);
+			double log = Math.log(p)/Math.log(answers.size());
+			entropy += -1.0 * p * log;
 		}
 	}
 
@@ -77,16 +81,13 @@ public class OurHIT
 
 		for (Assignment ass: assignments)
 		{
-			if ( ass.getAssignmentStatus().equals("Approved") )
+			if ( ass.getAssignmentStatus().equals(AssignmentStatus.Approved) )
 			{
 				int textStart = ass.getAnswer().indexOf("<FreeText>");
 				int textEnd = ass.getAnswer().indexOf("</FreeText>");
 				String answerText = ass.getAnswer().substring(textStart + 10, textEnd).toLowerCase();
-				answerText.trim();
-				if ( !answerText.equals("") )
-				{
-					answers.add(answerText);
-				}
+				answerText = answerText.trim();
+				answers.add(answerText);
 
 				if (frequencyCounter.containsKey(answerText))
 					frequencyCounter.put(answerText, frequencyCounter.get(answerText) + 1);
