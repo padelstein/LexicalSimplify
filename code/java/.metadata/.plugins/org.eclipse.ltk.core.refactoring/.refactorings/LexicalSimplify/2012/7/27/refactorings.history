@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Extract method &apos;private static void extracted(LexicalSubSurvey app)&apos; from &apos;simplify.LexicalSubSurvey.main()&apos; to &apos;simplify.LexicalSubSurvey&apos;&#x0A;- Original project: &apos;LexicalSimplify&apos;&#x0A;- Method name: &apos;extracted&apos;&#x0A;- Destination type: &apos;simplify.LexicalSubSurvey&apos;&#x0A;- Declared visibility: &apos;private&apos;" comments="false" description="Extract method &apos;extracted&apos;" destination="0" exceptions="false" flags="786434" id="org.eclipse.jdt.ui.extract.method" input="/src&lt;simplify{LexicalSubSurvey.java" name="extracted" replace="false" selection="34382 35" stamp="1341260734281" version="1.0" visibility="2"/>
+</session>

@@ -12,10 +12,16 @@ import com.amazonaws.mturk.requester.QualificationRequirement;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.StringTokenizer;
+import java.lang.Object;
+
+import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
+import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 
 //import simplify.LexicalSubSurvey.Worker;
 
@@ -358,7 +364,7 @@ public class LexicalSubSurvey
 		}
 	}
 
-	public void fillHitList(File input) throws IOException{
+	public void fillHitList(File input, int numAssignments) throws IOException{
 		BufferedReader fileReader = new BufferedReader(new InputStreamReader(new FileInputStream(input)));
 		if (fileReader != null){
 			String inputLine = fileReader.readLine();
@@ -366,17 +372,17 @@ public class LexicalSubSurvey
 				String[] words = inputLine.split("\t");
 				ArrayList<String> answers = new ArrayList<String>(10);
 				String typeID = "";
-				for ( int i = 3; i < words.length; i++)
+				for ( int i = 3; i < 3 + numAssignments ; i++)
 				{
-					answers.add(words[i].trim());
+					if ( i < words.length )
+					{
+						answers.add(words[i].trim());
+					}
 				}
 
 				typeID = words[1];
 
 				OurHIT currentHIT = new OurHIT(words[0], typeID, words[2], answers);
-
-				System.out.println(currentHIT.targetWord);
-				//				System.out.println(app.contextHITs.toString());
 
 				if ( typeID.equals("20ASTLB3L0FBPWA8FU5JZEVE5SUJV7") )
 				{
@@ -390,9 +396,46 @@ public class LexicalSubSurvey
 			}
 		}
 	}
+	
+	public double getSpearmanCoeff()
+	{
+		double answer = 0;
+		double[] array1 = new double[contextHITs.size()];
+		double[] array2 = new double[contextHITs.size()];
+		
+		for (int i = 0 ; i < contextHITs.size() ; i++)
+		{
+			array1[i] = contextHITs.get(i).entropy;
+			array2[i] = noContextHITs.get(i).entropy;
+		}
+		
+		SpearmansCorrelation corr = new SpearmansCorrelation();
 
+		answer = corr.correlation(array1, array2);
+		
+		return answer;
+	}
+	public double getPearsonCoeff()
+	{
+		double answer = 0;
+		double[] array1 = new double[contextHITs.size()];
+		double[] array2 = new double[contextHITs.size()];
+		
+		for (int i = 0 ; i < contextHITs.size() ; i++)
+		{
+			array1[i] = contextHITs.get(i).entropy;
+			array2[i] = noContextHITs.get(i).entropy;
+		}
+		
+		PearsonsCorrelation corr = new PearsonsCorrelation();
+
+		answer = corr.correlation(array1, array2);
+		
+		return answer;
+	}
+	
 	// HTML for a HIT with context and the target word provided
-	public static String contextGivenSub(String firstPartQuestion, String word, String secondPartQuestion) {
+ 	public static String contextGivenSub(String firstPartQuestion, String word, String secondPartQuestion) {
 		String q = "";
 		q += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 		q += "<HTMLQuestion xmlns=\"http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2011-11-11/HTMLQuestion.xsd\">";
@@ -705,16 +748,16 @@ public class LexicalSubSurvey
 					}
 				}else if (args[0].equals("-getAnswers")){
 					System.out.println("retrieving");
-					 app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/contextAnswerOutput.cleaned"));
-					 app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/noContextAnswerOutput.cleaned"));
+//					 app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/contextAnswerOutput.cleaned"));
+//					 app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/noContextAnswerOutput.cleaned"));
 					// IDs are usually stored in these files: NoContextGivenIDs, NoTargetGivenIDs, ContextGivenIDs 
 					// BufferedReader fileReader = new BufferedReader(new InputStreamReader(new FileInputStream(inputFile)));
 					BufferedReader in = null;
 					if (args[args.length-2].equals("-i")) // this tag denotes the input file which contains the Hit data in the form context \t wordIndex \t normalWord \t simpleWord \t sense
 						in = new BufferedReader(new InputStreamReader(new FileInputStream(args[args.length-1])));
 
-					app.noContextAnswerOutput = new PrintWriter(new FileOutputStream(new File("noContextAnswer.cleaned")));
-					app.contextAnswerOutput = new PrintWriter(new FileOutputStream(new File("contextAnswerOutput.cleaned")));
+					app.noContextAnswerOutput = new PrintWriter(new FileOutputStream(new File("noContextAnswerOutput")));
+					app.contextAnswerOutput = new PrintWriter(new FileOutputStream(new File("contextAnswerOutput")));
 					app.workerOutput = new PrintWriter(new FileOutputStream(new File("workerOutput")));
 					app.substitutionOutput = new PrintWriter(new FileOutputStream(new File("SubstitionsOnly")));
 
@@ -828,25 +871,34 @@ public class LexicalSubSurvey
 				}else if (args[0].equals("-getEntropyData")){
 					System.out.println("gathering data...");
 					// IDs are usually stored in these files: NoContextGivenIDs, NoTargetGivenIDs, ContextGivenIDs 
-					app.fillHitList(new File("/home/padelstein/LexicalSimplify/code/java/LexicalSimplify/contextAnswerOutput.cleaned"));
-					app.fillHitList(new File("/home/padelstein/LexicalSimplify/code/java/LexicalSimplify/noContextAnswerOutput.cleaned"));
-					app.noContextAnswerOutput = new PrintWriter(new FileOutputStream(new File("noContextEntropy.data")));
-					app.contextAnswerOutput = new PrintWriter(new FileOutputStream(new File("contextEntropy.data")));
+					
+					for (int i = 5 ; i < 51 ; i += 5)
+					{
+						app.contextHITs.clear();
+						app.noContextHITs.clear();
+						app.fillHitList(new File("/home/padelstein/LexicalSimplify/code/java/LexicalSimplify/contextAnswerOutput.cleaned"), i);
+						app.fillHitList(new File("/home/padelstein/LexicalSimplify/code/java/LexicalSimplify/noContextAnswerOutput.cleaned"), i);
+						PrintWriter noContextEntropyOut = new PrintWriter(new FileOutputStream(new File("noContextEntropy"+i+".data.csv")));
+						PrintWriter contextEntropyOut = new PrintWriter(new FileOutputStream(new File("contextEntropy"+i+".data.csv")));
 
-					for ( OurHIT currentHIT : app.contextHITs)
-					{
-						app.contextAnswerOutput.println(currentHIT.targetWord + "," + currentHIT.entropy);
+						for ( OurHIT currentHIT : app.contextHITs)
+						{
+							contextEntropyOut.println(currentHIT.targetWord + "," + currentHIT.entropy);
+						}
+						for ( OurHIT currentHIT : app.noContextHITs)
+						{
+							noContextEntropyOut.println(currentHIT.targetWord + "," + currentHIT.entropy);
+						}
+						
+						System.out.println(i + "\t" + app.getPearsonCoeff());
+						
+						noContextEntropyOut.close();
+						contextEntropyOut.close();
 					}
-					for ( OurHIT currentHIT : app.noContextHITs)
-					{
-						app.noContextAnswerOutput.println(currentHIT.targetWord + "," + currentHIT.entropy);
-					}
-					app.noContextAnswerOutput.close();
-					app.contextAnswerOutput.close();
 
 				} else if (args[0].equals("-checkSimilarity")){
-					app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/contextAnswerOutput.cleaned"));
-					app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/noContextAnswerOutput.cleaned"));
+					app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/contextAnswerOutput.cleaned"), 50);
+					app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/noContextAnswerOutput.cleaned"), 50);
 					PrintWriter similarity = new PrintWriter(new FileOutputStream(new File("similarityData.csv")));
 
 					double overlapIndicator = 0;
@@ -930,8 +982,8 @@ public class LexicalSubSurvey
 					similarity.close();
 				} else if (args[0].equals("-StandardStat")){
 					PrintWriter statData = new PrintWriter(new FileOutputStream(new File("statData.csv")));
-					app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/contextAnswerOutput.cleaned"));
-					app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/noContextAnswerOutput.cleaned"));
+					app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/contextAnswerOutput.cleaned"), 50);
+					app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/noContextAnswerOutput.cleaned"), 50);
 
 					for (OurHIT contextHit: app.contextHITs){
 						statData.println(contextHit.typeID +", " + contextHit.highestFreq);
@@ -943,8 +995,8 @@ public class LexicalSubSurvey
 					statData.close();
 				}else if (args[0].equals("-selfCheck")){
 					File output = new File(args[1] + "SelfSimilarity.csv");
-					app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/contextAnswerOutput.cleaned"));
-					app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/noContextAnswerOutput.cleaned"));
+					app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/contextAnswerOutput.cleaned"), 50);
+					app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/noContextAnswerOutput.cleaned"), 50);
 					PrintWriter similarity = new PrintWriter(new FileOutputStream(output));
 
 					for (int x = 0; x<100; x++){
