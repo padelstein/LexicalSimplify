@@ -10,7 +10,7 @@ import com.amazonaws.mturk.requester.HIT;
 import com.amazonaws.mturk.service.axis.RequesterService;
 import com.amazonaws.mturk.util.PropertiesClientConfig;
 
-public class OurHIT
+public class OurHIT implements Comparable
 {
 	private RequesterService service = new RequesterService(new PropertiesClientConfig());
 	public HIT amazonHIT = null;
@@ -22,9 +22,7 @@ public class OurHIT
 	public Map<String, Integer> frequencyCounter = new HashMap<String, Integer>();
 	public int highestFreq = 0;
 	public double entropy = 0;
-//	public double entropyy25 = 0;
-//	public double entropy50 = 0;
-
+	
 	public OurHIT(String hitID, Map<String, String[]> wordToSense)
 	{
 		hitID.trim();
@@ -133,4 +131,23 @@ public class OurHIT
 			out += '\t' + answer;
 		return out;
 	}
+
+	@Override
+	public int compareTo(Object otherHIT)
+	{	
+		double answer = this.entropy - ((OurHIT)otherHIT).entropy;
+		
+		if ( answer < 0)
+			return -1;
+		else if ( answer > 0)
+			return 1;
+		else
+			return 0;
+	}
+	
+	public boolean isEqual(Object otherHIT)
+	{
+		return this.ID.equals(((OurHIT)otherHIT).ID);
+	}
+
 }
