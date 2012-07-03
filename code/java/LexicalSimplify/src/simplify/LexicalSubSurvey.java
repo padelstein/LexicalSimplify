@@ -747,8 +747,8 @@ public class LexicalSubSurvey
 					}
 				}else if (args[0].equals("-getAnswers")){
 					System.out.println("retrieving");
-//					app.fillHitList(new File("/home/padelstein/LexicalSimplify/code/java/LexicalSimplify/contextAnswerOutput.cleaned"));
-//					app.fillHitList(new File("/home/padelstein/LexicalSimplify/code/java/LexicalSimplify/noContextAnswerOutput.cleaned"));
+//					 app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/contextAnswerOutput.cleaned"));
+//					 app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/noContextAnswerOutput.cleaned"));
 					// IDs are usually stored in these files: NoContextGivenIDs, NoTargetGivenIDs, ContextGivenIDs 
 					// BufferedReader fileReader = new BufferedReader(new InputStreamReader(new FileInputStream(inputFile)));
 					BufferedReader in = null;
