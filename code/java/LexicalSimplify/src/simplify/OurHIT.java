@@ -23,6 +23,28 @@ public class OurHIT implements Comparable
 	public int highestFreq = 0;
 	public double entropy = 0;
 	
+	// quick and dirty constructor
+	public OurHIT(ArrayList<String> ans)
+	{
+		answers = ans;
+
+		for (String answer: answers)
+		{
+			if (frequencyCounter.containsKey(answer))
+				frequencyCounter.put(answer, frequencyCounter.get(answer) + 1);
+			else
+				frequencyCounter.put(answer, 1);
+		}
+
+		for (String text: frequencyCounter.keySet()){
+			int freq = frequencyCounter.get(text);
+			if (freq > highestFreq){
+				highestFreq = freq;
+			}
+		}
+		calcEntropy();
+	}
+	
 	public OurHIT(String hitID, Map<String, String[]> wordToSense)
 	{
 		hitID.trim();

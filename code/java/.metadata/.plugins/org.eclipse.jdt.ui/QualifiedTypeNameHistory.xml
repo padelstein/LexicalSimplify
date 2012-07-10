@@ -4,4 +4,9 @@
 <fullyQualifiedTypeName name="java.lang.Math"/>
 <fullyQualifiedTypeName name="java.lang.System"/>
 <fullyQualifiedTypeName name="com.amazonaws.mturk.requester.AssignmentStatus"/>
+<fullyQualifiedTypeName name="java.util.Collections"/>
+<fullyQualifiedTypeName name="java.lang.Object"/>
+<fullyQualifiedTypeName name="org.apache.axis.types.Language"/>
+<fullyQualifiedTypeName name="org.apache.commons.math3.stat.correlation.SpearmansCorrelation"/>
+<fullyQualifiedTypeName name="org.apache.commons.math3.stat.correlation.PearsonsCorrelation"/>
 </qualifiedTypeNameHistroy>

@@ -12,13 +12,10 @@ import com.amazonaws.mturk.requester.QualificationRequirement;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.StringTokenizer;
-import java.lang.Object;
 
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
@@ -71,7 +68,11 @@ public class LexicalSubSurvey
 
 	Map<String, String> hitIdtoType = new HashMap<String, String>();
 	private ArrayList<OurHIT> contextHITs = new ArrayList<OurHIT>();
+	private ArrayList<OurHIT> contextHITs1 = new ArrayList<OurHIT>();
+	private ArrayList<OurHIT> contextHITs2 = new ArrayList<OurHIT>();
 	private ArrayList<OurHIT> noContextHITs = new ArrayList<OurHIT>();
+	private ArrayList<OurHIT> noContextHITs1 = new ArrayList<OurHIT>();
+	private ArrayList<OurHIT> noContextHITs2 = new ArrayList<OurHIT>();
 
 	private ArrayList<Worker> workers = new ArrayList<Worker>();
 	private int HITindex = 0;
@@ -397,6 +398,84 @@ public class LexicalSubSurvey
 		}
 	}
 	
+	public void splitHITs()
+	{
+		contextHITs1.clear();
+		contextHITs2.clear();
+		noContextHITs1.clear();
+		noContextHITs2.clear();
+		
+		Random hitSplitter = new Random();
+		
+		for (int n = 0 ; n < 24 ; n++)
+		{
+			OurHIT currentContextHIT = contextHITs.get(n);
+			OurHIT currentNoContextHIT = noContextHITs.get(n);
+			
+			ArrayList<String> currentContextAnswers = new ArrayList<String>(currentContextHIT.answers);
+			ArrayList<String> currentContextAnswers1 = new ArrayList<String>();
+			ArrayList<String> currentContextAnswers2 = new ArrayList<String>();
+			ArrayList<String> currentNoContextAnswers = new ArrayList<String>(currentNoContextHIT.answers);
+			ArrayList<String> currentNoContextAnswers1 = new ArrayList<String>();
+			ArrayList<String> currentNoContextAnswers2 = new ArrayList<String>();
+			
+			
+			
+			for (int i =0; i<24; i++){
+				currentContextAnswers1.add(currentContextAnswers.remove(hitSplitter.nextInt(48-i*2)));
+				currentContextAnswers2.add(currentContextAnswers.remove(hitSplitter.nextInt((48- i*2) - 1)));
+				currentNoContextAnswers1.add(currentNoContextAnswers.remove(hitSplitter.nextInt(48-i*2)));
+				currentNoContextAnswers2.add(currentNoContextAnswers.remove(hitSplitter.nextInt((48- i*2) - 1)));
+			}
+			// used quick and dirty OurHIT constructor for speed
+			OurHIT currentContextHIT1 = new OurHIT(currentContextAnswers1);
+			OurHIT currentContextHIT2 = new OurHIT(currentContextAnswers2);
+			contextHITs1.add(currentContextHIT1);
+			contextHITs2.add(currentContextHIT2);
+			OurHIT currentNoContextHIT1 = new OurHIT(currentNoContextAnswers1);
+			OurHIT currentNoContextHIT2 = new OurHIT(currentNoContextAnswers2);
+			noContextHITs1.add(currentNoContextHIT1);
+			noContextHITs2.add(currentNoContextHIT2);
+			
+		}
+	}
+	
+	public double getMirrorPearsonCoeff(ArrayList<OurHIT> list1, ArrayList<OurHIT> list2)
+	{
+		double answer = 0;
+		double[] array1 = new double[list1.size()];
+		double[] array2 = new double[list1.size()];
+		
+		for (int i = 0 ; i < list1.size() ; i++)
+		{
+			array1[i] = list1.get(i).entropy;
+			array2[i] = list2.get(i).entropy;
+		}
+		
+		PearsonsCorrelation corr = new PearsonsCorrelation();
+
+		answer = corr.correlation(array1, array2);
+		
+		return answer;
+	}
+	public double getMirrorSpearmanCoeff(ArrayList<OurHIT> list1, ArrayList<OurHIT> list2)
+	{
+		double answer = 0;
+		double[] array1 = new double[list1.size()];
+		double[] array2 = new double[list1.size()];
+		
+		for (int i = 0 ; i < list1.size() ; i++)
+		{
+			array1[i] = list1.get(i).entropy;
+			array2[i] = list2.get(i).entropy;
+		}
+		
+		SpearmansCorrelation corr = new SpearmansCorrelation();
+
+		answer = corr.correlation(array1, array2);
+		
+		return answer;
+	}
 	public double getSpearmanCoeff()
 	{
 		double answer = 0;
@@ -434,6 +513,181 @@ public class LexicalSubSurvey
 		return answer;
 	}
 	
+	public static double round(double value) {
+		long factor = (long) Math.pow(10, 4);
+	    value = value * factor;
+	    long tmp = Math.round(value);
+	    return (double) tmp / factor;
+	}
+
+	// splits HITs and calculates pearson and spearman coefficients on their entropies
+	public void runEntropySampling(PrintWriter output) {
+		HashMap<Double, Double> pearsonContextFreq = new HashMap<Double, Double>();
+		HashMap<Double, Double> spearmanContextFreq = new HashMap<Double, Double>();
+		HashMap<Double, Double> pearsonNoContextFreq = new HashMap<Double, Double>();
+		HashMap<Double, Double> spearmanNoContextFreq = new HashMap<Double, Double>();
+		HashMap<Double, Double> pearsonFreq = new HashMap<Double, Double>();
+		HashMap<Double, Double> spearmanFreq = new HashMap<Double, Double>();
+		double pearsonContextMean = 0;
+		double pearsonNoContextMean = 0;
+		double spearmanContextMean = 0;
+		double spearmanNoContextMean = 0;
+		double pearsonMean = 0;
+		double spearmanMean = 0;
+		double pearsonContextSD = 0;
+		double pearsonNoContextSD = 0;
+		double spearmanContextSD = 0;
+		double spearmanNoContextSD = 0;
+		double pearsonSD = 0;
+		double spearmanSD = 0;
+		double samples = 100000;
+
+		for ( int n = 0 ; n < (int)samples ; n++)
+		{
+			System.out.println(n);
+			splitHITs();
+			double coeff = round( getMirrorPearsonCoeff(contextHITs1, contextHITs2) );
+			if (pearsonContextFreq.containsKey(coeff)){
+				pearsonContextFreq.put(coeff, pearsonContextFreq.get(coeff) + 1);
+			}else {
+				pearsonContextFreq.put(coeff, (double) 1);
+			} 
+			coeff = round( getMirrorSpearmanCoeff(contextHITs1, contextHITs2) );
+			if (spearmanContextFreq.containsKey(coeff)){
+				spearmanContextFreq.put(coeff, spearmanContextFreq.get(coeff) + 1);
+			}else {
+				spearmanContextFreq.put(coeff, (double) 1);
+			} 
+			coeff = round( getMirrorPearsonCoeff(noContextHITs1, noContextHITs2) );
+			if (pearsonNoContextFreq.containsKey(coeff)){
+				pearsonNoContextFreq.put(coeff, pearsonNoContextFreq.get(coeff) + 1);
+			}else {
+				pearsonNoContextFreq.put(coeff, (double) 1);
+			} 
+			coeff = round( getMirrorSpearmanCoeff(noContextHITs1, noContextHITs2) );
+			if (spearmanNoContextFreq.containsKey(coeff)){
+				spearmanNoContextFreq.put(coeff, spearmanNoContextFreq.get(coeff) + 1);
+			}else {
+				spearmanNoContextFreq.put(coeff, (double) 1);
+			} 
+			coeff = round( getMirrorSpearmanCoeff(contextHITs1, noContextHITs1) );
+			if ( spearmanFreq.containsKey(coeff)){
+				spearmanFreq.put(coeff, spearmanFreq.get(coeff) + 1);
+			} else {
+				spearmanFreq.put(coeff, (double) 1);
+			} 
+			coeff = round( getMirrorPearsonCoeff(contextHITs1, noContextHITs1) );
+			if ( pearsonFreq.containsKey(coeff)){
+				pearsonFreq.put(coeff, pearsonFreq.get(coeff) + 1);
+			} else {
+				pearsonFreq.put(coeff, (double) 1);
+			}
+		}
+		output.println("Pearson Context");
+		for (double coefficient : pearsonContextFreq.keySet() )
+		{
+			pearsonContextFreq.put(coefficient, pearsonContextFreq.get(coefficient)/samples);
+			output.printf(coefficient + ", %.8f", pearsonContextFreq.get(coefficient));
+			output.println();
+			pearsonContextMean += coefficient * pearsonContextFreq.get(coefficient);
+		}
+		output.println("Pearson No Context");
+		for (double coefficient : pearsonNoContextFreq.keySet() )
+		{
+			pearsonNoContextFreq.put(coefficient, pearsonNoContextFreq.get(coefficient)/samples);
+			output.printf(coefficient + ", %.8f", pearsonNoContextFreq.get(coefficient));
+			output.println();
+			pearsonNoContextMean += coefficient * pearsonNoContextFreq.get(coefficient);
+		}
+		output.println("Spearman Context");
+		for (double coefficient : spearmanContextFreq.keySet() )
+		{
+			spearmanContextFreq.put(coefficient, spearmanContextFreq.get(coefficient)/samples);
+			output.printf(coefficient + ", %.8f", spearmanContextFreq.get(coefficient));
+			output.println();
+			spearmanContextMean += coefficient * spearmanContextFreq.get(coefficient);
+		}
+		output.println("Spearman No Context");
+		for (double coefficient : spearmanNoContextFreq.keySet() )
+		{
+			spearmanNoContextFreq.put(coefficient, spearmanNoContextFreq.get(coefficient)/samples);
+			output.printf(coefficient + ", %.8f", spearmanNoContextFreq.get(coefficient));
+			output.println();
+			spearmanNoContextMean += coefficient * spearmanNoContextFreq.get(coefficient);
+		}
+		output.println("Spearman Basic");
+		for (double coefficient : spearmanFreq.keySet() )
+		{
+			spearmanFreq.put(coefficient, spearmanFreq.get(coefficient)/samples);
+			output.printf(coefficient + ", %.8f", spearmanFreq.get(coefficient));
+			output.println();
+			spearmanMean += coefficient * spearmanFreq.get(coefficient);
+		}
+		output.println("Pearson Basic");
+		for (double coefficient : pearsonFreq.keySet() )
+		{
+			pearsonFreq.put(coefficient, pearsonFreq.get(coefficient)/samples);
+			output.printf(coefficient + ", %.8f", pearsonFreq.get(coefficient));
+			output.println();
+			pearsonMean += coefficient * pearsonFreq.get(coefficient);
+		}
+		// calculating standard deviations
+		for (double coefficient : pearsonContextFreq.keySet() )
+		{
+			pearsonContextSD += pearsonContextFreq.get(coefficient) * Math.pow(coefficient - pearsonContextMean, 2);
+		}
+		for (double coefficient : pearsonNoContextFreq.keySet() )
+		{
+			pearsonNoContextSD += pearsonNoContextFreq.get(coefficient) * Math.pow(coefficient - pearsonNoContextMean, 2);
+		}
+		for (double coefficient : spearmanContextFreq.keySet() )
+		{
+			spearmanContextSD += spearmanContextFreq.get(coefficient) * Math.pow(coefficient - spearmanContextMean, 2);
+		}
+		for (double coefficient : spearmanNoContextFreq.keySet() )
+		{
+			spearmanNoContextSD += spearmanNoContextFreq.get(coefficient) * Math.pow(coefficient - spearmanNoContextMean, 2);
+		}
+		for (double coefficient : pearsonFreq.keySet() )
+		{
+			pearsonSD += pearsonFreq.get(coefficient) * Math.pow(coefficient - pearsonMean, 2);
+		}
+		for (double coefficient : spearmanFreq.keySet() )
+			spearmanSD += spearmanFreq.get(coefficient) * Math.pow(coefficient - spearmanMean, 2);
+		{
+		}
+		System.out.println("Pearson Basic mean = " + pearsonMean + " SD = " + Math.sqrt(pearsonSD));
+		System.out.println("Spearman Basic mean = " + spearmanMean + " SD = " + Math.sqrt(spearmanSD));
+		System.out.println("Pearson Context mean = " + pearsonContextMean + " SD = " + Math.sqrt(pearsonContextSD));
+		System.out.println("Pearson No Context mean = " + pearsonNoContextMean + " SD = " + Math.sqrt(pearsonNoContextSD));
+		System.out.println("Spearman Context mean = " + spearmanContextMean + " SD = " + Math.sqrt(spearmanContextSD));
+		System.out.println("Spearman No Context mean = " + spearmanNoContextMean + " SD = " + Math.sqrt(spearmanNoContextSD));
+	}
+	
+	public void runSimilaritySamplingData(PrintWriter output)
+	{
+		double samples = 1000;
+		for ( int n = 0 ; n < (int)samples ; n++)
+		{
+			System.out.println(n);
+			splitHITs();
+			FrequencyCounter contextFreq = new FrequencyCounter<Double>();
+			FrequencyCounter noContextFreq = new FrequencyCounter<Double>();
+			
+			for ( int i = 0; i < 24; i ++ )
+			{
+				contextFreq.add( similarity(contextHITs1.get(i), contextHITs2.get(i)) );
+				noContextFreq.add( similarity(noContextHITs1.get(i), noContextHITs2.get(i)) );
+			}
+
+			
+		}
+	}
+	
+	public double similarity()
+	{
+		return 0.0;
+	}
 	// HTML for a HIT with context and the target word provided
  	public static String contextGivenSub(String firstPartQuestion, String word, String secondPartQuestion) {
 		String q = "";
@@ -876,22 +1130,48 @@ public class LexicalSubSurvey
 					{
 						app.contextHITs.clear();
 						app.noContextHITs.clear();
-						app.fillHitList(new File("/home/padelstein/LexicalSimplify/code/java/LexicalSimplify/contextAnswerOutput.cleaned"), i);
-						app.fillHitList(new File("/home/padelstein/LexicalSimplify/code/java/LexicalSimplify/noContextAnswerOutput.cleaned"), i);
+						app.fillHitList(new File("/home/padelstein/LexicalSimplify/data/SecondExperiment/contextAnswerOutput.cleaned"), i);
+						app.fillHitList(new File("/home/padelstein/LexicalSimplify/data/SecondExperiment/noContextAnswerOutput.cleaned"), i);
 						PrintWriter noContextEntropyOut = new PrintWriter(new FileOutputStream(new File("noContextEntropy"+i+".data.csv")));
 						PrintWriter contextEntropyOut = new PrintWriter(new FileOutputStream(new File("contextEntropy"+i+".data.csv")));
-
-						for ( OurHIT currentHIT : app.contextHITs)
-						{
-							contextEntropyOut.println(currentHIT.targetWord + "," + currentHIT.entropy);
-						}
-						for ( OurHIT currentHIT : app.noContextHITs)
-						{
-							noContextEntropyOut.println(currentHIT.targetWord + "," + currentHIT.entropy);
-						}
+						PrintWriter samplingData = new PrintWriter(new FileOutputStream(new File("mirrorSimilaritySampling.data.csv")));
 						
-						System.out.println(i + "\t" + app.getPearsonCoeff());
 						
+						
+//						for ( OurHIT currentHIT : app.contextHITs)
+//						{
+//							contextEntropyOut.println(currentHIT.targetWord + "," + currentHIT.entropy);
+//						}
+//						for ( OurHIT currentHIT : app.noContextHITs)
+//						{
+//							noContextEntropyOut.println(currentHIT.targetWord + "," + currentHIT.entropy);
+//						}
+//						
+//						System.out.println(i + "\t" + app.getPearsonCoeff() + "\t" + app.getSpearmanCoeff() );
+						
+						if ( i == 50 )
+						{
+							app.runEntropySampling(samplingData);
+						}
+							
+//							app.splitHITs();
+//							for (int k = 0 ; k < 24 ; k++)
+//							{
+//								mirrorData.println(app.contextHITs1.get(k).targetWord + "," + app.contextHITs1.get(k).entropy + "," 
+//										+ app.contextHITs2.get(k).targetWord + "," + app.contextHITs2.get(k).entropy);
+//							}
+//							System.out.println("no context");
+//							for (int j = 0 ; j < 24 ; j++)
+//							{
+//								mirrorData.println(app.noContextHITs1.get(j).targetWord + "," + app.noContextHITs1.get(j).entropy + "," 
+//														+ app.noContextHITs2.get(j).targetWord + "," + app.noContextHITs2.get(j).entropy);
+//							}
+//							System.out.println("25-25 context Spearman : " + app.getMirrorSpearmanCoeff(app.contextHITs1, app.contextHITs2));
+//							System.out.println("25-25 context Pearson : " + app.getMirrorPearsonCoeff(app.contextHITs1, app.contextHITs2));
+//							System.out.println("25-25 no context Spearman : " + app.getMirrorSpearmanCoeff(app.noContextHITs1, app.noContextHITs2));
+//							System.out.println("25-25 no context Pearson : " + app.getMirrorPearsonCoeff(app.noContextHITs1, app.noContextHITs2));
+//						}
+						samplingData.close();
 						noContextEntropyOut.close();
 						contextEntropyOut.close();
 					}
@@ -1143,4 +1423,22 @@ public class LexicalSubSurvey
 
 	}
 
+	private class FrequencyCounter<K>
+	{
+		public HashMap<K, Double> frequency = new HashMap<K, Double>();
+		public double samples = 0;
+		
+		public void add(K key)
+		{
+			if (frequency.containsKey(key)){
+				frequency.put(key, frequency.get(key) + 1);
+			}else {
+				frequency.put(key, (double) 1);
+			} 
+		}
+		public Double get(K key)
+		{
+			return frequency.get(key)/samples;
+		}
+	}
 }
