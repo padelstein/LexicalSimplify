@@ -12,14 +12,10 @@ import com.amazonaws.mturk.requester.QualificationRequirement;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.StringTokenizer;
-import java.lang.Object;
-
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 
@@ -434,6 +430,59 @@ public class LexicalSubSurvey
 		return answer;
 	}
 	
+	public double getCosineSimilarity(OurHIT contextHit, OurHIT noContextHit){
+		Map<String, Integer> contextFreq = contextHit.frequencyCounter;
+		Map<String, Integer> noContextFreq = noContextHit.frequencyCounter;
+		double contextMagnitude = 0;
+		double noContextMagnitude = 0;
+		double cosineIndicator = 0;
+		if (contextHit.targetWord.equals(noContextHit.targetWord)){
+			for (String contextSubmission: contextFreq.keySet()){
+//				noContextMagnitude = 0;
+				for (String noContextSubmission: noContextFreq.keySet()){
+					if (contextSubmission.equals(noContextSubmission)){
+						double contextSubFreq = contextFreq.get(contextSubmission);
+						double noContextSubFreq = noContextFreq.get(noContextSubmission);
+						cosineIndicator += contextSubFreq * noContextSubFreq;
+
+						contextMagnitude += contextFreq.get(contextSubmission)* contextFreq.get(contextSubmission);
+						noContextMagnitude += noContextFreq.get(noContextSubmission)* noContextFreq.get(noContextSubmission);
+					}
+				}
+			}
+			noContextMagnitude = Math.sqrt(noContextMagnitude);
+			contextMagnitude = Math.sqrt(contextMagnitude);
+			double cosineDivisor = noContextMagnitude*contextMagnitude;
+			return cosineIndicator/cosineDivisor;
+		}
+		return 0;
+		//	
+	}
+
+	public double getOverlap(OurHIT contextHit, OurHIT noContextHit){
+		Map<String, Integer> contextFreq = contextHit.frequencyCounter;
+		Map<String, Integer> noContextFreq = noContextHit.frequencyCounter;
+		int weightMatched=0;
+		if (contextHit.targetWord.equals(noContextHit.targetWord)){
+			for (String contextSubmission: contextFreq.keySet()){
+//				noContextMagnitude = 0;
+				for (String noContextSubmission: noContextFreq.keySet()){
+					if (contextSubmission.equals(noContextSubmission)){
+						double contextSubFreq = contextFreq.get(contextSubmission);
+						double noContextSubFreq = noContextFreq.get(noContextSubmission);
+						for (int i =0; i < Math.min(contextSubFreq, noContextSubFreq); i++){
+							// do match
+							weightMatched++;
+						}
+
+					}
+				}
+			}
+			return weightMatched/(double)Math.min(contextHit.answers.size(), noContextHit.answers.size());
+		}
+		return 0;
+	}
+	
 	// HTML for a HIT with context and the target word provided
  	public static String contextGivenSub(String firstPartQuestion, String word, String secondPartQuestion) {
 		String q = "";
@@ -798,19 +847,6 @@ public class LexicalSubSurvey
 						app.workerOutput.println(i.question3Answers.toString());
 					}
 
-					//Checks the for the percentage of words that match up between the context given and no context given answers
-//					int matching = 0;
-//					for( int i = 0; i< app.noContextAnswers.size(); i ++){
-//						if (app.contextAnswers.get(i).equals(app.noContextAnswers.get(i)))
-//							matching++;
-//						if (i > 0)
-//							if(app.contextAnswers.get(i).equals(app.noContextAnswers.get(i- 1)))
-//								matching++;
-//						if (i < app.noContextAnswers.size() - 1)
-//							if(app.contextAnswers.get(i).equals(app.noContextAnswers.get(i + 1)))
-//								matching++;
-//					}
-
 					PrintWriter answerOutput = new PrintWriter(new FileOutputStream(new File("Hit output formatted")));
 
 					for (OurHIT currentHIT: app.contextHITs) {
@@ -986,11 +1022,11 @@ public class LexicalSubSurvey
 					app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/noContextAnswerOutput.cleaned"), 50);
 
 					for (OurHIT contextHit: app.contextHITs){
-						statData.println(contextHit.typeID +", " + contextHit.highestFreq);
+						statData.println(contextHit.typeID +", " + contextHit.targetWord + ", " + contextHit.highestFreq);
 					}
 					
 					for (OurHIT noContextHit: app.noContextHITs){
-						statData.println(noContextHit.typeID +", " + noContextHit.highestFreq);
+						statData.println(noContextHit.typeID +", " + noContextHit.targetWord + ", " + noContextHit.highestFreq);
 					}
 					statData.close();
 				}else if (args[0].equals("-selfCheck")){
@@ -1026,7 +1062,7 @@ public class LexicalSubSurvey
 							current2Answers.add(currentAnswers.remove(hitSplitter.nextInt((48- i*2) - 1)));
 						}
 						OurHIT currentHit1 = new OurHIT(currentHit.ID +"1", currentHit.typeID, currentHit.targetWord, current1Answers);
-						OurHIT currentHit2 = new OurHIT(currentHit.ID +"2", currentHit.typeID, currentHit.targetWord, current2Answers);;
+						OurHIT currentHit2 = new OurHIT(currentHit.ID +"2", currentHit.typeID, currentHit.targetWord, current2Answers);
 						Map<String, Integer> current1Freq = currentHit1.frequencyCounter;
 						Map<String, Integer> current2Freq = currentHit2.frequencyCounter;
 						int weightMatched=0;
