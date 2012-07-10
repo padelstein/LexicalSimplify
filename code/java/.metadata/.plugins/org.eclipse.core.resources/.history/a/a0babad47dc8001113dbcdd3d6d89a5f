@@ -1,0 +1,15 @@
+package simplify;
+
+public class test {
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		double myDouble = .0000012;
+		String myDoubleString = new String("" + myDouble);
+		System.out.println(myDoubleString);
+
+	}
+
+}
