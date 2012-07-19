@@ -17,8 +17,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.StringTokenizer;
 
-import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
-import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
+//import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
+//import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 
 //import simplify.LexicalSubSurvey.Worker;
 
@@ -40,19 +40,22 @@ public class LexicalSubSurvey
 	private String contextGivenTitle = "Suggest a Simpler Word in the Sentence";
 	private String noTargetGivenTitle = "Fill in the Blank with a Simpler Word";
 	private String noContextGivenTitle = "Suggest a Simpler Word";
+	private String partialContextTitle = "Suggest a Simpler Word in the given Context";
 	private String contextGivenDescription = 
 		"Replace a word with a simple substitute in the given sentence.";
 	private String noTargetGivenDescription = 
 		"Suggest a simple word in the given sentence.";
 	private String noContextGivenDescription = 
 		"Replace a word with a simple substitute.";
+	private String partialContextDescription = 
+		"Replace a word with a simple substitute with partial context provided.";
 	private int numAssignments = 10;
 	private double reward = 00.02;
 
 	// define the writers for storage of HIT IDs
 	private PrintWriter noContextpr;
 	private PrintWriter contextpr;
-	private PrintWriter noTargetpr;
+	private PrintWriter partialContextpr;
 	private PrintWriter noContextAnswerOutput;
 	private PrintWriter contextAnswerOutput;
 	private PrintWriter workerOutput;
@@ -67,12 +70,12 @@ public class LexicalSubSurvey
 	ArrayList<String> noTargetAnswers= new ArrayList<String>() ;;
 
 	Map<String, String> hitIdtoType = new HashMap<String, String>();
-	private ArrayList<OurHIT> contextHITs = new ArrayList<OurHIT>();
-	private ArrayList<OurHIT> contextHITs1 = new ArrayList<OurHIT>();
-	private ArrayList<OurHIT> contextHITs2 = new ArrayList<OurHIT>();
-	private ArrayList<OurHIT> noContextHITs = new ArrayList<OurHIT>();
-	private ArrayList<OurHIT> noContextHITs1 = new ArrayList<OurHIT>();
-	private ArrayList<OurHIT> noContextHITs2 = new ArrayList<OurHIT>();
+	private ArrayList<SentenceHIT> contextHITs = new ArrayList<SentenceHIT>();
+	private ArrayList<SentenceHIT> contextHITs1 = new ArrayList<SentenceHIT>();
+	private ArrayList<SentenceHIT> contextHITs2 = new ArrayList<SentenceHIT>();
+	private ArrayList<SentenceHIT> noContextHITs = new ArrayList<SentenceHIT>();
+	private ArrayList<SentenceHIT> noContextHITs1 = new ArrayList<SentenceHIT>();
+	private ArrayList<SentenceHIT> noContextHITs2 = new ArrayList<SentenceHIT>();
 
 	private ArrayList<Worker> workers = new ArrayList<Worker>();
 	private int HITindex = 0;
@@ -135,7 +138,7 @@ public class LexicalSubSurvey
 
 			// Print out the HITId and the URL to view the HIT.
 			System.out.println("Created HIT: " + hit.getHITId());
-			noTargetpr.println(hit.getHITId());
+//			noTargetpr.println(hit.getHITId());
 			System.out.println("HIT location: ");
 			System.out.println(service.getWebsiteURL() + "/mturk/preview?groupId=" + hit.getHITTypeId());
 
@@ -178,6 +181,38 @@ public class LexicalSubSurvey
 			System.err.println(e.getLocalizedMessage());
 		}
 	}
+	
+	private void createPartialContextGivenSurvey(String partialFirst, String target, String partialSecond) {
+		try 
+		{
+			HIT hit = service.createHIT
+			(
+					null,
+					partialContextTitle,
+					partialContextDescription,
+					null,
+					partialContextSub(
+							partialFirst, target, partialSecond),
+							reward,
+							(long)300,
+							(long)432000, (long)172800, numAssignments,
+							"", requirements, null);
+
+
+			// Print out the HITId and the URL to view the HIT.
+			System.out.println("Created HIT: " + hit.getHITId());
+			partialContextpr.println(hit.getHITId());
+			System.out.println("HIT location: ");
+			System.out.println(service.getWebsiteURL() + "/mturk/preview?groupId=" + hit.getHITTypeId());
+
+
+		}
+		catch (ServiceException e) 
+		{
+			System.err.println(e.getLocalizedMessage());
+		}
+	}
+
 
 	// deletes all HITs we have IDs stored for in NoContextGivenIDs, NoTargetGivenIDs, ContextGivenIDs 
 	public void deleteHIT(String hitId) throws IOException
@@ -205,7 +240,7 @@ public class LexicalSubSurvey
 	{
 		try 
 		{
-			OurHIT currentHIT = new OurHIT(hitId, wordToSense);
+			SentenceHIT currentHIT = new SentenceHIT(hitId, wordToSense);
 
 			ArrayList<String>  compareList = null;
 			// Print out the HITId and the URL to view the HIT.
@@ -279,7 +314,7 @@ public class LexicalSubSurvey
 			HIT[] HITs = service.getAllReviewableHITs(null);
 			for ( HIT amazonHIT: HITs )
 			{
-				OurHIT currentHIT = new OurHIT(amazonHIT.getHITId(), wordToSense);
+				SentenceHIT currentHIT = new SentenceHIT(amazonHIT.getHITId(), wordToSense);
 				ArrayList<String>  compareList = null;
 				System.out.println("Retrieved HIT: " + currentHIT.ID + " " + currentHIT.typeID );
 
@@ -383,7 +418,7 @@ public class LexicalSubSurvey
 
 				typeID = words[1];
 
-				OurHIT currentHIT = new OurHIT(words[0], typeID, words[2], answers);
+				SentenceHIT currentHIT = new SentenceHIT(words[0], typeID, words[2], answers);
 
 				if ( typeID.equals("20ASTLB3L0FBPWA8FU5JZEVE5SUJV7") )
 				{
@@ -409,8 +444,8 @@ public class LexicalSubSurvey
 		
 		for (int n = 0 ; n < 24 ; n++)
 		{
-			OurHIT currentContextHIT = contextHITs.get(n);
-			OurHIT currentNoContextHIT = noContextHITs.get(n);
+			SentenceHIT currentContextHIT = contextHITs.get(n);
+			SentenceHIT currentNoContextHIT = noContextHITs.get(n);
 			
 			ArrayList<String> currentContextAnswers = new ArrayList<String>(currentContextHIT.answers);
 			ArrayList<String> currentContextAnswers1 = new ArrayList<String>();
@@ -428,19 +463,19 @@ public class LexicalSubSurvey
 				currentNoContextAnswers2.add(currentNoContextAnswers.remove(hitSplitter.nextInt((48- i*2) - 1)));
 			}
 			// used quick and dirty OurHIT constructor for speed
-			OurHIT currentContextHIT1 = new OurHIT(currentContextAnswers1);
-			OurHIT currentContextHIT2 = new OurHIT(currentContextAnswers2);
+			SentenceHIT currentContextHIT1 = new SentenceHIT(currentContextAnswers1);
+			SentenceHIT currentContextHIT2 = new SentenceHIT(currentContextAnswers2);
 			contextHITs1.add(currentContextHIT1);
 			contextHITs2.add(currentContextHIT2);
-			OurHIT currentNoContextHIT1 = new OurHIT(currentNoContextAnswers1);
-			OurHIT currentNoContextHIT2 = new OurHIT(currentNoContextAnswers2);
+			SentenceHIT currentNoContextHIT1 = new SentenceHIT(currentNoContextAnswers1);
+			SentenceHIT currentNoContextHIT2 = new SentenceHIT(currentNoContextAnswers2);
 			noContextHITs1.add(currentNoContextHIT1);
 			noContextHITs2.add(currentNoContextHIT2);
 			
 		}
 	}
 	
-	public double getMirrorPearsonCoeff(ArrayList<OurHIT> list1, ArrayList<OurHIT> list2)
+	public double getMirrorPearsonCoeff(ArrayList<SentenceHIT> list1, ArrayList<SentenceHIT> list2)
 	{
 		double answer = 0;
 		double[] array1 = new double[list1.size()];
@@ -451,14 +486,14 @@ public class LexicalSubSurvey
 			array1[i] = list1.get(i).entropy;
 			array2[i] = list2.get(i).entropy;
 		}
-		
-		PearsonsCorrelation corr = new PearsonsCorrelation();
-
-		answer = corr.correlation(array1, array2);
+//		
+//		PearsonsCorrelation corr = new PearsonsCorrelation();
+//
+//		answer = corr.correlation(array1, array2);
 		
 		return answer;
 	}
-	public double getMirrorSpearmanCoeff(ArrayList<OurHIT> list1, ArrayList<OurHIT> list2)
+	public double getMirrorSpearmanCoeff(ArrayList<SentenceHIT> list1, ArrayList<SentenceHIT> list2)
 	{
 		double answer = 0;
 		double[] array1 = new double[list1.size()];
@@ -470,9 +505,9 @@ public class LexicalSubSurvey
 			array2[i] = list2.get(i).entropy;
 		}
 		
-		SpearmansCorrelation corr = new SpearmansCorrelation();
-
-		answer = corr.correlation(array1, array2);
+//		SpearmansCorrelation corr = new SpearmansCorrelation();
+//
+//		answer = corr.correlation(array1, array2);
 		
 		return answer;
 	}
@@ -488,9 +523,9 @@ public class LexicalSubSurvey
 			array2[i] = noContextHITs.get(i).entropy;
 		}
 		
-		SpearmansCorrelation corr = new SpearmansCorrelation();
-
-		answer = corr.correlation(array1, array2);
+//		SpearmansCorrelation corr = new SpearmansCorrelation();
+//
+//		answer = corr.correlation(array1, array2);
 		
 		return answer;
 	}
@@ -506,14 +541,14 @@ public class LexicalSubSurvey
 			array2[i] = noContextHITs.get(i).entropy;
 		}
 		
-		PearsonsCorrelation corr = new PearsonsCorrelation();
-
-		answer = corr.correlation(array1, array2);
+//		PearsonsCorrelation corr = new PearsonsCorrelation();
+//
+//		answer = corr.correlation(array1, array2);
 		
 		return answer;
 	}
 	
-<<<<<<< HEAD
+
 	public static double round(double value) {
 		long factor = (long) Math.pow(10, 4);
 	    value = value * factor;
@@ -529,6 +564,10 @@ public class LexicalSubSurvey
 		HashMap<Double, Double> spearmanNoContextFreq = new HashMap<Double, Double>();
 		HashMap<Double, Double> pearsonFreq = new HashMap<Double, Double>();
 		HashMap<Double, Double> spearmanFreq = new HashMap<Double, Double>();
+		HashMap<Double, Double> entropyContextFreq = new HashMap<Double, Double>();
+		HashMap<Double, Double> entropyNoContextFreq = new HashMap<Double, Double>();
+		HashMap<Double, Double> entropyAvgContextFreq = new HashMap<Double, Double>();
+		HashMap<Double, Double> entropyAvgNoContextFreq = new HashMap<Double, Double>();
 		double pearsonContextMean = 0;
 		double pearsonNoContextMean = 0;
 		double spearmanContextMean = 0;
@@ -541,128 +580,185 @@ public class LexicalSubSurvey
 		double spearmanNoContextSD = 0;
 		double pearsonSD = 0;
 		double spearmanSD = 0;
-		double samples = 100000;
+		double samples = 5000;
 
 		for ( int n = 0 ; n < (int)samples ; n++)
 		{
 			System.out.println(n);
 			splitHITs();
-			double coeff = round( getMirrorPearsonCoeff(contextHITs1, contextHITs2) );
-			if (pearsonContextFreq.containsKey(coeff)){
-				pearsonContextFreq.put(coeff, pearsonContextFreq.get(coeff) + 1);
-			}else {
-				pearsonContextFreq.put(coeff, (double) 1);
-			} 
-			coeff = round( getMirrorSpearmanCoeff(contextHITs1, contextHITs2) );
-			if (spearmanContextFreq.containsKey(coeff)){
-				spearmanContextFreq.put(coeff, spearmanContextFreq.get(coeff) + 1);
-			}else {
-				spearmanContextFreq.put(coeff, (double) 1);
-			} 
-			coeff = round( getMirrorPearsonCoeff(noContextHITs1, noContextHITs2) );
-			if (pearsonNoContextFreq.containsKey(coeff)){
-				pearsonNoContextFreq.put(coeff, pearsonNoContextFreq.get(coeff) + 1);
-			}else {
-				pearsonNoContextFreq.put(coeff, (double) 1);
-			} 
-			coeff = round( getMirrorSpearmanCoeff(noContextHITs1, noContextHITs2) );
-			if (spearmanNoContextFreq.containsKey(coeff)){
-				spearmanNoContextFreq.put(coeff, spearmanNoContextFreq.get(coeff) + 1);
-			}else {
-				spearmanNoContextFreq.put(coeff, (double) 1);
-			} 
-			coeff = round( getMirrorSpearmanCoeff(contextHITs1, noContextHITs1) );
-			if ( spearmanFreq.containsKey(coeff)){
-				spearmanFreq.put(coeff, spearmanFreq.get(coeff) + 1);
-			} else {
-				spearmanFreq.put(coeff, (double) 1);
-			} 
-			coeff = round( getMirrorPearsonCoeff(contextHITs1, noContextHITs1) );
-			if ( pearsonFreq.containsKey(coeff)){
-				pearsonFreq.put(coeff, pearsonFreq.get(coeff) + 1);
-			} else {
-				pearsonFreq.put(coeff, (double) 1);
+			double entropy =0;
+			double avgEntropy = 0;
+			for (SentenceHIT currentHit: contextHITs1){
+				entropy = currentHit.entropy;
+				avgEntropy += entropy;
+				if (entropyContextFreq.containsKey(entropy)){
+					entropyContextFreq.put(entropy, entropyContextFreq.get(entropy) + 1);
+				}else {
+					entropyContextFreq.put(entropy, (double) 1);
+				} 
 			}
+			avgEntropy = avgEntropy / contextHITs1.size();
+			if (entropyAvgContextFreq.containsKey(entropy)){
+				entropyAvgContextFreq.put(entropy, entropyAvgContextFreq.get(entropy) + 1);
+			}else {
+				entropyAvgContextFreq.put(entropy, (double) 1);
+			}
+			avgEntropy = 0;
+			for (SentenceHIT currentHit: noContextHITs1){
+				entropy = currentHit.entropy;
+				avgEntropy += entropy;
+				if (entropyNoContextFreq.containsKey(entropy)){
+					entropyNoContextFreq.put(entropy, entropyNoContextFreq.get(entropy) + 1);
+				}else {
+					entropyNoContextFreq.put(entropy, (double) 1);
+				} 
+			}
+			avgEntropy = avgEntropy / contextHITs1.size();
+			if (entropyAvgNoContextFreq.containsKey(entropy)){
+				entropyAvgNoContextFreq.put(entropy, entropyAvgNoContextFreq.get(entropy) + 1);
+			}else {
+				entropyAvgNoContextFreq.put(entropy, (double) 1);
+			}
+//			double coeff = round( getMirrorPearsonCoeff(contextHITs1, contextHITs2) );
+//			if (pearsonContextFreq.containsKey(coeff)){
+//				pearsonContextFreq.put(coeff, pearsonContextFreq.get(coeff) + 1);
+//			}else {
+//				pearsonContextFreq.put(coeff, (double) 1);
+//			} 
+//			coeff = round( getMirrorSpearmanCoeff(contextHITs1, contextHITs2) );
+//			if (spearmanContextFreq.containsKey(coeff)){
+//				spearmanContextFreq.put(coeff, spearmanContextFreq.get(coeff) + 1);
+//			}else {
+//				spearmanContextFreq.put(coeff, (double) 1);
+//			} 
+//			coeff = round( getMirrorPearsonCoeff(noContextHITs1, noContextHITs2) );
+//			if (pearsonNoContextFreq.containsKey(coeff)){
+//				pearsonNoContextFreq.put(coeff, pearsonNoContextFreq.get(coeff) + 1);
+//			}else {
+//				pearsonNoContextFreq.put(coeff, (double) 1);
+//			} 
+//			coeff = round( getMirrorSpearmanCoeff(noContextHITs1, noContextHITs2) );
+//			if (spearmanNoContextFreq.containsKey(coeff)){
+//				spearmanNoContextFreq.put(coeff, spearmanNoContextFreq.get(coeff) + 1);
+//			}else {
+//				spearmanNoContextFreq.put(coeff, (double) 1);
+//			} 
+//			coeff = round( getMirrorSpearmanCoeff(contextHITs1, noContextHITs1) );
+//			if ( spearmanFreq.containsKey(coeff)){
+//				spearmanFreq.put(coeff, spearmanFreq.get(coeff) + 1);
+//			} else {
+//				spearmanFreq.put(coeff, (double) 1);
+//			} 
+//			coeff = round( getMirrorPearsonCoeff(contextHITs1, noContextHITs1) );
+//			if ( pearsonFreq.containsKey(coeff)){
+//				pearsonFreq.put(coeff, pearsonFreq.get(coeff) + 1);
+//			} else {
+//				pearsonFreq.put(coeff, (double) 1);
+//			}
 		}
-		output.println("Pearson Context");
-		for (double coefficient : pearsonContextFreq.keySet() )
+		output.println("Entropy Context");
+		for (double coefficient : entropyContextFreq.keySet() )
 		{
-			pearsonContextFreq.put(coefficient, pearsonContextFreq.get(coefficient)/samples);
-			output.printf(coefficient + ", %.8f", pearsonContextFreq.get(coefficient));
+			output.printf(coefficient + ", %.8f", entropyContextFreq.get(coefficient));
 			output.println();
-			pearsonContextMean += coefficient * pearsonContextFreq.get(coefficient);
 		}
-		output.println("Pearson No Context");
-		for (double coefficient : pearsonNoContextFreq.keySet() )
+		output.println("Entropy Avg Context");
+		for (double coefficient : entropyAvgContextFreq.keySet() )
 		{
-			pearsonNoContextFreq.put(coefficient, pearsonNoContextFreq.get(coefficient)/samples);
-			output.printf(coefficient + ", %.8f", pearsonNoContextFreq.get(coefficient));
+			output.printf(coefficient + ", %.8f", entropyAvgContextFreq.get(coefficient));
 			output.println();
-			pearsonNoContextMean += coefficient * pearsonNoContextFreq.get(coefficient);
 		}
-		output.println("Spearman Context");
-		for (double coefficient : spearmanContextFreq.keySet() )
+		output.println("Entropy NoContext");
+		for (double coefficient : entropyNoContextFreq.keySet() )
 		{
-			spearmanContextFreq.put(coefficient, spearmanContextFreq.get(coefficient)/samples);
-			output.printf(coefficient + ", %.8f", spearmanContextFreq.get(coefficient));
+			output.printf(coefficient + ", %.8f", entropyNoContextFreq.get(coefficient));
 			output.println();
-			spearmanContextMean += coefficient * spearmanContextFreq.get(coefficient);
 		}
-		output.println("Spearman No Context");
-		for (double coefficient : spearmanNoContextFreq.keySet() )
+		output.println("Entropy AvgNoContext");
+		for (double coefficient : entropyAvgNoContextFreq.keySet() )
 		{
-			spearmanNoContextFreq.put(coefficient, spearmanNoContextFreq.get(coefficient)/samples);
-			output.printf(coefficient + ", %.8f", spearmanNoContextFreq.get(coefficient));
+			output.printf(coefficient + ", %.8f", entropyAvgNoContextFreq.get(coefficient));
 			output.println();
-			spearmanNoContextMean += coefficient * spearmanNoContextFreq.get(coefficient);
 		}
-		output.println("Spearman Basic");
-		for (double coefficient : spearmanFreq.keySet() )
-		{
-			spearmanFreq.put(coefficient, spearmanFreq.get(coefficient)/samples);
-			output.printf(coefficient + ", %.8f", spearmanFreq.get(coefficient));
-			output.println();
-			spearmanMean += coefficient * spearmanFreq.get(coefficient);
-		}
-		output.println("Pearson Basic");
-		for (double coefficient : pearsonFreq.keySet() )
-		{
-			pearsonFreq.put(coefficient, pearsonFreq.get(coefficient)/samples);
-			output.printf(coefficient + ", %.8f", pearsonFreq.get(coefficient));
-			output.println();
-			pearsonMean += coefficient * pearsonFreq.get(coefficient);
-		}
-		// calculating standard deviations
-		for (double coefficient : pearsonContextFreq.keySet() )
-		{
-			pearsonContextSD += pearsonContextFreq.get(coefficient) * Math.pow(coefficient - pearsonContextMean, 2);
-		}
-		for (double coefficient : pearsonNoContextFreq.keySet() )
-		{
-			pearsonNoContextSD += pearsonNoContextFreq.get(coefficient) * Math.pow(coefficient - pearsonNoContextMean, 2);
-		}
-		for (double coefficient : spearmanContextFreq.keySet() )
-		{
-			spearmanContextSD += spearmanContextFreq.get(coefficient) * Math.pow(coefficient - spearmanContextMean, 2);
-		}
-		for (double coefficient : spearmanNoContextFreq.keySet() )
-		{
-			spearmanNoContextSD += spearmanNoContextFreq.get(coefficient) * Math.pow(coefficient - spearmanNoContextMean, 2);
-		}
-		for (double coefficient : pearsonFreq.keySet() )
-		{
-			pearsonSD += pearsonFreq.get(coefficient) * Math.pow(coefficient - pearsonMean, 2);
-		}
-		for (double coefficient : spearmanFreq.keySet() )
-			spearmanSD += spearmanFreq.get(coefficient) * Math.pow(coefficient - spearmanMean, 2);
-		{
-		}
-		System.out.println("Pearson Basic mean = " + pearsonMean + " SD = " + Math.sqrt(pearsonSD));
-		System.out.println("Spearman Basic mean = " + spearmanMean + " SD = " + Math.sqrt(spearmanSD));
-		System.out.println("Pearson Context mean = " + pearsonContextMean + " SD = " + Math.sqrt(pearsonContextSD));
-		System.out.println("Pearson No Context mean = " + pearsonNoContextMean + " SD = " + Math.sqrt(pearsonNoContextSD));
-		System.out.println("Spearman Context mean = " + spearmanContextMean + " SD = " + Math.sqrt(spearmanContextSD));
-		System.out.println("Spearman No Context mean = " + spearmanNoContextMean + " SD = " + Math.sqrt(spearmanNoContextSD));
+//		output.println("Pearson Context");
+//		for (double coefficient : pearsonContextFreq.keySet() )
+//		{
+//			pearsonContextFreq.put(coefficient, pearsonContextFreq.get(coefficient)/samples);
+//			output.printf(coefficient + ", %.8f", pearsonContextFreq.get(coefficient));
+//			output.println();
+//			pearsonContextMean += coefficient * pearsonContextFreq.get(coefficient);
+//		}
+//		output.println("Pearson No Context");
+//		for (double coefficient : pearsonNoContextFreq.keySet() )
+//		{
+//			pearsonNoContextFreq.put(coefficient, pearsonNoContextFreq.get(coefficient)/samples);
+//			output.printf(coefficient + ", %.8f", pearsonNoContextFreq.get(coefficient));
+//			output.println();
+//			pearsonNoContextMean += coefficient * pearsonNoContextFreq.get(coefficient);
+//		}
+//		output.println("Spearman Context");
+//		for (double coefficient : spearmanContextFreq.keySet() )
+//		{
+//			spearmanContextFreq.put(coefficient, spearmanContextFreq.get(coefficient)/samples);
+//			output.printf(coefficient + ", %.8f", spearmanContextFreq.get(coefficient));
+//			output.println();
+//			spearmanContextMean += coefficient * spearmanContextFreq.get(coefficient);
+//		}
+//		output.println("Spearman No Context");
+//		for (double coefficient : spearmanNoContextFreq.keySet() )
+//		{
+//			spearmanNoContextFreq.put(coefficient, spearmanNoContextFreq.get(coefficient)/samples);
+//			output.printf(coefficient + ", %.8f", spearmanNoContextFreq.get(coefficient));
+//			output.println();
+//			spearmanNoContextMean += coefficient * spearmanNoContextFreq.get(coefficient);
+//		}
+//		output.println("Spearman Basic");
+//		for (double coefficient : spearmanFreq.keySet() )
+//		{
+//			spearmanFreq.put(coefficient, spearmanFreq.get(coefficient)/samples);
+//			output.printf(coefficient + ", %.8f", spearmanFreq.get(coefficient));
+//			output.println();
+//			spearmanMean += coefficient * spearmanFreq.get(coefficient);
+//		}
+//		output.println("Pearson Basic");
+//		for (double coefficient : pearsonFreq.keySet() )
+//		{
+//			pearsonFreq.put(coefficient, pearsonFreq.get(coefficient)/samples);
+//			output.printf(coefficient + ", %.8f", pearsonFreq.get(coefficient));
+//			output.println();
+//			pearsonMean += coefficient * pearsonFreq.get(coefficient);
+//		}
+//		// calculating standard deviations
+//		for (double coefficient : pearsonContextFreq.keySet() )
+//		{
+//			pearsonContextSD += pearsonContextFreq.get(coefficient) * Math.pow(coefficient - pearsonContextMean, 2);
+//		}
+//		for (double coefficient : pearsonNoContextFreq.keySet() )
+//		{
+//			pearsonNoContextSD += pearsonNoContextFreq.get(coefficient) * Math.pow(coefficient - pearsonNoContextMean, 2);
+//		}
+//		for (double coefficient : spearmanContextFreq.keySet() )
+//		{
+//			spearmanContextSD += spearmanContextFreq.get(coefficient) * Math.pow(coefficient - spearmanContextMean, 2);
+//		}
+//		for (double coefficient : spearmanNoContextFreq.keySet() )
+//		{
+//			spearmanNoContextSD += spearmanNoContextFreq.get(coefficient) * Math.pow(coefficient - spearmanNoContextMean, 2);
+//		}
+//		for (double coefficient : pearsonFreq.keySet() )
+//		{
+//			pearsonSD += pearsonFreq.get(coefficient) * Math.pow(coefficient - pearsonMean, 2);
+//		}
+//		for (double coefficient : spearmanFreq.keySet() )
+//			spearmanSD += spearmanFreq.get(coefficient) * Math.pow(coefficient - spearmanMean, 2);
+//		{
+//		}
+//		System.out.println("Pearson Basic mean = " + pearsonMean + " SD = " + Math.sqrt(pearsonSD));
+//		System.out.println("Spearman Basic mean = " + spearmanMean + " SD = " + Math.sqrt(spearmanSD));
+//		System.out.println("Pearson Context mean = " + pearsonContextMean + " SD = " + Math.sqrt(pearsonContextSD));
+//		System.out.println("Pearson No Context mean = " + pearsonNoContextMean + " SD = " + Math.sqrt(pearsonNoContextSD));
+//		System.out.println("Spearman Context mean = " + spearmanContextMean + " SD = " + Math.sqrt(spearmanContextSD));
+//		System.out.println("Spearman No Context mean = " + spearmanNoContextMean + " SD = " + Math.sqrt(spearmanNoContextSD));
 	}
 	
 	public void runSimilaritySamplingData(PrintWriter output)
@@ -672,25 +768,20 @@ public class LexicalSubSurvey
 		{
 			System.out.println(n);
 			splitHITs();
-			FrequencyCounter contextFreq = new FrequencyCounter<Double>();
-			FrequencyCounter noContextFreq = new FrequencyCounter<Double>();
+			FrequencyCounter<Double> contextFreq = new FrequencyCounter<Double>();
+			FrequencyCounter<Double> noContextFreq = new FrequencyCounter<Double>();
 			
 			for ( int i = 0; i < 24; i ++ )
 			{
-				contextFreq.add( similarity(contextHITs1.get(i), contextHITs2.get(i)) );
-				noContextFreq.add( similarity(noContextHITs1.get(i), noContextHITs2.get(i)) );
+				contextFreq.add( getCosineSimilarity(contextHITs1.get(i), contextHITs2.get(i)) );
+				noContextFreq.add( getCosineSimilarity(noContextHITs1.get(i), noContextHITs2.get(i)) );
 			}
 
 			
 		}
 	}
-	
-	public double similarity()
-	{
-		return 0.0;
-	}
 
-	public double getCosineSimilarity(OurHIT contextHit, OurHIT noContextHit){
+	public double getCosineSimilarity(SentenceHIT contextHit, SentenceHIT noContextHit){
 		Map<String, Integer> contextFreq = contextHit.frequencyCounter;
 		Map<String, Integer> noContextFreq = noContextHit.frequencyCounter;
 		double contextMagnitude = 0;
@@ -719,7 +810,7 @@ public class LexicalSubSurvey
 		//	
 	}
 
-	public double getOverlap(OurHIT contextHit, OurHIT noContextHit){
+	public double getOverlap(SentenceHIT contextHit, SentenceHIT noContextHit){
 		Map<String, Integer> contextFreq = contextHit.frequencyCounter;
 		Map<String, Integer> noContextFreq = noContextHit.frequencyCounter;
 		int weightMatched=0;
@@ -791,6 +882,49 @@ public class LexicalSubSurvey
 		q += "</HTMLQuestion>";
 		return q;
 	}
+ 	
+ 	public static String partialContextSub(String firstPartQuestion, String word, String secondPartQuestion){
+ 		String q = "";
+		q += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+		q += "<HTMLQuestion xmlns=\"http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2011-11-11/HTMLQuestion.xsd\">";
+		q += "	<HTMLContent><![CDATA[";
+		q += "<!DOCTYPE html>";
+		q += "<html>";
+		q += "  <head>";
+		q += "    <script type=\'text/javascript\' src=\'https://s3.amazonaws.com/mturk-public/externalHIT_v1.js\'></script>";
+		q += "  </head>";
+		q += "	<body>";
+		q += "		<u><b><span style=\"font-size:25px;\">Instructions:</span></b></u><br /><br />";
+		q += "		";
+		q += "		<hr />";
+		q += "		<br /><u><b><span style=\"font-size:25px;\">Task:</span></b></u><br />";
+		q += "		<br /><span style = \"font-size:20px;\">" + firstPartQuestion + "<b style=\"color:red;\">" + word + "</b>" + secondPartQuestion + "</span>";
+		q += "      <br/><form name='mturk_form' method='post' id='mturk_form' onsubmit=\"return validateForm()\" action='https://www.mturk.com/mturk/externalSubmit' style=\"padding-top:10px\">";
+		q += "      <input type=\'hidden\' value=\'\' name =\'assignmentId\' id=\'assignmentId\'/>";
+		q += "      <input type=\"text\" name=\"HITAnswer\" id=\"answer\"/>";
+		q += "      <input type=\"submit\" value=\"Submit\" id=\"submit_button\"/>";
+		q += "      </form>";
+		q += "    <script language='Javascript'>turkSetAssignmentID();</script>";
+		q += "    <script type=\'text/javascript\'>";
+		q += "      if (document.getElementById(\"assignmentId\").value == \"ASSIGNMENT_ID_NOT_AVAILABLE\") {";
+		q += "        document.getElementById(\"submit_button\").disabled = true;";
+		q += "        document.getElementById(\"answer\").disabled = true; } ";
+		q += "      else {document.getElementById(\"submit_button\").disabled = false;";
+		q += "		  document.getElementById(\"answer\").disabled = false; }";
+		q += "		function validateForm(){";
+		q += "			if (document.getElementById(\"answer\").value == null || document.getElementById(\"answer\").value.trim() == \"\"){";
+		q += " 				alert(\"Please provide a word.\"";
+		q += " 				return false;";
+		q += " 			}";
+		q += " 		}";
+		q += "    </script>";
+		q += "  </body>";
+		q += "</html>]]>";
+		q += "  </HTMLContent>";
+		q += "  <FrameHeight>500</FrameHeight>";
+		q += "</HTMLQuestion>";
+		return q;
+ 	}
 
 	// HTML for a HIT with the context given but the target word omitted
 	public static String noTargetGivenSub(String firstPartQuestion, String word, String secondPartQuestion) {
@@ -924,7 +1058,7 @@ public class LexicalSubSurvey
 					ExamplePairReader reader = new ExamplePairReader(PARSED, ALIGN);
 					BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(inputFile))); // typical file name: "sub.simple.first100"
 					app.noContextpr = new PrintWriter(new FileOutputStream(new File("NoContextGivenIDs")));
-					app.noTargetpr = new PrintWriter(new FileOutputStream(new File("NoTargetGivenIDs")));
+					app.partialContextpr = new PrintWriter(new FileOutputStream(new File("partialContextIDs")));
 					app.contextpr = new PrintWriter(new FileOutputStream(new File("ContextGivenIDs")));
 
 					Map<String, String> codeToPOS = new HashMap<String, String>(14);
@@ -992,12 +1126,14 @@ public class LexicalSubSurvey
 
 							if( diffWords && normWordSimplePOS && posEqual && !normalIsAlreadySimple && doWeHaveSense && contextMatch){
 								String firstPart = "";
+								String partialFirst = "";
 								String wordAfterFocus = normalWords.get(n+1).getWord();
 								String target = normal.getWord();
 								if ( !( wordAfterFocus.length() == 1 && wordAfterFocus.compareTo("A") < 0 ) ){
 									target += " ";
 								}
 								String secondPart = "";
+								String partialSecond = "";
 								sense = wordToSense.get(normal.getWord())[1];
 								String POS = codeToPOS.get(normal.getPos());
 
@@ -1008,21 +1144,29 @@ public class LexicalSubSurvey
 										nextWord = normalWords.get(i+1).getWord();
 									}
 									if ( i < n ){
+										if (i > n - 3)
+											partialFirst += currentWord;
 										firstPart += currentWord;
 										if ( !( nextWord.length() == 1 && nextWord.compareTo("A") < 0 )){
 											firstPart += " ";
+											if (i > n - 3)
+												partialFirst += " ";
 										}
 									}
 									if ( i > n ){
+										if (i < n + 3)
+											partialSecond += currentWord;
 										secondPart += currentWord;
 										if ( !( nextWord.length() == 1 && nextWord.compareTo("A") < 0 )){
 											secondPart += " ";
+											if (i < n + 3)
+												partialSecond += " ";
 										}
 									}
 								}
 
 								app.createContextGivenSurvey(firstPart, target, secondPart);
-								app.createNoTargetGivenSurvey(firstPart, target, secondPart);
+								app.createPartialContextGivenSurvey(partialFirst, target, partialSecond);
 								app.createNoContextGivenSurvey(firstPart, target, secondPart, sense, POS);
 							}
 						}
@@ -1031,7 +1175,7 @@ public class LexicalSubSurvey
 						// input = in.readLine();
 					}
 					app.contextpr.close();
-					app.noTargetpr.close();
+					app.partialContextpr.close();
 					app.noContextpr.close();
 
 				}else if (args[0].equals("-delete")){
@@ -1108,7 +1252,7 @@ public class LexicalSubSurvey
 
 					PrintWriter answerOutput = new PrintWriter(new FileOutputStream(new File("Hit output formatted")));
 
-					for (OurHIT currentHIT: app.contextHITs) {
+					for (SentenceHIT currentHIT: app.contextHITs) {
 						String wordList = "";
 						boolean topAnswers = false;
 						for (String text: currentHIT.frequencyCounter.keySet()){
@@ -1130,7 +1274,7 @@ public class LexicalSubSurvey
 						app.contextAnswerOutput.println(currentHIT.toString());
 					}
 
-					for (OurHIT currentHIT: app.noContextHITs) {
+					for (SentenceHIT currentHIT: app.noContextHITs) {
 						String wordList = "";
 						boolean topAnswers = false;
 						for (String text: currentHIT.frequencyCounter.keySet()){
@@ -1167,16 +1311,16 @@ public class LexicalSubSurvey
 					System.out.println("gathering data...");
 					// IDs are usually stored in these files: NoContextGivenIDs, NoTargetGivenIDs, ContextGivenIDs 
 					
-					for (int i = 5 ; i < 51 ; i += 5)
-					{
-						app.contextHITs.clear();
-						app.noContextHITs.clear();
-						app.fillHitList(new File("/home/padelstein/LexicalSimplify/data/SecondExperiment/contextAnswerOutput.cleaned"), i);
-						app.fillHitList(new File("/home/padelstein/LexicalSimplify/data/SecondExperiment/noContextAnswerOutput.cleaned"), i);
-						PrintWriter noContextEntropyOut = new PrintWriter(new FileOutputStream(new File("noContextEntropy"+i+".data.csv")));
-						PrintWriter contextEntropyOut = new PrintWriter(new FileOutputStream(new File("contextEntropy"+i+".data.csv")));
-						PrintWriter samplingData = new PrintWriter(new FileOutputStream(new File("mirrorSimilaritySampling.data.csv")));
-						
+//					for (int i = 5 ; i < 51 ; i += 5)
+//					{
+//						app.contextHITs.clear();
+//						app.noContextHITs.clear();
+					app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/contextAnswerOutput.cleaned"), 50);
+					app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/noContextAnswerOutput.cleaned"), 50);
+//						PrintWriter noContextEntropyOut = new PrintWriter(new FileOutputStream(new File("noContextEntropy"+i+".data.csv")));
+//						PrintWriter contextEntropyOut = new PrintWriter(new FileOutputStream(new File("contextEntropy"+i+".data.csv")));
+						PrintWriter samplingData = new PrintWriter(new FileOutputStream(new File("entropySampling.data.csv")));
+//						
 						
 						
 //						for ( OurHIT currentHIT : app.contextHITs)
@@ -1190,10 +1334,10 @@ public class LexicalSubSurvey
 //						
 //						System.out.println(i + "\t" + app.getPearsonCoeff() + "\t" + app.getSpearmanCoeff() );
 						
-						if ( i == 50 )
-						{
+//						if ( i == 50 )
+//						{
 							app.runEntropySampling(samplingData);
-						}
+//						}
 							
 //							app.splitHITs();
 //							for (int k = 0 ; k < 24 ; k++)
@@ -1213,9 +1357,9 @@ public class LexicalSubSurvey
 //							System.out.println("25-25 no context Pearson : " + app.getMirrorPearsonCoeff(app.noContextHITs1, app.noContextHITs2));
 //						}
 						samplingData.close();
-						noContextEntropyOut.close();
-						contextEntropyOut.close();
-					}
+//						noContextEntropyOut.close();
+//						contextEntropyOut.close();
+//					}
 
 				} else if (args[0].equals("-checkSimilarity")){
 					app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/contextAnswerOutput.cleaned"), 50);
@@ -1235,8 +1379,8 @@ public class LexicalSubSurvey
 					int topMatch = 0;
 
 
-					for (OurHIT contextHit: app.contextHITs){
-						for (OurHIT noContextHit: app.noContextHITs){
+					for (SentenceHIT contextHit: app.contextHITs){
+						for (SentenceHIT noContextHit: app.noContextHITs){
 							Map<String, Integer> contextFreq = contextHit.frequencyCounter;
 							Map<String, Integer> noContextFreq = noContextHit.frequencyCounter;
 							int weightMatched=0;
@@ -1306,11 +1450,11 @@ public class LexicalSubSurvey
 					app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/contextAnswerOutput.cleaned"), 50);
 					app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/noContextAnswerOutput.cleaned"), 50);
 
-					for (OurHIT contextHit: app.contextHITs){
+					for (SentenceHIT contextHit: app.contextHITs){
 						statData.println(contextHit.typeID +", " + contextHit.targetWord + ", " + contextHit.highestFreq);
 					}
 					
-					for (OurHIT noContextHit: app.noContextHITs){
+					for (SentenceHIT noContextHit: app.noContextHITs){
 						statData.println(noContextHit.typeID +", " + noContextHit.targetWord + ", " + noContextHit.highestFreq);
 					}
 					statData.close();
@@ -1320,7 +1464,10 @@ public class LexicalSubSurvey
 					app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/noContextAnswerOutput.cleaned"), 50);
 					PrintWriter similarity = new PrintWriter(new FileOutputStream(output));
 
-					for (int x = 0; x<100; x++){
+					System.out.print("Progress");
+					for (int x = 0; x<10000; x++){
+						if (x % 500 == 0)
+							System.out.print(" . ");
 					
 					double overlapIndicator = 0;
 					double overlapDivisor = 0;
@@ -1332,13 +1479,13 @@ public class LexicalSubSurvey
 					double cosineTotal = 0;
 					int topMatch = 0;
 					Random hitSplitter = new Random();
-					ArrayList<OurHIT> data = new ArrayList<OurHIT>();
+					ArrayList<SentenceHIT> data = new ArrayList<SentenceHIT>();
 					if (args[2].equals("context"))
 						data = app.contextHITs;
 					else
 						data = app.noContextHITs;
-//					for (int x = 0; x<100; x++){
-					for (OurHIT currentHit: data){
+//					for (int x = 0; x<1000; x++){
+					for (SentenceHIT currentHit: data){
 						ArrayList<String> currentAnswers = new ArrayList<String>(currentHit.answers);
 						ArrayList<String> current1Answers = new ArrayList<String>();
 						ArrayList<String> current2Answers = new ArrayList<String>();
@@ -1346,8 +1493,8 @@ public class LexicalSubSurvey
 							current1Answers.add(currentAnswers.remove(hitSplitter.nextInt(48-i*2)));
 							current2Answers.add(currentAnswers.remove(hitSplitter.nextInt((48- i*2) - 1)));
 						}
-						OurHIT currentHit1 = new OurHIT(currentHit.ID +"1", currentHit.typeID, currentHit.targetWord, current1Answers);
-						OurHIT currentHit2 = new OurHIT(currentHit.ID +"2", currentHit.typeID, currentHit.targetWord, current2Answers);
+						SentenceHIT currentHit1 = new SentenceHIT(currentHit.ID +"1", currentHit.typeID, currentHit.targetWord, current1Answers);
+						SentenceHIT currentHit2 = new SentenceHIT(currentHit.ID +"2", currentHit.typeID, currentHit.targetWord, current2Answers);
 						Map<String, Integer> current1Freq = currentHit1.frequencyCounter;
 						Map<String, Integer> current2Freq = currentHit2.frequencyCounter;
 						int weightMatched=0;
@@ -1392,7 +1539,7 @@ public class LexicalSubSurvey
 							for (int k =0; k< Math.min(currentHit1.answers.size(), currentHit2.answers.size()) - weightMatched; k++){
 								//Do no match
 								overlapDivisor++;
-							}
+//							}
 //							similarity.println("Kullback-Liebler, " + currentHit1.targetWord + ", " + indivKL);
 							cosineDivisor = current2Magnitude*current1Magnitude;
 //							similarity.println("Cosine, " + currentHit1.targetWord + ", " + cosineIndicator/cosineDivisor);
@@ -1400,14 +1547,15 @@ public class LexicalSubSurvey
 //							similarity.println("Overlap, " + currentHit1.targetWord + ", " + weightMatched/(double)Math.min(currentHit1.answers.size(), currentHit2.answers.size()));
 						}
 					}
-//					}
-					similarity.println("Overlap:, " + overlapIndicator/overlapDivisor);
+					}
+					similarity.println("Overlap:, " + (double)Math.round((overlapIndicator/overlapDivisor)*1000)/1000.0);
 					//						similarity.println((2.0*overlapIndicator)/sorensen);
-					similarity.println("Jaccard:, " + jaccardIndicator/jaccardDivisor);
-					similarity.println("Cosine:,  " + cosineTotal/(data.size()/*100*/));
-					System.out.println("percentage of top submissions that match: " + topMatch/data.size());
+//					similarity.println("Jaccard:, " + jaccardIndicator/jaccardDivisor);
+					similarity.println("Cosine:,  " + (double)Math.round((cosineTotal/data.size())*1000)/1000.0);
+//					System.out.println("percentage of top submissions that match: " + topMatch/data.size());
 				}
 					similarity.close();
+					
 				}else {
 					System.err.println("No valid options were provided");
 					System.out.println(usageError);
@@ -1421,7 +1569,6 @@ public class LexicalSubSurvey
 		}else
 			System.out.println(usageError);
 	}
-
 
 	private class Worker
 	{
@@ -1465,21 +1612,44 @@ public class LexicalSubSurvey
 	}
 
 	private class FrequencyCounter<K>
-	{
-		public HashMap<K, Double> frequency = new HashMap<K, Double>();
-		public double samples = 0;
-		
-		public void add(K key)
-		{
-			if (frequency.containsKey(key)){
-				frequency.put(key, frequency.get(key) + 1);
-			}else {
-				frequency.put(key, (double) 1);
-			} 
-		}
-		public Double get(K key)
-		{
-			return frequency.get(key)/samples;
-		}
-	}
+    {
+        public HashMap<K, Double> frequency = new HashMap<K, Double>();
+        public double samples = 0;
+        public double mean = 0;
+        public double sd = 0;
+       
+        public void add(K key)
+        {
+            if (frequency.containsKey(key)){
+                frequency.put(key, frequency.get(key) + 1);
+            }else {
+                frequency.put(key, (double) 1);
+            }
+            samples++;
+        }
+       
+        public void calcStats()
+        {
+            for (K key : frequency.keySet() )
+            {
+                frequency.put(key, frequency.get(key)/samples);
+                mean += (Double)key * frequency.get(key);
+            }
+            // calculating standard deviations
+            for (K key : frequency.keySet() )
+            {
+                sd += frequency.get(key) * Math.pow((Double)key - mean, 2);
+            }
+            sd = Math.sqrt(sd);
+        }
+   
+        public void printCSV(PrintWriter out)
+        {
+            for ( K key : frequency.keySet() )
+            {
+                out.printf(key + ", %.8f", frequency.get(key) );
+                out.println();
+            }
+        }
+    }
 }

@@ -10,7 +10,7 @@ import com.amazonaws.mturk.requester.HIT;
 import com.amazonaws.mturk.service.axis.RequesterService;
 import com.amazonaws.mturk.util.PropertiesClientConfig;
 
-public class OurHIT implements Comparable
+public class SentenceHIT implements Comparable
 {
 	private RequesterService service = new RequesterService(new PropertiesClientConfig());
 	public HIT amazonHIT = null;
@@ -24,7 +24,7 @@ public class OurHIT implements Comparable
 	public double entropy = 0;
 	
 	// quick and dirty constructor
-	public OurHIT(ArrayList<String> ans)
+	public SentenceHIT(ArrayList<String> ans)
 	{
 		answers = ans;
 
@@ -45,7 +45,7 @@ public class OurHIT implements Comparable
 		calcEntropy();
 	}
 	
-	public OurHIT(String hitID, Map<String, String[]> wordToSense)
+	public SentenceHIT(String hitID, Map<String, String[]> wordToSense)
 	{
 		hitID.trim();
 		amazonHIT = service.getHIT(hitID);
@@ -58,7 +58,7 @@ public class OurHIT implements Comparable
 
 	}
 
-	public OurHIT(String hitID, String typeID, String word, ArrayList<String> answerArray)
+	public SentenceHIT(String hitID, String typeID, String word, ArrayList<String> answerArray)
 	{
 		ID = hitID;
 		this.typeID = typeID;
@@ -157,7 +157,7 @@ public class OurHIT implements Comparable
 	@Override
 	public int compareTo(Object otherHIT)
 	{	
-		double answer = this.entropy - ((OurHIT)otherHIT).entropy;
+		double answer = this.entropy - ((SentenceHIT)otherHIT).entropy;
 		
 		if ( answer < 0)
 			return -1;
@@ -169,7 +169,7 @@ public class OurHIT implements Comparable
 	
 	public boolean isEqual(Object otherHIT)
 	{
-		return this.ID.equals(((OurHIT)otherHIT).ID);
+		return this.ID.equals(((SentenceHIT)otherHIT).ID);
 	}
 
 }
