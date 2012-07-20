@@ -588,8 +588,9 @@ public class LexicalSubSurvey
 			splitHITs();
 			double entropy =0;
 			double avgEntropy = 0;
-			for (SentenceHIT currentHit: contextHITs1){
-				entropy = currentHit.entropy;
+			int i;
+			for (i = 0; i<contextHITs1.size(); i ++){
+				entropy = Math.round((Math.abs(contextHITs1.get(i).entropy - noContextHITs2.get(i).entropy))*1000)/1000.0;
 				avgEntropy += entropy;
 				if (entropyContextFreq.containsKey(entropy)){
 					entropyContextFreq.put(entropy, entropyContextFreq.get(entropy) + 1);
@@ -597,28 +598,28 @@ public class LexicalSubSurvey
 					entropyContextFreq.put(entropy, (double) 1);
 				} 
 			}
-			avgEntropy = avgEntropy / contextHITs1.size();
+			avgEntropy = Math.round((avgEntropy / contextHITs1.size())*1000)/1000.0;
 			if (entropyAvgContextFreq.containsKey(entropy)){
 				entropyAvgContextFreq.put(entropy, entropyAvgContextFreq.get(entropy) + 1);
 			}else {
 				entropyAvgContextFreq.put(entropy, (double) 1);
 			}
-			avgEntropy = 0;
-			for (SentenceHIT currentHit: noContextHITs1){
-				entropy = currentHit.entropy;
-				avgEntropy += entropy;
-				if (entropyNoContextFreq.containsKey(entropy)){
-					entropyNoContextFreq.put(entropy, entropyNoContextFreq.get(entropy) + 1);
-				}else {
-					entropyNoContextFreq.put(entropy, (double) 1);
-				} 
-			}
-			avgEntropy = avgEntropy / contextHITs1.size();
-			if (entropyAvgNoContextFreq.containsKey(entropy)){
-				entropyAvgNoContextFreq.put(entropy, entropyAvgNoContextFreq.get(entropy) + 1);
-			}else {
-				entropyAvgNoContextFreq.put(entropy, (double) 1);
-			}
+//			avgEntropy = 0;
+//			for (i = 0; i<noContextHITs1.size(); i ++){
+//				entropy = Math.round((Math.abs(noContextHITs1.get(i).entropy - noContextHITs2.get(i).entropy))*1000)/1000.0;
+//				avgEntropy += entropy;
+//				if (entropyNoContextFreq.containsKey(entropy)){
+//					entropyNoContextFreq.put(entropy, entropyNoContextFreq.get(entropy) + 1);
+//				}else {
+//					entropyNoContextFreq.put(entropy, (double) 1);
+//				} 
+//			}
+//			avgEntropy = Math.round((avgEntropy / noContextHITs1.size())*1000)/1000.0;
+//			if (entropyAvgNoContextFreq.containsKey(entropy)){
+//				entropyAvgNoContextFreq.put(entropy, entropyAvgNoContextFreq.get(entropy) + 1);
+//			}else {
+//				entropyAvgNoContextFreq.put(entropy, (double) 1);
+//			}
 //			double coeff = round( getMirrorPearsonCoeff(contextHITs1, contextHITs2) );
 //			if (pearsonContextFreq.containsKey(coeff)){
 //				pearsonContextFreq.put(coeff, pearsonContextFreq.get(coeff) + 1);
@@ -656,30 +657,30 @@ public class LexicalSubSurvey
 //				pearsonFreq.put(coeff, (double) 1);
 //			}
 		}
-		output.println("Entropy Context");
+		output.println("Entropy Context-No Context");
 		for (double coefficient : entropyContextFreq.keySet() )
 		{
 			output.printf(coefficient + ", %.8f", entropyContextFreq.get(coefficient));
 			output.println();
 		}
-		output.println("Entropy Avg Context");
+		output.println("Entropy Avg Context-No Context");
 		for (double coefficient : entropyAvgContextFreq.keySet() )
 		{
 			output.printf(coefficient + ", %.8f", entropyAvgContextFreq.get(coefficient));
 			output.println();
 		}
-		output.println("Entropy NoContext");
-		for (double coefficient : entropyNoContextFreq.keySet() )
-		{
-			output.printf(coefficient + ", %.8f", entropyNoContextFreq.get(coefficient));
-			output.println();
-		}
-		output.println("Entropy AvgNoContext");
-		for (double coefficient : entropyAvgNoContextFreq.keySet() )
-		{
-			output.printf(coefficient + ", %.8f", entropyAvgNoContextFreq.get(coefficient));
-			output.println();
-		}
+//		output.println("Entropy NoContext");
+//		for (double coefficient : entropyNoContextFreq.keySet() )
+//		{
+//			output.printf(coefficient + ", %.8f", entropyNoContextFreq.get(coefficient));
+//			output.println();
+//		}
+//		output.println("Entropy AvgNoContext");
+//		for (double coefficient : entropyAvgNoContextFreq.keySet() )
+//		{
+//			output.printf(coefficient + ", %.8f", entropyAvgNoContextFreq.get(coefficient));
+//			output.println();
+//		}
 //		output.println("Pearson Context");
 //		for (double coefficient : pearsonContextFreq.keySet() )
 //		{
@@ -1319,7 +1320,7 @@ public class LexicalSubSurvey
 					app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/noContextAnswerOutput.cleaned"), 50);
 //						PrintWriter noContextEntropyOut = new PrintWriter(new FileOutputStream(new File("noContextEntropy"+i+".data.csv")));
 //						PrintWriter contextEntropyOut = new PrintWriter(new FileOutputStream(new File("contextEntropy"+i+".data.csv")));
-						PrintWriter samplingData = new PrintWriter(new FileOutputStream(new File("entropySampling.data.csv")));
+						PrintWriter samplingData = new PrintWriter(new FileOutputStream(new File("entropyContext-NoContext.data.csv")));
 //						
 						
 						
