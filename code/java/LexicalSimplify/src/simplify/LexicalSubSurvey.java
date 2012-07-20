@@ -1446,6 +1446,59 @@ public class LexicalSubSurvey
 					System.out.println("Kullback-Liebler from no context: " + kLIndicatorNoContext/app.noContextHITs.size());
 					System.out.println("percentage of top submissions that match: " + topMatch/app.noContextHITs.size());
 					similarity.close();
+				}else if (args[0].equals("-checkSimilarityChange")){
+						System.out.println("gathering data...");
+						// IDs are usually stored in these files: NoContextGivenIDs, NoTargetGivenIDs, ContextGivenIDs 
+						
+						for (int i = 5 ; i < 51 ; i += 5)
+						{
+							app.contextHITs.clear();
+							app.noContextHITs.clear();
+						app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/contextAnswerOutput.cleaned"), 50);
+						app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/noContextAnswerOutput.cleaned"), 50);
+//							PrintWriter noContextEntropyOut = new PrintWriter(new FileOutputStream(new File("noContextEntropy"+i+".data.csv")));
+							PrintWriter contextEntropyOut = new PrintWriter(new FileOutputStream(new File("CosineSimilarity"+i+".data.csv")));
+							PrintWriter samplingData = new PrintWriter(new FileOutputStream(new File("Overlap" + i +".data.csv")));
+//							
+							
+							
+//							for ( OurHIT currentHIT : app.contextHITs)
+//							{
+//								contextEntropyOut.println(currentHIT.targetWord + "," + currentHIT.entropy);
+//							}
+//							for ( OurHIT currentHIT : app.noContextHITs)
+//							{
+//								noContextEntropyOut.println(currentHIT.targetWord + "," + currentHIT.entropy);
+//							}
+//							
+//							System.out.println(i + "\t" + app.getPearsonCoeff() + "\t" + app.getSpearmanCoeff() );
+							
+//							if ( i == 50 )
+//							{
+								app.runEntropySampling(samplingData);
+//							}
+								
+//								app.splitHITs();
+//								for (int k = 0 ; k < 24 ; k++)
+//								{
+//									mirrorData.println(app.contextHITs1.get(k).targetWord + "," + app.contextHITs1.get(k).entropy + "," 
+//											+ app.contextHITs2.get(k).targetWord + "," + app.contextHITs2.get(k).entropy);
+//								}
+//								System.out.println("no context");
+//								for (int j = 0 ; j < 24 ; j++)
+//								{
+//									mirrorData.println(app.noContextHITs1.get(j).targetWord + "," + app.noContextHITs1.get(j).entropy + "," 
+//															+ app.noContextHITs2.get(j).targetWord + "," + app.noContextHITs2.get(j).entropy);
+//								}
+//								System.out.println("25-25 context Spearman : " + app.getMirrorSpearmanCoeff(app.contextHITs1, app.contextHITs2));
+//								System.out.println("25-25 context Pearson : " + app.getMirrorPearsonCoeff(app.contextHITs1, app.contextHITs2));
+//								System.out.println("25-25 no context Spearman : " + app.getMirrorSpearmanCoeff(app.noContextHITs1, app.noContextHITs2));
+//								System.out.println("25-25 no context Pearson : " + app.getMirrorPearsonCoeff(app.noContextHITs1, app.noContextHITs2));
+//							}
+							samplingData.close();
+//							noContextEntropyOut.close();
+//							contextEntropyOut.close();
+						}
 				} else if (args[0].equals("-StandardStat")){
 					PrintWriter statData = new PrintWriter(new FileOutputStream(new File("statData.csv")));
 					app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/contextAnswerOutput.cleaned"), 50);
