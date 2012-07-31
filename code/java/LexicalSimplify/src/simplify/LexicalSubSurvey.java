@@ -917,7 +917,7 @@ public class LexicalSubSurvey
 		q += "      else {document.getElementById(\"submit_button\").disabled = false;";
 		q += "		  document.getElementById(\"answer\").disabled = false; }";
 		q += "		function validateForm(){";
-		q += "			if (document.getElementById(\"answer\").value == null || document.getElementById(\"answer\").value.trim() == \"\"){";
+		q += "			if (document.getElementById(\"answer\").value == null || document.getElementById(\"answer\").value.replace(\" \", \"\") == \"\"){";
 		q += " 				alert(\"Please provide a word.\"";
 		q += " 				return false;";
 		q += " 			}";
