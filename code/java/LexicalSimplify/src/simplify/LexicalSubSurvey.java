@@ -11,7 +11,10 @@ import com.amazonaws.mturk.requester.Locale;
 import com.amazonaws.mturk.requester.QualificationRequirement;
 
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -49,7 +52,7 @@ public class LexicalSubSurvey
 		"Replace a word with a simple substitute.";
 	private String partialContextDescription = 
 		"Replace a word with a simple substitute with partial context provided.";
-	private int numAssignments = 10;
+	private int numAssignments = 50;
 	private double reward = 00.02;
 
 	// define the writers for storage of HIT IDs
@@ -133,7 +136,7 @@ public class LexicalSubSurvey
 					noTargetGivenSub(firstSentence, word, secondSentence),
 					reward,
 					(long)300,
-					(long)432000, (long)172800, numAssignments,
+					(long)432000, (long)259200, numAssignments,
 					"", requirements, null);
 
 			// Print out the HITId and the URL to view the HIT.
@@ -164,7 +167,7 @@ public class LexicalSubSurvey
 							firstSentence, word, secondSentence, sense, POS),
 							reward,
 							(long)300,
-							(long)432000, (long)172800, numAssignments,
+							(long)432000, (long)259200, numAssignments,
 							"", requirements, null);
 
 
@@ -195,7 +198,7 @@ public class LexicalSubSurvey
 							partialFirst, target, partialSecond),
 							reward,
 							(long)300,
-							(long)432000, (long)172800, numAssignments,
+							(long)432000, (long)259200, numAssignments,
 							"", requirements, null);
 
 
@@ -408,7 +411,7 @@ public class LexicalSubSurvey
 				String[] words = inputLine.split("\t");
 				ArrayList<String> answers = new ArrayList<String>(10);
 				String typeID = "";
-				for ( int i = 3; i < 3 + numAssignments ; i++)
+				for ( int i = 3; i < 3 + numAssignments; i++)
 				{
 					if ( i < words.length )
 					{
@@ -778,6 +781,7 @@ public class LexicalSubSurvey
 				noContextFreq.add( getCosineSimilarity(noContextHITs1.get(i), noContextHITs2.get(i)) );
 			}
 
+		
 			
 		}
 	}
@@ -1058,9 +1062,12 @@ public class LexicalSubSurvey
 
 					ExamplePairReader reader = new ExamplePairReader(PARSED, ALIGN);
 					BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(inputFile))); // typical file name: "sub.simple.first100"
-					app.noContextpr = new PrintWriter(new FileOutputStream(new File("NoContextGivenIDs")));
-					app.partialContextpr = new PrintWriter(new FileOutputStream(new File("partialContextIDs")));
-					app.contextpr = new PrintWriter(new FileOutputStream(new File("ContextGivenIDs")));
+					DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-ddHH:mm:ss");
+					Date date = new Date();
+					
+					app.noContextpr = new PrintWriter(new FileOutputStream(new File(inputFile.getName() + "NoContextGivenIDs" + dateFormat.format(date) )));
+					app.partialContextpr = new PrintWriter(new FileOutputStream(new File(inputFile.getName() + "partialContextIDs" + dateFormat.format(date) )));
+					app.contextpr = new PrintWriter(new FileOutputStream(new File(inputFile.getName() +"ContextGivenIDs" + dateFormat.format(date) )));
 
 					Map<String, String> codeToPOS = new HashMap<String, String>(14);
 					codeToPOS.put("NN", "Noun");
@@ -1086,6 +1093,7 @@ public class LexicalSubSurvey
 					String context = "";
 					String simpleWord;
 					while (input != null){
+//						System.out.println(input);
 						StringTokenizer splitter = new StringTokenizer(input, "\t");
 						context = splitter.nextToken();
 						splitter.nextToken();
@@ -1100,7 +1108,7 @@ public class LexicalSubSurvey
 						input = in.readLine();
 					}
 
-					for( int k = 0; k <1000; k++ ){ // for counted input
+					for( int k = 0; k <1000000 && reader.hasNext(); k++ ){ // for counted input
 						//						while ( input != null ){ // for text input
 						//						while ( reader.hasNext() ){ // for ExamplePairReader input	
 						ExamplePair p = reader.next();
@@ -1166,9 +1174,9 @@ public class LexicalSubSurvey
 									}
 								}
 
-								app.createContextGivenSurvey(firstPart, target, secondPart);
+//								app.createContextGivenSurvey(firstPart, target, secondPart);
 								app.createPartialContextGivenSurvey(partialFirst, target, partialSecond);
-								app.createNoContextGivenSurvey(firstPart, target, secondPart, sense, POS);
+//								app.createNoContextGivenSurvey(firstPart, target, secondPart, sense, POS);
 							}
 						}
 
@@ -1320,8 +1328,13 @@ public class LexicalSubSurvey
 					app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/noContextAnswerOutput.cleaned"), 50);
 //						PrintWriter noContextEntropyOut = new PrintWriter(new FileOutputStream(new File("noContextEntropy"+i+".data.csv")));
 //						PrintWriter contextEntropyOut = new PrintWriter(new FileOutputStream(new File("contextEntropy"+i+".data.csv")));
-						PrintWriter samplingData = new PrintWriter(new FileOutputStream(new File("entropyContext-NoContext.data.csv")));
-//						
+						PrintWriter samplingData = new PrintWriter(new FileOutputStream(new File("SimilarityDataSecond25sample.csv")));
+					for (int i = 0; i <24; i++){
+						SentenceHIT contextHit = app.contextHITs.get(i);
+						SentenceHIT noContextHit = app.noContextHITs.get(i);
+						samplingData.println(contextHit.targetWord + ", Cosine:, " + app.getCosineSimilarity(contextHit, noContextHit));
+						samplingData.println(contextHit.targetWord + ", Overlap:, " + app.getOverlap(contextHit, noContextHit));
+					}
 						
 						
 //						for ( OurHIT currentHIT : app.contextHITs)
@@ -1337,7 +1350,7 @@ public class LexicalSubSurvey
 						
 //						if ( i == 50 )
 //						{
-							app.runEntropySampling(samplingData);
+//							app.runEntropySampling(samplingData);
 //						}
 							
 //							app.splitHITs();
@@ -1454,12 +1467,18 @@ public class LexicalSubSurvey
 						{
 							app.contextHITs.clear();
 							app.noContextHITs.clear();
-						app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/contextAnswerOutput.cleaned"), 50);
-						app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/noContextAnswerOutput.cleaned"), 50);
+						app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/contextAnswerOutput.cleaned"), i);
+						app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/noContextAnswerOutput.cleaned"), i);
 //							PrintWriter noContextEntropyOut = new PrintWriter(new FileOutputStream(new File("noContextEntropy"+i+".data.csv")));
-							PrintWriter contextEntropyOut = new PrintWriter(new FileOutputStream(new File("CosineSimilarity"+i+".data.csv")));
-							PrintWriter samplingData = new PrintWriter(new FileOutputStream(new File("Overlap" + i +".data.csv")));
+							PrintWriter noContextHighFreqData = new PrintWriter(new FileOutputStream(new File("HighestNoContextFreq"+i+".data.csv")));
+							PrintWriter contextHighFreqData = new PrintWriter(new FileOutputStream(new File("HighestContextFreq" + i +".data.csv")));
 //							
+							for (SentenceHIT contextHit: app.contextHITs){
+								contextHighFreqData.println(contextHit.targetWord + "\t" + contextHit.highestFreq);
+							}
+							for (SentenceHIT noContextHit: app.noContextHITs){
+								noContextHighFreqData.println(noContextHit.targetWord + "\t" + noContextHit.highestFreq);
+							}
 							
 							
 //							for ( OurHIT currentHIT : app.contextHITs)
@@ -1475,7 +1494,7 @@ public class LexicalSubSurvey
 							
 //							if ( i == 50 )
 //							{
-								app.runEntropySampling(samplingData);
+//								app.runEntropySampling(samplingData);
 //							}
 								
 //								app.splitHITs();
@@ -1495,7 +1514,8 @@ public class LexicalSubSurvey
 //								System.out.println("25-25 no context Spearman : " + app.getMirrorSpearmanCoeff(app.noContextHITs1, app.noContextHITs2));
 //								System.out.println("25-25 no context Pearson : " + app.getMirrorPearsonCoeff(app.noContextHITs1, app.noContextHITs2));
 //							}
-							samplingData.close();
+							contextHighFreqData.close();
+							noContextHighFreqData.close();
 //							noContextEntropyOut.close();
 //							contextEntropyOut.close();
 						}
@@ -1540,7 +1560,9 @@ public class LexicalSubSurvey
 						data = app.noContextHITs;
 //					for (int x = 0; x<1000; x++){
 					for (SentenceHIT currentHit: data){
+						for (SentenceHIT currentContextHit: app.contextHITs){
 						ArrayList<String> currentAnswers = new ArrayList<String>(currentHit.answers);
+						ArrayList<String> currentContextAnswers = new ArrayList<String>(currentContextHit.answers);
 						ArrayList<String> current1Answers = new ArrayList<String>();
 						ArrayList<String> current2Answers = new ArrayList<String>();
 						for (int i =0; i<24; i++){
@@ -1601,6 +1623,7 @@ public class LexicalSubSurvey
 //							similarity.println("Overlap, " + currentHit1.targetWord + ", " + weightMatched/(double)Math.min(currentHit1.answers.size(), currentHit2.answers.size()));
 						}
 					}
+						}
 					}
 					similarity.println("Overlap:, " + (double)Math.round((overlapIndicator/overlapDivisor)*1000)/1000.0);
 					//						similarity.println((2.0*overlapIndicator)/sorensen);
