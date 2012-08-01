@@ -21,11 +21,11 @@ secret_key=NNFKv0HEAXYBEn1z4wOao7h9PtzmppeozzceGuMO
 #
 # If you want to test your solution in the Amazon Mechanical Turk Developers Sandbox (http://sandbox.mturk.com)
 # use the service_url defined below:
-#service_url=https://mechanicalturk.sandbox.amazonaws.com/?Service=AWSMechanicalTurkRequester
+service_url=https://mechanicalturk.sandbox.amazonaws.com/?Service=AWSMechanicalTurkRequester
 
 # If you want to have your solution work against the Amazon Mechnical Turk Production site (http://www.mturk.com)
 # use the service_url defined below:
-service_url=https://mechanicalturk.amazonaws.com/?Service=AWSMechanicalTurkRequester
+#service_url=https://mechanicalturk.amazonaws.com/?Service=AWSMechanicalTurkRequester
 
 #list of comma separated retriable errors which will be retried by RetryFilter
 retriable_errors=Server.ServiceUnavailable
