@@ -105,7 +105,7 @@ public class LexicalSubSurvey
 					contextGivenSub(firstSentence, word, secondSentence),
 					reward,
 					(long)300,
-					(long)432000, (long)172800, numAssignments,
+					(long)432000, (long)345600, numAssignments,
 					"", requirements, null
 			);
 
@@ -1072,9 +1072,9 @@ public class LexicalSubSurvey
 					DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-ddHH:mm:ss");
 					Date date = new Date();
 					
-					app.noContextpr = new PrintWriter(new FileOutputStream(new File(inputFile.getName() + "NoContextGivenIDs" + dateFormat.format(date) )));
+//					app.noContextpr = new PrintWriter(new FileOutputStream(new File(inputFile.getName() + "NoContextGivenIDs" + dateFormat.format(date) )));
 //					app.partialContextpr = new PrintWriter(new FileOutputStream(new File(inputFile.getName() + "partialContextIDs" + dateFormat.format(date) )));
-//					app.contextpr = new PrintWriter(new FileOutputStream(new File(inputFile.getName() +"ContextGivenIDs" + dateFormat.format(date) )));
+					app.contextpr = new PrintWriter(new FileOutputStream(new File(inputFile.getName() +"ContextGivenIDs" + dateFormat.format(date) )));
 
 					Map<String, String> codeToPOS = new HashMap<String, String>(14);
 					codeToPOS.put("NN", "Noun");
@@ -1191,8 +1191,8 @@ public class LexicalSubSurvey
 						// input = in.readLine();
 					}
 					app.contextpr.close();
-					app.partialContextpr.close();
-					app.noContextpr.close();
+//					app.partialContextpr.close();
+//					app.noContextpr.close();
 
 				}else if (args[0].equals("-delete")){
 					System.out.println("deleting");
