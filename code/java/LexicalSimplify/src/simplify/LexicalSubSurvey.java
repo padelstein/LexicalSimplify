@@ -106,7 +106,7 @@ public class LexicalSubSurvey
 					reward,
 					(long)300,
 					(long)432000, (long)345600, numAssignments,
-					"", requirements, null
+					word, requirements, null
 			);
 
 			// Print out the HITId and the URL to view the HIT.
@@ -168,7 +168,7 @@ public class LexicalSubSurvey
 							reward,
 							(long)300,
 							(long)432000, (long)259200, numAssignments,
-							"", requirements, null);
+							word, requirements, null);
 
 
 			// Print out the HITId and the URL to view the HIT.
@@ -199,7 +199,7 @@ public class LexicalSubSurvey
 							reward,
 							(long)300,
 							(long)432000, (long)259200, numAssignments,
-							"", requirements, null);
+							target, requirements, null);
 
 
 			// Print out the HITId and the URL to view the HIT.
@@ -1385,7 +1385,7 @@ public class LexicalSubSurvey
 				} else if (args[0].equals("-checkSimilarity")){
 					app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/contextAnswerOutput.cleaned"), 50);
 					app.fillHitList(new File("/home/ependergast/LexicalSimplify/code/java/LexicalSimplify/noContextAnswerOutput.cleaned"), 50);
-					PrintWriter similarity = new PrintWriter(new FileOutputStream(new File("contextVnoContextSimilarityData.csv")));
+					PrintWriter similarity = new PrintWriter(new FileOutputStream(new File("contextSimilarityData.csv")));
 					System.out.print("Progress");
 					for (int j = 0; j < 10000; j++){
 						if (j % 500 ==0)
@@ -1405,7 +1405,7 @@ public class LexicalSubSurvey
 
 
 					for (OurHIT contextHit: app.contextHITs1){
-						for (OurHIT noContextHit: app.noContextHITs1){
+						for (OurHIT noContextHit: app.contextHITs2){
 							Map<String, Integer> contextFreq = contextHit.frequencyCounter;
 							Map<String, Integer> noContextFreq = noContextHit.frequencyCounter;
 							int weightMatched=0;
@@ -1463,7 +1463,6 @@ public class LexicalSubSurvey
 					}
 					similarity.println("Overlap: ," + overlapIndicator/overlapDivisor);
 					//						System.out.println((2.0*overlapIndicator)/sorensen);
-					similarity.println("Total Overlap: ," + overlapTotal/app.contextHITs1.size());
 					similarity.println("Cosine: ," + cosineTotal/app.contextHITs1.size());
 				}
 					similarity.close();
