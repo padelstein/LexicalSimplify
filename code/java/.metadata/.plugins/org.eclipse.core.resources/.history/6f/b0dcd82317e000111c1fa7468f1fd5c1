@@ -25,12 +25,6 @@ public class OurHIT
 	// public double entropyy25 = 0;
 	// public double entropy50 = 0;
 
-	public OurHIT(ArrayList<String> answerArray)
-	{
-		answers = answerArray;
-		calcEntropy();
-	}
-	
 	public OurHIT(String hitID, Map<String, String[]> wordToSense, int numAssignments)
 	{
 		hitID.trim();

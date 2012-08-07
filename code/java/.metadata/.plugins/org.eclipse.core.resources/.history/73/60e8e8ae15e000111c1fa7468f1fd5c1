@@ -243,7 +243,7 @@ public class LexicalSubSurvey
 	{
 		try 
 		{
-			OurHIT currentHIT = new OurHIT(hitId, wordToSense, 50);
+			OurHIT currentHIT = new OurHIT(hitId, wordToSense);
 
 			ArrayList<String>  compareList = null;
 			// Print out the HITId and the URL to view the HIT.
@@ -317,7 +317,7 @@ public class LexicalSubSurvey
 			HIT[] HITs = service.getAllReviewableHITs(null);
 			for ( HIT amazonHIT: HITs )
 			{
-				OurHIT currentHIT = new OurHIT(amazonHIT.getHITId(), wordToSense, 50);
+				OurHIT currentHIT = new OurHIT(amazonHIT.getHITId(), wordToSense);
 				ArrayList<String>  compareList = null;
 				System.out.println("Retrieved HIT: " + currentHIT.ID + " " + currentHIT.typeID );
 
@@ -421,7 +421,7 @@ public class LexicalSubSurvey
 
 				typeID = words[1];
 
-				OurHIT currentHIT = new OurHIT(words[0], typeID, words[2], answers, 50);
+				OurHIT currentHIT = new OurHIT(words[0], typeID, words[2], answers);
 
 				if ( typeID.equals("20ASTLB3L0FBPWA8FU5JZEVE5SUJV7") )
 				{
@@ -466,12 +466,12 @@ public class LexicalSubSurvey
 				currentNoContextAnswers2.add(currentNoContextAnswers.remove(hitSplitter.nextInt((48- i*2) - 1)));
 			}
 			// used quick and dirty OurHIT constructor for speed
-			OurHIT currentContextHIT1 = new OurHIT(currentContextHIT.ID, currentContextHIT.typeID, currentContextHIT.targetWord, currentContextAnswers1, 50);
-			OurHIT currentContextHIT2 = new OurHIT(currentContextHIT.ID, currentContextHIT.typeID, currentContextHIT.targetWord, currentContextAnswers2, 50);
+			OurHIT currentContextHIT1 = new OurHIT(currentContextHIT.ID, currentContextHIT.typeID, currentContextHIT.targetWord, currentContextAnswers1);
+			OurHIT currentContextHIT2 = new OurHIT(currentContextHIT.ID, currentContextHIT.typeID, currentContextHIT.targetWord, currentContextAnswers2);
 			contextHITs1.add(currentContextHIT1);
 			contextHITs2.add(currentContextHIT2);
-			OurHIT currentNoContextHIT1 = new OurHIT(currentNoContextHIT.ID, currentNoContextHIT.typeID, currentNoContextHIT.targetWord,currentNoContextAnswers1, 50);
-			OurHIT currentNoContextHIT2 = new OurHIT(currentNoContextHIT.ID, currentNoContextHIT.typeID, currentNoContextHIT.targetWord,currentNoContextAnswers2, 50);
+			OurHIT currentNoContextHIT1 = new OurHIT(currentNoContextHIT.ID, currentNoContextHIT.typeID, currentNoContextHIT.targetWord,currentNoContextAnswers1);
+			OurHIT currentNoContextHIT2 = new OurHIT(currentNoContextHIT.ID, currentNoContextHIT.typeID, currentNoContextHIT.targetWord,currentNoContextAnswers2);
 			noContextHITs1.add(currentNoContextHIT1);
 			noContextHITs2.add(currentNoContextHIT2);
 			
@@ -1577,8 +1577,8 @@ public class LexicalSubSurvey
 							current1Answers.add(currentAnswers.remove(hitSplitter.nextInt(48-i*2)));
 							current2Answers.add(currentAnswers.remove(hitSplitter.nextInt((48- i*2) - 1)));
 						}
-						OurHIT currentHit1 = new OurHIT(currentHit.ID +"1", currentHit.typeID, currentHit.targetWord, current1Answers, 50);
-						OurHIT currentHit2 = new OurHIT(currentHit.ID +"2", currentHit.typeID, currentHit.targetWord, current2Answers, 50);
+						OurHIT currentHit1 = new OurHIT(currentHit.ID +"1", currentHit.typeID, currentHit.targetWord, current1Answers);
+						OurHIT currentHit2 = new OurHIT(currentHit.ID +"2", currentHit.typeID, currentHit.targetWord, current2Answers);
 						Map<String, Integer> current1Freq = currentHit1.frequencyCounter;
 						Map<String, Integer> current2Freq = currentHit2.frequencyCounter;
 						int weightMatched=0;

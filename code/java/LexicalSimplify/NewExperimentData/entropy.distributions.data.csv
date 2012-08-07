@@ -1,0 +1,48 @@
+context entropy
+0.0, 1.00000000
+partial-context entropy
+0.0, 1.00000000
+no-context entropy
+0.0, 1.00000000
+mean context entropy
+0.0, 1.00000000
+mean partial-context entropy
+0.0, 1.00000000
+mean no-context entropy
+0.0, 1.00000000
+context entropy diff
+0.0, 1.00000000
+partial-context entropy diff
+0.0, 1.00000000
+no-context entropy diff
+0.0, 1.00000000
+top entropy diff
+0.0, 1.00000000
+basic entropy diff
+0.0, 1.00000000
+bottom entropy diff
+0.0, 1.00000000
+context entropy means of diffs
+0.0, 1.00000000
+partial-context entropy means of diffs
+0.0, 1.00000000
+no-context entropy means of diffs
+0.0, 1.00000000
+top entropy means of diffs
+0.0, 1.00000000
+basic entropy means of diffs
+0.0, 1.00000000
+bottom entropy means of diffs
+0.0, 1.00000000
+context entropy diff of means
+0.0, 1.00000000
+partial-context entropy diff of means
+0.0, 1.00000000
+no-context entropy diff of means
+0.0, 1.00000000
+top entropy diff of means
+0.0, 1.00000000
+basic entropy diff of means
+0.0, 1.00000000
+bottom entropy diff of means
+0.0, 1.00000000
