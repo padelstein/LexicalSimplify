@@ -89,7 +89,7 @@ public class OurHIT
 				amazonHIT.getHITId()
 		);
 
-		int count = 0;
+		int count = 1;
 		
 		for (Assignment ass: assignments)
 		{

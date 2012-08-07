@@ -25,35 +25,25 @@ public class OurHIT
 	// public double entropyy25 = 0;
 	// public double entropy50 = 0;
 
-	public OurHIT(ArrayList<String> answerArray)
-	{
-		answers = answerArray;
-		calcEntropy();
-	}
-	
-	public OurHIT(String hitID, Map<String, String[]> wordToSense, int numAssignments)
+	public OurHIT(String hitID, Map<String, String[]> wordToSense)
 	{
 		hitID.trim();
 		amazonHIT = service.getHIT(hitID);
 		typeID = amazonHIT.getHITTypeId();
 		ID = hitID;
 
-		calcAnswers(numAssignments);
+		calcAnswers();
 		calcTargetWord(wordToSense);
 		calcEntropy();
 
 	}
 
-	public OurHIT(String hitID, String typeID, String word, ArrayList<String> answerArray, int numAssignments)
+	public OurHIT(String hitID, String typeID, String word, ArrayList<String> answerArray)
 	{
 		ID = hitID;
 		this.typeID = typeID;
 		targetWord = word;
-		
-		for (int i = 0 ; i < numAssignments ; i++)
-		{
-			answers.add(answerArray.get(i));
-		}
+		answers = answerArray;
 
 		for (String answer: answers)
 		{

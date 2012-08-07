@@ -1,0 +1,36 @@
+Cosine context
+NaN, 1.00000000
+Cosine partial-context
+NaN, 1.00000000
+Cosine no-context
+NaN, 1.00000000
+Cosine top
+NaN, 1.00000000
+Cosine basic
+NaN, 1.00000000
+Cosine bottom
+NaN, 1.00000000
+Mean Cosine context
+Mean Cosine partial-context
+Mean Cosine no-context
+Mean Cosine top
+Mean Cosine basic
+Mean Cosine bottom
+Overlap context
+0.0, 1.00000000
+Overlap partial-context
+0.0, 1.00000000
+Overlap no-context
+0.0, 1.00000000
+Overlap top
+0.0, 1.00000000
+Overlap basic
+0.0, 1.00000000
+Overlap bottom
+0.0, 1.00000000
+Mean Overlap context
+Mean Overlap partial-context
+Mean Overlap no-context
+Mean Overlap top
+Mean Overlap basic
+Mean Overlap bottom
