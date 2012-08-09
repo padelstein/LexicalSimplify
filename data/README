@@ -1,0 +1,5 @@
+to use DataCollection.java to get annotations from amazon run the class with the following argument line
+-amazon [contextIDsFile] [partialContextIDsFile] [noContextIDsFile] [wordToSenseFile]
+
+to use DataCollection.java to get annotations from amazon run the class with the following argument line
+-cleaned [contextAnnotationsFile] [partialContextAnnotationsFile] [noContextAnnotationsFile] [wordToSenseFile]

@@ -1019,7 +1019,7 @@ public class LexicalSubSurvey
 		q += "		  document.getElementById(\"answer\").disabled = false; }";
 		q += "		function validateForm(){";
 		q += "			if (document.getElementById(\"answer\").value == null || document.getElementById(\"answer\").value.trim() == \"\"){";
-		q += " 				alert(\"Please provide a word.\"";
+		q += " 				alert(\"Please provide a word.\");";
 		q += " 				return false;";
 		q += " 			}";
 		q += " 		}";
@@ -1072,9 +1072,9 @@ public class LexicalSubSurvey
 					DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-ddHH:mm:ss");
 					Date date = new Date();
 					
-//					app.noContextpr = new PrintWriter(new FileOutputStream(new File(inputFile.getName() + "NoContextGivenIDs" + dateFormat.format(date) )));
-//					app.partialContextpr = new PrintWriter(new FileOutputStream(new File(inputFile.getName() + "partialContextIDs" + dateFormat.format(date) )));
 					app.contextpr = new PrintWriter(new FileOutputStream(new File(inputFile.getName() +"ContextGivenIDs" + dateFormat.format(date) )));
+//					app.partialContextpr = new PrintWriter(new FileOutputStream(new File(inputFile.getName() + "partialContextIDs" + dateFormat.format(date) )));
+//					app.noContextpr = new PrintWriter(new FileOutputStream(new File(inputFile.getName() + "NoContextGivenIDs" + dateFormat.format(date) )));
 
 					Map<String, String> codeToPOS = new HashMap<String, String>(14);
 					codeToPOS.put("NN", "Noun");

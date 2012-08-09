@@ -28,6 +28,15 @@ public class OurHIT
 	public OurHIT(ArrayList<String> answerArray)
 	{
 		answers = answerArray;
+		
+		for (String answer: answers)
+		{
+			if (frequencyCounter.containsKey(answer))
+				frequencyCounter.put(answer, frequencyCounter.get(answer) + 1);
+			else
+				frequencyCounter.put(answer, 1);
+		}
+		
 		calcEntropy();
 	}
 	
