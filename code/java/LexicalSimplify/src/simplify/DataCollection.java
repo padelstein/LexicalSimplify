@@ -22,9 +22,7 @@ import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 
 import com.amazonaws.mturk.requester.Assignment;
 import com.amazonaws.mturk.requester.AssignmentStatus;
-import com.amazonaws.mturk.service.axis.RequesterService;
 import com.amazonaws.mturk.service.exception.ServiceException;
-import com.amazonaws.mturk.util.PropertiesClientConfig;
 
 public class DataCollection {
 
@@ -42,13 +40,17 @@ public class DataCollection {
 	// stores all the workers that have provided annotations
 	private ArrayList<Worker> workers = new ArrayList<Worker>();
 
-	// constructor
+	/** 
+	 * Basic constructor
+	 */
 	public DataCollection()
 	{
-		new RequesterService(new PropertiesClientConfig());
 	}
 
-	// compiles worker data for single HIT
+	/** Compiles worker data for single given HIT
+	 * 
+	 * @param an OurHIT
+	 */
 	public void fillWorkerArray(OurHIT currentHIT)
 	{
 		for (Assignment assignment: currentHIT.assignments ){
@@ -83,7 +85,15 @@ public class DataCollection {
 		}
 	}
 
-	// retrieves HITs from amazon and processes them
+	/** Retrieves HITs directly from Amazon Mechanical Turk database and processes them
+	 * 
+	 * @param Word to sense map
+	 * @param Context HIT Ids file
+	 * @param Partial context HIT Ids file
+	 * @param No context HIT Ids file
+	 * @param Number of annotations
+	 * @throws IOException
+	 */
 	public void getHITsFromAmazon(Map<String, String[]> wordToSense, File contextIDfile, File partialContextIDfile, File noContextIDfile, int numAnnotations) throws IOException
 	{
 		// instantiate the ID file readers
@@ -165,7 +175,43 @@ public class DataCollection {
 		}
 	}
 
-	// fills the HIT arrays if we have files of cleaned annotations separated by environment 
+	
+	/**Prints out the top submissions for each hit where a top submissions is one having 10 or more, uses the given list of hits and print writer
+	 * 
+	 * @param List of HITs
+	 * @param PrintWriter to output to
+	 */
+	public void getTopSubs(ArrayList<OurHIT> hitList, PrintWriter output){
+		for (OurHIT currentHIT: hitList) {
+			output.println(currentHIT.targetWord + "\t");
+			String wordList = "";
+			boolean topAnswers = false;
+			for (String text: currentHIT.frequencyCounter.keySet()){
+				int freq = currentHIT.frequencyCounter.get(text);
+				if (freq >=3){
+					if(!topAnswers)
+						output.print("Top submissions were: ");
+					output.print(text + ": " + freq + " ");
+					topAnswers = true;
+				} else
+					wordList += text + ": " + freq + " ";
+			}
+			if (!topAnswers){
+				output.print("No majority submission, all submissions are: " + wordList);
+			}
+			output.println();
+		}
+	}
+	
+	/**  Fills the HIT arrays (contextHITs, partialContextHIts and noContextHITs) using annotations in the given files 
+	 *  
+	 * @param Word to sense map
+	 * @param File containing context HIT annotations
+	 * @param File containing partial context HIT annotations
+	 * @param File containing no context HIT annotations
+	 * @param Number of annotations
+	 * @throws IOException
+	 */
 	public void getHITsFromFiles(Map<String, String[]> wordToSense, File contextFile, File partialContextFile, File noContextFile, int numAnnotations) throws IOException
 	{
 		// instantiate the annotation file readers
@@ -281,7 +327,10 @@ public class DataCollection {
 		}
 	}
 
-	// randomly splits each target word's annotations in half
+	/**
+	 * Randomly splits each target word's annotations in half taken from the values in the ArrayLists contextHITs, partialContextHITs and noContextHITs
+	 * Used for random sampling of data
+	 */
 	public void splitHITs()
 	{
 		// clear the the arrays that hold the randomly split HITs
@@ -352,6 +401,12 @@ public class DataCollection {
 		}
 	}
 
+	/** Calculates and returns the Pearson coefficient for the two given lists of HITs
+	 * 
+	 * @param First list of HITs
+	 * @param Second list of HITs
+	 * @return a double representing the Pearson coefficient between the two HITs
+	 */
 	public double getPearsonCoeff(ArrayList<OurHIT> list1, ArrayList<OurHIT> list2)
 	{
 		double answer = 0;
@@ -369,6 +424,12 @@ public class DataCollection {
 		return answer;
 	}
 
+	/** Calculates and returns the Spearman coefficient for the two given lists of HITs
+	 * 
+	 * @param First list of HITs
+	 * @param Second list of HITs
+	 * @return a double representing the Spearman coefficient between the two HITs
+	 */
 	public double getSpearmanCoeff(ArrayList<OurHIT> list1, ArrayList<OurHIT> list2)
 	{
 		double answer = 0;
@@ -386,6 +447,12 @@ public class DataCollection {
 		return answer;
 	}
 
+	/** Calculates and returns the overlap coefficient for the two given HITs
+	 * 
+	 * @param First HIT
+	 * @param Second HIT
+	 * @return a double representing the overlap similarity between the two HITs
+	 */
 	public double getOverlap(OurHIT contextHit, OurHIT noContextHit){
 		Map<String, Integer> contextFreq = contextHit.frequencyCounter;
 		Map<String, Integer> noContextFreq = noContextHit.frequencyCounter;
@@ -409,6 +476,12 @@ public class DataCollection {
 		return 0;
 	}
 
+	/** Calculates and return the Cosine similarity coefficient for the two given HITs
+	 * 
+	 * @param First HIT
+	 * @param Second HIT
+	 * @return a double representing the cosine similarity between the two HITs
+	 */
 	public double getCosine(OurHIT contextHit, OurHIT noContextHit){
 		Map<String, Integer> contextFreq = contextHit.frequencyCounter;
 		Map<String, Integer> noContextFreq = noContextHit.frequencyCounter;
@@ -436,6 +509,12 @@ public class DataCollection {
 		return 0;	
 	}
 
+	/** Turns the file containing information for the HITs into the a word to sense map
+	 * 
+	 * @param File that has the HIT information: Sentence, target index, target word, simple word, word sense
+	 * @return A word to sense map
+	 * @throws IOException
+	 */
 	public Map<String, String[]> getWordToSense(File senseFile) throws IOException
 	{	
 		BufferedReader senseReader = new BufferedReader(new InputStreamReader(new FileInputStream( senseFile )));
@@ -462,6 +541,18 @@ public class DataCollection {
 		return wordToSense;
 	}
 
+	/** Rounds a double to 4 decimal places
+	 * 
+	 * @param double to be rounded
+	 * @return The rounded double
+	 */
+	public static double round(double value) {
+		long factor = (long) Math.pow(10, 4);
+	    value = value * factor;
+	    long tmp = Math.round(value);
+	    return (double) tmp / factor;
+	}
+	
 	// takes context ID, partial-context ID, and no-context ID files in that order
 	public static void main(String[] args) throws IOException {
 
@@ -698,31 +789,28 @@ public class DataCollection {
 						// getting randomly split context HITs, retrieving entropy
 						OurHIT contextHIT1 = app.contextHITs1.get(j);
 						OurHIT contextHIT2 = app.contextHITs2.get(j);
-						double contextEntropy1 = contextHIT1.entropy;
-						double contextEntropy2 = contextHIT2.entropy;
-						double contextEntropyDiff = contextEntropy1 - contextEntropy2;
-
-						// trouble-shooting
-						System.out.println(contextEntropy1);
+						double contextEntropy1 = round(contextHIT1.entropy);
+						double contextEntropy2 = round(contextHIT2.entropy);
+						double contextEntropyDiff = round(contextEntropy1 - contextEntropy2);
 
 						// getting randomly split partial-context HITs, retrieving entropy
 						OurHIT partialContextHIT1 = app.partialContextHITs1.get(j);
 						OurHIT partialContextHIT2 = app.partialContextHITs2.get(j);
-						double partialContextEntropy1 = partialContextHIT1.entropy;
-						double partialContextEntropy2 = partialContextHIT2.entropy;
-						double partialContextEntropyDiff = partialContextEntropy1 - partialContextEntropy2;
+						double partialContextEntropy1 = round(partialContextHIT1.entropy);
+						double partialContextEntropy2 = round(partialContextHIT2.entropy);
+						double partialContextEntropyDiff = round(partialContextEntropy1 - partialContextEntropy2);
 
 						// getting randomly split no-context HITs, retrieving entropy
 						OurHIT noContextHIT1 = app.noContextHITs1.get(j);
 						OurHIT noContextHIT2 = app.noContextHITs2.get(j);
-						double noContextEntropy1 = noContextHIT1.entropy;
-						double noContextEntropy2 = noContextHIT2.entropy;
-						double noContextEntropyDiff = noContextEntropy1 - noContextEntropy2;
+						double noContextEntropy1 = round(noContextHIT1.entropy);
+						double noContextEntropy2 = round(noContextHIT2.entropy);
+						double noContextEntropyDiff = round(noContextEntropy1 - noContextEntropy2);
 
 						// inter-environment entropy differences
-						double topEntropyDiff = contextEntropy1 - partialContextEntropy1;
-						double basicEntropyDiff = contextEntropy1 - noContextEntropy1;
-						double bottomEntropyDiff = partialContextEntropy1 - noContextEntropy1;
+						double topEntropyDiff = round(contextEntropy1 - partialContextEntropy1);
+						double basicEntropyDiff = round(contextEntropy1 - noContextEntropy1);
+						double bottomEntropyDiff = round(partialContextEntropy1 - noContextEntropy1);
 
 						// add entropies and diffs for determining means for this random split
 						split_contextEntropy1.add(contextEntropy1);
@@ -753,12 +841,12 @@ public class DataCollection {
 						bottomEntropyDiffFreq.add(bottomEntropyDiff);
 
 						// get cosine coefficients
-						double contextCosine = app.getCosine(contextHIT1, contextHIT2);
-						double partialContextCosine = app.getCosine(partialContextHIT1, partialContextHIT2);
-						double noContextCosine = app.getCosine(noContextHIT1, noContextHIT2);
-						double topCosine = app.getCosine(contextHIT1, partialContextHIT1);
-						double basicCosine = app.getCosine(contextHIT1, noContextHIT1);
-						double bottomCosine = app.getCosine(partialContextHIT1, noContextHIT1);
+						double contextCosine = round(app.getCosine(contextHIT1, contextHIT2));
+						double partialContextCosine = round(app.getCosine(partialContextHIT1, partialContextHIT2));
+						double noContextCosine = round(app.getCosine(noContextHIT1, noContextHIT2));
+						double topCosine = round(app.getCosine(contextHIT1, partialContextHIT1));
+						double basicCosine = round(app.getCosine(contextHIT1, noContextHIT1));
+						double bottomCosine = round(app.getCosine(partialContextHIT1, noContextHIT1));
 
 						// adding to cosine distributions
 						contextCosineFreq.add(contextCosine);
@@ -767,14 +855,21 @@ public class DataCollection {
 						topCosineFreq.add(topCosine);
 						basicCosineFreq.add(basicCosine);
 						bottomCosineFreq.add(bottomCosine);
+						
+						split_contextCosine.add(contextCosine);
+						split_partialContextCosine.add(partialContextCosine);
+						split_noContextCosine.add(noContextCosine);
+						split_topCosine.add(topCosine);
+						split_basicCosine.add(basicCosine);
+						split_bottomCosine.add(bottomCosine);
 
 						// get overlap coefficients
-						double contextOverlap = app.getOverlap(contextHIT1, contextHIT2);
-						double partialContextOverlap = app.getOverlap(partialContextHIT1, partialContextHIT2);
-						double noContextOverlap = app.getOverlap(noContextHIT1, noContextHIT2);
-						double topOverlap = app.getOverlap(contextHIT1, partialContextHIT1);
-						double basicOverlap = app.getOverlap(contextHIT1, noContextHIT1);
-						double bottomOverlap = app.getOverlap(partialContextHIT1, noContextHIT1);
+						double contextOverlap = round(app.getOverlap(contextHIT1, contextHIT2));
+						double partialContextOverlap = round(app.getOverlap(partialContextHIT1, partialContextHIT2));
+						double noContextOverlap = round(app.getOverlap(noContextHIT1, noContextHIT2));
+						double topOverlap = round(app.getOverlap(contextHIT1, partialContextHIT1));
+						double basicOverlap = round(app.getOverlap(contextHIT1, noContextHIT1));
+						double bottomOverlap = round(app.getOverlap(partialContextHIT1, noContextHIT1));
 
 						// adding to overlap distributions
 						contextOverlapFreq.add(contextOverlap);
@@ -783,14 +878,6 @@ public class DataCollection {
 						topOverlapFreq.add(topOverlap);
 						basicOverlapFreq.add(basicOverlap);
 						bottomOverlapFreq.add(bottomOverlap);
-
-						// adding similarities for determining mean of this random split
-						split_contextCosine.add(contextCosine);
-						split_partialContextCosine.add(partialContextCosine);
-						split_noContextCosine.add(noContextCosine);
-						split_topCosine.add(topCosine);
-						split_basicCosine.add(basicCosine);
-						split_bottomCosine.add(bottomCosine);
 
 						split_contextOverlap.add(contextOverlap);
 						split_partialContextOverlap.add(partialContextOverlap);
@@ -802,20 +889,20 @@ public class DataCollection {
 					}
 
 					// adding to Pearson distributions
-					contextPearsonFreq.add(app.getPearsonCoeff(app.contextHITs1, app.contextHITs2));
-					partialContextPearsonFreq.add(app.getPearsonCoeff(app.partialContextHITs1, app.partialContextHITs2));
-					noContextPearsonFreq.add(app.getPearsonCoeff(app.noContextHITs1, app.noContextHITs2));
-					topPearsonFreq.add(app.getPearsonCoeff(app.contextHITs1, app.partialContextHITs1));
-					basicPearsonFreq.add(app.getPearsonCoeff(app.contextHITs1, app.noContextHITs1));
-					bottomPearsonFreq.add(app.getPearsonCoeff(app.partialContextHITs1, app.noContextHITs1));
+					contextPearsonFreq.add(round(app.getPearsonCoeff(app.contextHITs1, app.contextHITs2)));
+					partialContextPearsonFreq.add(round(app.getPearsonCoeff(app.partialContextHITs1, app.partialContextHITs2)));
+					noContextPearsonFreq.add(round(app.getPearsonCoeff(app.noContextHITs1, app.noContextHITs2)));
+					topPearsonFreq.add(round(app.getPearsonCoeff(app.contextHITs1, app.partialContextHITs1)));
+					basicPearsonFreq.add(round(app.getPearsonCoeff(app.contextHITs1, app.noContextHITs1)));
+					bottomPearsonFreq.add(round(app.getPearsonCoeff(app.partialContextHITs1, app.noContextHITs1)));
 
 					// adding to Spearman distributions
-					contextSpearmanFreq.add(app.getSpearmanCoeff(app.contextHITs1, app.contextHITs2));
-					partialContextSpearmanFreq.add(app.getSpearmanCoeff(app.partialContextHITs1, app.partialContextHITs2));
-					noContextSpearmanFreq.add(app.getSpearmanCoeff(app.noContextHITs1, app.noContextHITs2));
-					topSpearmanFreq.add(app.getSpearmanCoeff(app.contextHITs1, app.partialContextHITs1));
-					basicSpearmanFreq.add(app.getSpearmanCoeff(app.contextHITs1, app.noContextHITs1));
-					bottomSpearmanFreq.add(app.getSpearmanCoeff(app.partialContextHITs1, app.noContextHITs1));
+					contextSpearmanFreq.add(round(app.getSpearmanCoeff(app.contextHITs1, app.contextHITs2)));
+					partialContextSpearmanFreq.add(round(app.getSpearmanCoeff(app.partialContextHITs1, app.partialContextHITs2)));
+					noContextSpearmanFreq.add(round(app.getSpearmanCoeff(app.noContextHITs1, app.noContextHITs2)));
+					topSpearmanFreq.add(round(app.getSpearmanCoeff(app.contextHITs1, app.partialContextHITs1)));
+					basicSpearmanFreq.add(round(app.getSpearmanCoeff(app.contextHITs1, app.noContextHITs1)));
+					bottomSpearmanFreq.add(round(app.getSpearmanCoeff(app.partialContextHITs1, app.noContextHITs1)));
 
 					// calculating stats for this random split's means
 					split_contextEntropy1.calcStats();
@@ -847,43 +934,43 @@ public class DataCollection {
 					split_bottomOverlap.calcStats();
 
 					// adding to mean entropy distributions
-					contextMeanEntropyFreq.add(split_contextEntropy1.mean);
-					partialContextMeanEntropyFreq.add(split_partialContextEntropy1.mean);
-					noContextMeanEntropyFreq.add(split_noContextEntropy1.mean);
+					contextMeanEntropyFreq.add(round(split_contextEntropy1.mean));
+					partialContextMeanEntropyFreq.add(round(split_partialContextEntropy1.mean));
+					noContextMeanEntropyFreq.add(round(split_noContextEntropy1.mean));
 
 					// adding to mean difference distributions
-					contextEntropyMeanOfDiffFreq.add(split_contextDiff.mean);
-					partialContextEntropyMeanOfDiffFreq.add(split_partialContextDiff.mean);
-					noContextEntropyMeanOfDiffFreq.add(split_noContextDiff.mean);
-					topEntropyMeanOfDiffFreq.add(split_topDiff.mean);
-					basicEntropyMeanOfDiffFreq.add(split_basicDiff.mean);
-					bottomEntropyMeanOfDiffFreq.add(split_bottomDiff.mean);
+					contextEntropyMeanOfDiffFreq.add(round(split_contextDiff.mean));
+					partialContextEntropyMeanOfDiffFreq.add(round(split_partialContextDiff.mean));
+					noContextEntropyMeanOfDiffFreq.add(round(split_noContextDiff.mean));
+					topEntropyMeanOfDiffFreq.add(round(split_topDiff.mean));
+					basicEntropyMeanOfDiffFreq.add(round(split_basicDiff.mean));
+					bottomEntropyMeanOfDiffFreq.add(round(split_bottomDiff.mean));
 
 					// adding to difference of mean distributions
-					contextEntropyDiffOfMeanFreq.add(split_contextEntropy1.mean - split_contextEntropy2.mean);
-					partialContextEntropyDiffOfMeanFreq.add(split_partialContextEntropy1.mean - split_partialContextEntropy2.mean);
-					noContextEntropyDiffOfMeanFreq.add(split_noContextEntropy1.mean - split_noContextEntropy2.mean);
-					topEntropyDiffOfMeanFreq.add(split_contextEntropy1.mean - split_partialContextEntropy1.mean);
-					basicEntropyDiffOfMeanFreq.add(split_contextEntropy1.mean - split_noContextEntropy1.mean);
-					bottomEntropyDiffOfMeanFreq.add(split_partialContextEntropy1.mean - split_noContextEntropy1.mean);
+					contextEntropyDiffOfMeanFreq.add(round(split_contextEntropy1.mean - split_contextEntropy2.mean));
+					partialContextEntropyDiffOfMeanFreq.add(round(split_partialContextEntropy1.mean - split_partialContextEntropy2.mean));
+					noContextEntropyDiffOfMeanFreq.add(round(split_noContextEntropy1.mean - split_noContextEntropy2.mean));
+					topEntropyDiffOfMeanFreq.add(round(split_contextEntropy1.mean - split_partialContextEntropy1.mean));
+					basicEntropyDiffOfMeanFreq.add(round(split_contextEntropy1.mean - split_noContextEntropy1.mean));
+					bottomEntropyDiffOfMeanFreq.add(round(split_partialContextEntropy1.mean - split_noContextEntropy1.mean));
 
 					// adding to mean cosine distributions
-					contextMeanCosineFreq.add(split_contextCosine.mean);
-					partialContextMeanCosineFreq.add(split_partialContextCosine.mean);
-					noContextMeanCosineFreq.add(split_noContextCosine.mean);
+					contextMeanCosineFreq.add(round(split_contextCosine.mean));
+					partialContextMeanCosineFreq.add(round(split_partialContextCosine.mean));
+					noContextMeanCosineFreq.add(round(split_noContextCosine.mean));
 					// inter-environment mean cosine
-					topMeanCosineFreq.add(split_topCosine.mean);
-					basicMeanCosineFreq.add(split_basicCosine.mean);
-					bottomMeanCosineFreq.add(split_bottomCosine.mean);
+					topMeanCosineFreq.add(round(split_topCosine.mean));
+					basicMeanCosineFreq.add(round(split_basicCosine.mean));
+					bottomMeanCosineFreq.add(round(split_bottomCosine.mean));
 
 					// adding to mean overlap distributions
-					contextMeanOverlapFreq.add(split_contextOverlap.mean);
-					partialContextMeanOverlapFreq.add(split_partialContextOverlap.mean);
-					noContextMeanOverlapFreq.add(split_noContextOverlap.mean);
+					contextMeanOverlapFreq.add(round(split_contextOverlap.mean));
+					partialContextMeanOverlapFreq.add(round(split_partialContextOverlap.mean));
+					noContextMeanOverlapFreq.add(round(split_noContextOverlap.mean));
 					// inter-environment mean overlap
-					topMeanOverlapFreq.add(split_topOverlap.mean);
-					basicMeanOverlapFreq.add(split_basicOverlap.mean);
-					bottomMeanOverlapFreq.add(split_bottomOverlap.mean);
+					topMeanOverlapFreq.add(round(split_topOverlap.mean));
+					basicMeanOverlapFreq.add(round(split_basicOverlap.mean));
+					bottomMeanOverlapFreq.add(round(split_bottomOverlap.mean));
 				}
 
 				// calculating stats for entropy
@@ -1007,10 +1094,10 @@ public class DataCollection {
 				entropyDistributions.println("no-context entropy diff," + noContextEntropyDiffFreq.mean + "," + noContextEntropyDiffFreq.sd);
 				noContextEntropyDiffFreq.printCSV(entropyDistributions);
 
-				entropyDistributions.println("top entropy diff," + topEntropyDiffFreq.mean + topEntropyDiffFreq.sd);
+				entropyDistributions.println("top entropy diff," + topEntropyDiffFreq.mean + "," +  topEntropyDiffFreq.sd);
 				topEntropyDiffFreq.printCSV(entropyDistributions);
 
-				entropyDistributions.println("basic entropy diff," + basicEntropyDiffFreq + "," + basicEntropyDiffFreq.sd);
+				entropyDistributions.println("basic entropy diff," + basicEntropyDiffFreq.mean + "," + basicEntropyDiffFreq.sd);
 				basicEntropyDiffFreq.printCSV(entropyDistributions);
 
 				entropyDistributions.println("bottom entropy diff," + bottomEntropyDiffFreq.mean + "," + bottomEntropyDiffFreq.sd);
@@ -1178,7 +1265,9 @@ public class DataCollection {
 		}
 	}
 
-	// stores all the answers and HITs a worker has annotated
+	/**
+	 * Stores all the answers and HITs a worker has annotated
+	 */
 	private class Worker
 	{
 		public HashMap<String, ArrayList<String>> idToAnswer = new HashMap<String, ArrayList<String>>();
@@ -1190,6 +1279,11 @@ public class DataCollection {
 			workerId = id;
 		}
 
+		/** Adds an answer to this workers list of answers
+		 * 
+		 * @param HIT Type Id
+		 * @param answer to be added
+		 */
 		public void addAnswer(String hitTypeID, String text){
 			if (idToAnswer.containsKey(hitTypeID))
 			{
@@ -1200,6 +1294,9 @@ public class DataCollection {
 			numAnnotated++;
 		}
 
+		/** 
+		 * Returns a string consisting of the workers Id and a list of his answers
+		 */
 		public String toString()
 		{
 			String out = workerId;
@@ -1218,7 +1315,9 @@ public class DataCollection {
 		}
 	}
 
-	// general class that creates frequency distributions
+	/** 
+	 * General class that creates frequency distributions
+	 */
 	private class FrequencyCounter
 	{
 		public HashMap<Double, Double> frequency = new HashMap<Double, Double>();

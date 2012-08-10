@@ -10,7 +10,7 @@ import com.amazonaws.mturk.requester.HIT;
 import com.amazonaws.mturk.service.axis.RequesterService;
 import com.amazonaws.mturk.util.PropertiesClientConfig;
 
-public class SentenceHIT implements Comparable
+public class SentenceHIT implements Comparable<Object>
 {
 	private RequesterService service = new RequesterService(new PropertiesClientConfig());
 	public HIT amazonHIT = null;

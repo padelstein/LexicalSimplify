@@ -22,9 +22,11 @@ public class OurHIT
 	public Map<String, Integer> frequencyCounter = new HashMap<String, Integer>();
 	public int highestFreq = 0;
 	public double entropy = 0;
-	// public double entropyy25 = 0;
-	// public double entropy50 = 0;
 
+	/** Quick Constructor only takes in a list of answers for quick calculations
+	 * 
+	 * @param ArrayList of answers
+	 */
 	public OurHIT(ArrayList<String> answerArray)
 	{
 		answers = answerArray;
@@ -40,6 +42,12 @@ public class OurHIT
 		calcEntropy();
 	}
 	
+	/** Constructor makes an OurHIT using information retrieved with its Id using the word to sense map to get the target word
+	 * 
+	 * @param HIT Id
+	 * @param Word to sense map
+	 * @param Number of assignments
+	 */
 	public OurHIT(String hitID, Map<String, String[]> wordToSense, int numAssignments)
 	{
 		hitID.trim();
@@ -53,6 +61,14 @@ public class OurHIT
 
 	}
 
+	/** Full Constructor takes all information and creates a new OurHIT and fills in any necessary data Structures
+	 * 
+	 * @param HIT Id
+	 * @param HIT type Id
+	 * @param Target word
+	 * @param ArrayList of answers
+	 * @param Number of assignments
+	 */
 	public OurHIT(String hitID, String typeID, String word, ArrayList<String> answerArray, int numAssignments)
 	{
 		ID = hitID;
@@ -81,6 +97,9 @@ public class OurHIT
 		calcEntropy();
 	}
 
+	/**
+	 * Calculates the entropy for the set of Submissions
+	 */
 	public void calcEntropy()
 	{
 		for ( Integer value : frequencyCounter.values() )
@@ -91,6 +110,10 @@ public class OurHIT
 		}
 	}
 
+	/** Pulls down all the approved submissions and extracts the word from the answer HTML
+	 * 
+	 * @param Number of assignments
+	 */
 	public void calcAnswers(int numAssignments)
 	{
 		assignments = service.getAllAssignmentsForHIT
@@ -126,6 +149,10 @@ public class OurHIT
 		}
 	}
 
+	/** Figures out the target word by looking at the context or sense and using the word to sense map
+	 * 
+	 * @param Word to sense map
+	 */
 	public void calcTargetWord(Map<String, String[]> wordToSense)
 	{
 		String question = amazonHIT.getQuestion();
