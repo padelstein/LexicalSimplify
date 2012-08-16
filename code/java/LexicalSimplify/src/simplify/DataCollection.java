@@ -173,6 +173,10 @@ public class DataCollection {
 		{
 			System.err.println(e.getLocalizedMessage());
 		}
+		
+		contextIDreader.close();
+		partialContextIDreader.close();
+		noContextIDreader.close();
 	}
 
 	
@@ -325,6 +329,10 @@ public class DataCollection {
 		{
 			System.err.println(e.getLocalizedMessage());
 		}
+		
+		contextReader.close();
+		partialContextReader.close();
+		noContextReader.close();
 	}
 
 	/**
@@ -538,6 +546,8 @@ public class DataCollection {
 
 			input = senseReader.readLine();
 		}
+		
+		senseReader.close();
 		return wordToSense;
 	}
 
